@@ -7,6 +7,7 @@ export const routes = {
     `/einheiten/${unitTypeId}${variantFactionId ? `?ausfuehrung=${variantFactionId}` : ''}`,
   profile: '/profil',
   settings: '/einstellungen',
+  admin: '/admin',
   match: (matchId: string) => `/partie/${matchId}`,
   waitingRoom: (matchId: string) => `/warteraum/${matchId}`,
   invite: (token: string) => `/einladung/${token}`,

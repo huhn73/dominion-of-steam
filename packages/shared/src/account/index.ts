@@ -8,6 +8,8 @@ export interface Me {
   email: string
   /** false until the player opened the link of the verification e-mail */
   emailVerified: boolean
+  /** Sees the usage overview (`ADMIN_EMAILS` on the server) */
+  isAdmin: boolean
 }
 
 export type PresenceStatus = 'online' | 'inGame' | 'offline'

@@ -61,6 +61,12 @@ export function DatenschutzPage() {
           Ohne Bestätigung der E-Mail-Adresse werden keine Benachrichtigungen verschickt; das
           Spielen ist trotzdem möglich.
         </p>
+        <p>
+          Für den Betrieb sieht der Betreiber in einer internen Übersicht zusammengefasste
+          Nutzungszahlen (Anzahl der Konten und Partien) sowie Anzeigenamen, Registrierungs- und
+          Aktivitätszeitpunkte der Konten, ohne E-Mail-Adressen. Dafür werden keine weiteren Daten
+          erhoben.
+        </p>
       </Section>
 
       <Section title="Cookie">

@@ -10,6 +10,7 @@
     "./engine": "./src/game/engine/index.ts",
     "./compendium": "./src/compendium/index.ts",
     "./account": "./src/account/index.ts",
+    "./admin": "./src/admin/index.ts",
     "./setup": "./src/setup/index.ts",
     "./setup/*": "./src/setup/*.ts",
     "./lobby": "./src/lobby/index.ts",

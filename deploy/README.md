@@ -98,6 +98,8 @@ curl -I https://<DOMAIN>/api/health
 
 Dann im Browser registrieren. Es gibt in Produktion keine Dev-Konten und keine Demo-Partie (`DEV_TOOLS` ist aus).
 
+Die eigene Adresse in `.env` als `ADMIN_EMAILS=…` eintragen (kommagetrennt für mehrere) und `docker compose up -d app` ausführen. Dann erscheint im Benutzermenü „Verwaltung“ mit der Nutzungsübersicht unter `/admin`: Konten, Partien, Verlauf über 7/30/90 Tage, ohne E-Mail-Adressen.
+
 ## Prüfen
 
 - `https://<DOMAIN>` lädt mit gültigem Zertifikat, `http://` leitet um.

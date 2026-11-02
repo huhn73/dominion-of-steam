@@ -14,6 +14,7 @@ import { sendPasswordChanged, sendPasswordReset, sendVerification } from './acco
 import { hashPassword, verifyPassword } from './password'
 import { presenceOf } from './presence'
 import { consumeToken, hashToken, issueToken, newToken, recentlyIssued } from './tokens'
+import { isAdminEmail } from '../admin/access'
 
 /** Sessions expire after 30 days without use */
 export const SESSION_TTL_MS = 30 * 24 * 3600_000
@@ -38,6 +39,7 @@ export const toMe = (p: Player): Me => ({
   avatarUrl: p.avatarUrl,
   email: p.email,
   emailVerified: p.emailVerifiedAt !== null,
+  isAdmin: isAdminEmail(p.email),
 })
 
 export const mailUnavailable = () =>

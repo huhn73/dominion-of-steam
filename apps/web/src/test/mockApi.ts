@@ -11,6 +11,7 @@ export const testUser: Me = {
   avatarUrl: null,
   email: 'bjoern@dominion.test',
   emailVerified: true,
+  isAdmin: false,
 }
 
 type Handler = (body: unknown) => { status?: number; json: unknown }

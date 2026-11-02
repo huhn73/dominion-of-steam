@@ -38,6 +38,7 @@ export function GameLayout() {
       onOpenProfile={() => navigate(routes.profile)}
       onOpenSettings={() => navigate(routes.settings)}
       onOpenLegal={() => navigate(routes.imprint)}
+      onOpenAdmin={user?.isAdmin ? () => navigate(routes.admin) : undefined}
       onLogout={() => void logout()}
       headerExtra={<MuteButton />}
     >

@@ -26,7 +26,9 @@ export function useMe() {
 
 export function useCurrentUser(): ShellUser | undefined {
   const { data } = useMe()
-  return data ? { name: data.name, avatarUrl: data.avatarUrl ?? undefined } : undefined
+  return data
+    ? { name: data.name, avatarUrl: data.avatarUrl ?? undefined, isAdmin: data.isAdmin }
+    : undefined
 }
 
 /** Anzahl der Partien, in denen der Spieler am Zug ist (aus den Lobby-Daten) */

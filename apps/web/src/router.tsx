@@ -7,6 +7,7 @@ import { InvitePage } from './pages/lobby/InvitePage'
 import { NotFoundPage } from './pages/pages'
 import { ProfilePage } from './pages/profil/ProfilePage'
 import { SettingsPage } from './pages/profil/SettingsPage'
+import { AdminPage } from './pages/admin/AdminPage'
 import { NewMatchPage } from './pages/partie-setup/NewMatchPage'
 import { CompendiumPage } from './pages/kompendium/CompendiumPage'
 import { FactionPage } from './pages/kompendium/FactionPage'
@@ -47,6 +48,7 @@ export const routeConfig: RouteObject[] = [
           { path: '/einheiten/:unitTypeId', element: <UnitTypePage /> },
           { path: routes.profile, element: <ProfilePage /> },
           { path: routes.settings, element: <SettingsPage /> },
+          { path: routes.admin, element: <AdminPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

@@ -23,6 +23,7 @@ export interface AppShellProps {
   onOpenProfile?: () => void
   onOpenSettings?: () => void
   onOpenLegal?: () => void
+  onOpenAdmin?: () => void
   onExitGame?: () => void
   onOpenGameMenu?: () => void
   logo?: ComponentType<{ className?: string }>
@@ -43,6 +44,7 @@ export function AppShell({
   onOpenProfile,
   onOpenSettings,
   onOpenLegal,
+  onOpenAdmin,
   onExitGame,
   onOpenGameMenu,
   logo: Logo = Cog,
@@ -56,6 +58,7 @@ export function AppShell({
       onOpenProfile={onOpenProfile}
       onOpenSettings={onOpenSettings}
       onOpenLegal={onOpenLegal}
+      onOpenAdmin={onOpenAdmin}
     />
   )
 

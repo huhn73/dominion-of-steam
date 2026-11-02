@@ -2,6 +2,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 import { API_PREFIX } from '@dos/shared'
 import type { ApiError } from '@dos/shared/game'
 import type { SessionInfo } from './auth/accounts'
+import { isAdminEmail } from './admin/access'
 
 export const SESSION_COOKIE = 'dos_session'
 const SESSION_MAX_AGE_S = 30 * 24 * 3600
@@ -59,6 +60,16 @@ export const notAuthenticated = (reply: FastifyReply) =>
 /** preHandler for routes that need a logged-in player */
 export async function requireAuth(req: FastifyRequest, reply: FastifyReply) {
   if (!(await loadSession(req))) return notAuthenticated(reply)
+}
+
+/** preHandler for admin routes: 401 without session, 403 for players not in `ADMIN_EMAILS` */
+export async function requireAdmin(req: FastifyRequest, reply: FastifyReply) {
+  const info = await loadSession(req)
+  if (!info) return notAuthenticated(reply)
+  if (!isAdminEmail(info.player.email))
+    return reply.status(403).send({
+      error: { code: 'FORBIDDEN', message: 'Kein Zugriff.' },
+    } satisfies ApiError)
 }
 
 declare module 'fastify' {

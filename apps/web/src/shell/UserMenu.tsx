@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, LogOut, Scale, Settings, User } from 'lucide-react'
+import { BarChart3, ChevronDown, LogOut, Scale, Settings, User } from 'lucide-react'
 
 export interface ShellUser {
   name: string
   avatarUrl?: string
+  /** Sees the usage overview */
+  isAdmin?: boolean
 }
 
 export interface UserMenuProps {
@@ -13,6 +15,8 @@ export interface UserMenuProps {
   onOpenSettings?: () => void
   /** Opens the legal pages (imprint, privacy, licenses); the entry is hidden without it */
   onOpenLegal?: () => void
+  /** Opens the usage overview; the entry is only shown for admins (prop set) */
+  onOpenAdmin?: () => void
 }
 
 function initials(name: string) {
@@ -24,7 +28,14 @@ function initials(name: string) {
     .join('')
 }
 
-export function UserMenu({ user, onLogout, onOpenProfile, onOpenSettings, onOpenLegal }: UserMenuProps) {
+export function UserMenu({
+  user,
+  onLogout,
+  onOpenProfile,
+  onOpenSettings,
+  onOpenLegal,
+  onOpenAdmin,
+}: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -94,6 +105,11 @@ export function UserMenu({ user, onLogout, onOpenProfile, onOpenSettings, onOpen
             {onOpenLegal && (
               <button type="button" role="menuitem" onClick={select(onOpenLegal)} className={itemClass}>
                 <Scale className="size-4" /> Rechtliches
+              </button>
+            )}
+            {onOpenAdmin && (
+              <button type="button" role="menuitem" onClick={select(onOpenAdmin)} className={itemClass}>
+                <BarChart3 className="size-4" /> Verwaltung
               </button>
             )}
           </div>
