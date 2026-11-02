@@ -141,7 +141,7 @@ export function Lobby({
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {yourTurn.map((m, i) => (
-              <div key={m.id} className="animate-in fade-in slide-in-from-bottom-3 fill-mode-both" style={{ animationDelay: `${i * 80}ms` }}>
+              <div key={m.id} className="relative animate-in fade-in slide-in-from-bottom-3 fill-mode-both has-[[aria-expanded=true]]:z-10" style={{ animationDelay: `${i * 80}ms` }}>
                 <MatchCard variant="feature" {...cardProps(m)} />
               </div>
             ))}

@@ -169,7 +169,10 @@ describe('Lobby', () => {
     })
     renderApp('/')
     const region = await screen.findByRole('region', { name: 'Du bist am Zug' })
-    await userEvent.click(within(region).getByRole('button', { name: 'Weitere Aktionen' }))
+    const trigger = within(region).getByRole('button', { name: 'Weitere Aktionen' })
+    // the menu hangs below the card, so the card must not clip it
+    expect(trigger.closest('article')).not.toHaveClass('overflow-hidden')
+    await userEvent.click(trigger)
     await userEvent.click(screen.getByRole('menuitem', { name: /Aufgeben/ }))
     await userEvent.click(
       within(screen.getByRole('dialog', { name: 'Partie aufgeben?' })).getByRole('button', {

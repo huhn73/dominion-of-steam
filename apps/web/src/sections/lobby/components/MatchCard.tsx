@@ -114,11 +114,11 @@ export function MatchCard({
   if (variant === 'feature') {
     return (
       <article
-        className={`group flex flex-col overflow-hidden rounded-xl border-2 bg-white shadow-sm transition hover:shadow-xl dark:bg-stone-900 ${
+        className={`group flex flex-col rounded-xl border-2 bg-white shadow-sm transition hover:shadow-xl dark:bg-stone-900 ${
           urgent ? 'border-rose-500' : 'border-stone-200 dark:border-stone-800'
         }`}
       >
-        <div className="relative h-36 overflow-hidden">
+        <div className="relative h-36 overflow-hidden rounded-t-[10px]">
           <MiniMap rows={match.miniMap} participants={match.participants} factions={factions} className="size-full transition-transform duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/10 to-transparent" />
           <span className="absolute left-3 top-3 rounded bg-stone-950/80 px-2 py-1 font-['IBM_Plex_Mono'] text-xs font-semibold uppercase tracking-widest text-amber-300">
