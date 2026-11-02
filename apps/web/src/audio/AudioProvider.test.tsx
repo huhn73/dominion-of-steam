@@ -112,6 +112,35 @@ describe('Audio in der App', () => {
     expect(audio.music).toEqual(['menu-lobby'])
   })
 
+  it('startet die Menümusik erst mit den geladenen Einstellungen', async () => {
+    mockApi({
+      'GET /settings': () => ({ json: testSettings((s) => (s.sound.muted = true)) }),
+    })
+    const { audio } = renderApp('/')
+    await waitFor(() => expect(audio.music).toEqual(['menu-lobby']))
+    // Before the first music call the buses are already muted, never the defaults
+    const first = audio.calls.findIndex((c) => c.method === 'playMusic')
+    const before = audio.calls.slice(0, first).filter((c) => c.method === 'setVolumes')
+    expect(before.at(-1)?.args[0]).toMatchObject({ muted: true })
+  })
+
+  it('bleibt stumm, wenn eine Rechtsseite geöffnet wird', async () => {
+    mockApi({
+      'GET /settings': () => ({ json: testSettings((s) => (s.sound.muted = true)) }),
+    })
+    const { audio } = renderApp('/')
+    await screen.findByText('Björn, an allen Fronten ist es ruhig.')
+    await waitFor(() => expect(audio.volumes?.muted).toBe(true))
+    await userEvent.click(screen.getByRole('button', { name: 'Benutzermenü für Björn' }))
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Rechtliches' }))
+    await screen.findByRole('heading', { name: 'Impressum' })
+    // The music fades out, but the mute is not lifted while it does
+    const stop = audio.calls.findIndex((c) => c.method === 'stopAll')
+    expect(stop).toBeGreaterThan(-1)
+    expect(audio.calls.slice(stop).some((c) => c.method === 'setVolumes')).toBe(false)
+    expect(audio.volumes?.muted).toBe(true)
+  })
+
   it('schaltet über die Kopfzeile stumm und speichert das', async () => {
     const { calls } = mockApi({
       'PUT /settings': (body) => ({ json: { ...testSettings(), settings: body } }),

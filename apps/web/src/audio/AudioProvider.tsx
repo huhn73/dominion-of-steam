@@ -165,18 +165,22 @@ export function SignedInAudio() {
   const { pathname } = useLocation()
 
   // Volumes from the settings (defaults while they load)
-  const { data } = useSettings()
+  const { data, isError } = useSettings()
   const sound = data?.settings.sound ?? DEFAULT_SETTINGS.sound
   useEffect(() => {
     engine.setVolumes(sound)
   }, [engine, sound])
 
-  // Menu music by route
+  // Menu music by route, once the settings are there: after a login the cache is empty, and
+  // starting with the default volumes would let a muted player hear the music for a moment
   const music = musicForPath(pathname)
+  // (a failed request plays with the defaults rather than not at all)
+  const loaded = data !== undefined || isError
   useEffect(() => {
+    if (!loaded) return
     if (music) engine.playMusic(music)
     else engine.stopMusic()
-  }, [engine, music])
+  }, [engine, music, loaded])
 
   // Interface sounds: one listener for all buttons, switches and links
   useEffect(() => {
@@ -218,13 +222,8 @@ export function SignedInAudio() {
     }
   }, [engine])
 
-  // Logout: silence, back to the default volumes for the next login
-  useEffect(
-    () => () => {
-      engine.stopAll()
-      engine.setVolumes(DEFAULT_SETTINGS.sound)
-    },
-    [engine],
-  )
+  // Leaving the signed-in area (logout, legal pages): fade out. The volumes stay as they are,
+  // resetting them here would unmute the fade; the next mount sets them from the settings.
+  useEffect(() => () => engine.stopAll(), [engine])
   return null
 }

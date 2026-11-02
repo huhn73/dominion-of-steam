@@ -30,3 +30,5 @@ Vor dem ersten öffentlichen Deploy: Impressum, Datenschutzerklärung und Lizenz
 ## Standards Applied
 
 Keine formalen Standards in `agent-os/standards/`; Repo-Konventionen in `standards.md`.
+
+> **Nachtrag 2. November 2026:** „Zurück“ führt jetzt fest zur Lobby bzw. Anmeldung, die Stummschaltung bleibt beim Öffnen erhalten (`agent-os/specs/2026-11-02-1905-rechtsseiten-ton-und-zurueck/`).

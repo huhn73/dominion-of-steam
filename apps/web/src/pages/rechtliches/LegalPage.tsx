@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { AuthLayout, linkClass } from '../anmeldung/AuthLayout'
-import { useBack } from '../kompendium/useBack'
+import { Link } from 'react-router'
+import { useMe } from '../../data/session'
 import { routes } from '../../routes'
 import { STAND } from './anbieter'
 import type { LegalPageId } from './LegalLinks'
@@ -15,17 +16,23 @@ export function LegalPage({
   title: string
   children: ReactNode
 }) {
-  // Back to where the reader came from; opened directly, "/" leads to the lobby or the login
-  const back = useBack(routes.lobby)
+  // A fixed way out instead of the history: moving between the legal pages would otherwise
+  // lead back through all of them. While the session loads the lobby is the target, signed
+  // out `RequireAuth` sends it on to the login anyway.
+  const { data: me } = useMe()
+  const exit =
+    me === null
+      ? { to: routes.login, label: 'Zur Anmeldung' }
+      : { to: routes.lobby, label: 'Zur Lobby' }
   return (
     <AuthLayout
       title={title}
       width="2xl"
       legalPage={id}
       footer={
-        <button type="button" onClick={back} className={linkClass}>
-          Zurück
-        </button>
+        <Link to={exit.to} className={linkClass}>
+          {exit.label}
+        </Link>
       }
     >
       <div className="space-y-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300">

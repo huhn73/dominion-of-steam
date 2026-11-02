@@ -33,11 +33,14 @@ describe('Rechtliche Seiten', () => {
     expect(await screen.findByRole('heading', { name: 'Lizenzen' })).toBeInTheDocument()
   })
 
-  it('führt „Zurück“ ohne Verlauf zur Startseite und damit zur Anmeldung', async () => {
+  it('führt abgemeldet mit „Zur Anmeldung“ zur Anmeldung, auch nach mehreren Rechtsseiten', async () => {
     mockApi({})
     const { router } = renderApp('/datenschutz', { user: null })
     await screen.findByRole('heading', { name: 'Datenschutz' })
-    await userEvent.click(screen.getByRole('button', { name: 'Zurück' }))
+    const nav = screen.getByRole('navigation', { name: 'Rechtliches' })
+    await userEvent.click(within(nav).getByRole('link', { name: 'Lizenzen' }))
+    await screen.findByRole('heading', { name: 'Lizenzen' })
+    await userEvent.click(screen.getByRole('link', { name: 'Zur Anmeldung' }))
     expect(await screen.findByRole('heading', { name: 'Anmelden' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/anmelden')
   })
@@ -80,9 +83,13 @@ describe('Rechtliche Seiten', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: 'Rechtliches' }))
     expect(await screen.findByRole('heading', { name: 'Impressum' })).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/impressum')
-    // Opened from the menu, "Zurück" goes back to the lobby
-    await userEvent.click(screen.getByRole('button', { name: 'Zurück' }))
+    // On to the privacy notice, then straight back to the lobby, not through the imprint
+    const nav = screen.getByRole('navigation', { name: 'Rechtliches' })
+    await userEvent.click(within(nav).getByRole('link', { name: 'Datenschutz' }))
+    await screen.findByRole('heading', { name: 'Datenschutz' })
+    await userEvent.click(await screen.findByRole('link', { name: 'Zur Lobby' }))
     expect(await screen.findByText('Björn, an allen Fronten ist es ruhig.')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/')
   })
 
   it('zeigt im Spielfeld keine Fußzeile', async () => {
