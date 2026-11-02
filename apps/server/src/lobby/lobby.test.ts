@@ -132,6 +132,9 @@ describe.skipIf(!url)('Lobby & Multiplayer (Datenbank)', () => {
     })
     await ensureDevAccounts(app.accounts)
     await db.delete(matches).where(ne(matches.id, 'demo'))
+    // The demo match (seeded by other test files, Björn plays in it) must stay out of the
+    // deadline sweeps: seeded shortly before, its deadline lies next to the test match's
+    await db.update(matches).set({ turnDeadline: null }).where(eq(matches.id, 'demo'))
     await db.delete(notifications)
     await db.delete(pushSubscriptions)
     await db.delete(setupReservations)
