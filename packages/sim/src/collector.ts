@@ -30,6 +30,17 @@ export interface CombatStats {
   damageTaken: number
 }
 
+export interface NavalStats {
+  /** Cargo stepping ashore from a transport */
+  landings: number
+  /** Own turns a transport ended with cargo aboard */
+  loadedTurns: number
+  /** …of those, turns it ended on the same tile with the same cargo as the turn before */
+  loadedIdle: number
+  /** Neutral cities captured by a unit that has crossed the water on a transport */
+  overseasNeutral: number
+}
+
 export interface TurnStats {
   count: number
   totalMs: number
@@ -56,6 +67,7 @@ export interface ParticipantResult {
   finalUnits: number
   captures: CaptureStats
   combat: CombatStats
+  naval: NavalStats
   /** Units finished per unit type */
   production: Record<string, number>
   turns: TurnStats
@@ -108,6 +120,7 @@ const emptyParticipant = (p: GameJob['participants'][number]): ParticipantResult
     damageDealt: 0,
     damageTaken: 0,
   },
+  naval: { landings: 0, loadedTurns: 0, loadedIdle: 0, overseasNeutral: 0 },
   production: {},
   turns: {
     count: 0,
@@ -134,6 +147,10 @@ export class MetricsCollector {
   private turnCommands = 0
   private roundBefore = 1
   private lastSnapshotRound = 0
+  /** Units that have been aboard a transport at some point */
+  private readonly sailed = new Set<string>()
+  /** Loaded transport id → tile and cargo at the end of its owner's last turn */
+  private readonly lastLoaded = new Map<string, string>()
 
   constructor(
     state: GameState,
@@ -163,6 +180,14 @@ export class MetricsCollector {
     this.turnCommands++
     me.turns.commandsByType[cmd.type] = (me.turns.commandsByType[cmd.type] ?? 0) + 1
 
+    if (cmd.type === 'move' || cmd.type === 'goto') {
+      const before = prev.units.find((u) => u.id === cmd.unitId)
+      const after = outcome.state.units.find((u) => u.id === cmd.unitId)
+      if (before?.carriedBy) this.sailed.add(before.id)
+      if (before?.carriedBy && after && !after.carriedBy) me.naval.landings++
+    }
+    for (const u of outcome.state.units) if (u.carriedBy) this.sailed.add(u.id)
+
     const c = outcome.combat
     if (c) {
       const defender = c.defenderUnitId
@@ -190,8 +215,10 @@ export class MetricsCollector {
       if (c.captured && c.targetCityId) {
         const city = prev.cities.find((x) => x.id === c.targetCityId)
         const owner = city?.ownerId ?? null
-        if (owner === null) me.captures.neutral++
-        else {
+        if (owner === null) {
+          me.captures.neutral++
+          if (this.sailed.has(c.attackerUnitId)) me.naval.overseasNeutral++
+        } else {
           me.captures.enemy++
           this.byId.get(owner)!.captures.lost++
         }
@@ -213,6 +240,19 @@ export class MetricsCollector {
     me.turns.maxMs = Math.max(me.turns.maxMs, ms)
     me.turns.turnMs.push(Math.round(ms * 10) / 10)
     if (this.turnCommands >= AI_COMMAND_BUDGET) me.turns.budgetExhausted++
+    for (const u of this.current.units) {
+      if (u.ownerId !== me.id) continue
+      const t = unitType(u.unitTypeId)
+      if (t.domain !== 'sea' || t.cargoDomain !== 'land') continue
+      if (!u.cargoUnitIds.length) {
+        this.lastLoaded.delete(u.id)
+        continue
+      }
+      const key = `${u.col},${u.row}:${[...u.cargoUnitIds].sort().join(',')}`
+      me.naval.loadedTurns++
+      if (this.lastLoaded.get(u.id) === key) me.naval.loadedIdle++
+      this.lastLoaded.set(u.id, key)
+    }
   }
 
   /** Right before `endTurn`: the last active seat closes the round, take the snapshot */

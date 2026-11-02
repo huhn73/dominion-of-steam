@@ -20,6 +20,7 @@ import { combatOdds } from './combat'
 import { applyCommand, CommandError, type CommandOutcome } from './commands'
 import { knowledge } from './movement'
 import { factionOf, type GameState, participant, random, unitType } from './state'
+import { dominanceShare } from './victory'
 import { isCoastal } from './visibility'
 import { aiPersonality } from '../../setup/data'
 
@@ -42,6 +43,10 @@ const SPECIAL_CITIES = 6
 const RECALL_RANGE = 6
 /** What a city is worth in points; taking an enemy city also costs the opponent that much */
 const CITY_WORTH = { neutral: 3, enemy: 6 }
+/** Within this many missing cities (or this share of the own count) the dominance is in reach */
+const DOMINANCE_REACH = { cities: 3, share: 0.5 }
+/** Extra worth of a city of the dominance holder: taking it breaks the countdown */
+const BREAK_WORTH = 4
 
 /** Parameters of an AI participant: difficulty first, then lightly tweaked by the personality */
 export interface AiProfile {
@@ -82,6 +87,12 @@ export interface AiProfile {
   /** Ship land units to cities on other landmasses */
   transports: boolean
   maxTransports: number
+  /** Land units aboard before a transport sails; two are enough against an undefended neutral city */
+  departAt: number
+  /** Gunboats built to scout the sea while fog remains */
+  scoutShips: number
+  /** Aim for the victory condition 'dominance': more transports, neutral cities first, hold the lead */
+  dominanceDrive: boolean
   /** Chance to build a scout plane while fog remains and fewer than `maxScouts` are flying */
   scoutShare: number
   maxScouts: number
@@ -117,6 +128,9 @@ export function aiProfile(difficulty: Difficulty, style: readonly string[] = [])
     transports: difficulty !== 'easy',
     // Sweep on islands: a second transport wins 66 % against one, hard gains up to four
     maxTransports: difficulty === 'hard' ? 3 : 2,
+    departAt: 3,
+    scoutShips: difficulty === 'hard' ? 2 : difficulty === 'normal' ? 1 : 0,
+    dominanceDrive: difficulty !== 'easy',
     // Scouts cost more than they find (sweep: −20 points for hard); only the scout personality flies them
     scoutShare: 0,
     maxScouts: 2,
@@ -146,6 +160,7 @@ export function aiProfile(difficulty: Difficulty, style: readonly string[] = [])
         p.shipShare = Math.max(p.shipShare, 0.35) + 0.2
         p.maxShips = 4
         p.maxTransports += 1
+        p.scoutShips += 1
         p.subShare = Math.max(p.subShare, 0.3)
         p.specialShare += 0.15
         break
@@ -199,7 +214,11 @@ const FRONTIER_RADIUS = 15
 const SHORE_RADIUS = 8
 
 /** The own view plus the connected land areas of the known map (hexKey → landmass id) */
-type Knowledge = ReturnType<typeof knowledge> & { masses: Map<string, number> }
+type Knowledge = ReturnType<typeof knowledge> & {
+  masses: Map<string, number>
+  /** Who holds the dominance share right now (public, every player sees the countdown) */
+  holder: string | null
+}
 
 /** Flood fill over the known land tiles; unexplored tiles separate landmasses */
 function landmasses(view: Pick<PlayerView, 'map'>): Map<string, number> {
@@ -248,6 +267,7 @@ export function playAITurn(
     ...aiProfile(me.aiDifficulty ?? 'normal', aiPersonality(me.aiPersonalityId)?.style),
     ...options.profile,
   }
+  dominanceFocus(state, playerId, profile)
   // Work left this turn; path searches draw from it through the index's shared budget
   const work: PathBudget = { maxNodes: MAX_WORK, used: 0 }
   let budget = MAX_WORK
@@ -263,7 +283,7 @@ export function playAITurn(
     if (!cache) {
       const k = knowledge(state, playerId)
       masses ??= landmasses(k.view)
-      cache = { ...k, masses }
+      cache = { ...k, masses, holder: state.dominance?.participantId ?? null }
       // Every search on this index counts against the turn's work, capped per search
       cache.idx.pathBudget = {
         get maxNodes() {
@@ -416,6 +436,28 @@ export function playAITurn(
   return state
 }
 
+/**
+ * Adjust the turn's profile to the victory condition 'dominance'. With the share in reach the AI
+ * ships more units, sails with fewer aboard and prefers neutral cities; holding it, it guards
+ * every city with an enemy in sight. Only the number of cities is used, which the dominance
+ * reports reveal to every player anyway; where they lie the AI still has to find out.
+ */
+function dominanceFocus(state: GameState, playerId: string, profile: AiProfile) {
+  if (!profile.dominanceDrive || state.rules.victoryCondition !== 'dominance') return
+  const total = state.cities.length
+  const mine = state.cities.filter((c) => c.ownerId === playerId).length
+  const gap = Math.ceil(dominanceShare(state) * total) - mine
+  if (state.dominance?.participantId === playerId) {
+    profile.defend = true
+    profile.garrisonTarget = Math.min(profile.garrisonTarget, 2)
+  }
+  if (gap <= Math.max(DOMINANCE_REACH.cities, Math.ceil(mine * DOMINANCE_REACH.share))) {
+    profile.maxTransports += 1
+    profile.departAt = Math.min(profile.departAt, 2)
+    profile.neutralBias = Math.max(profile.neutralBias, 3)
+  }
+}
+
 function chooseProduction(
   k: Knowledge,
   state: GameState,
@@ -451,11 +493,16 @@ function chooseProduction(
   const roll = random(state)
   const special = UNIT_TYPES.find((t) => t.id === faction?.specialUnitTypeId)
   if (profile.transports && coastal) {
-    // One ship scouts the sea while fog remains: islands and their cities have to be found before
+    // Ships scout the sea while fog remains: islands and their cities have to be found before
     // any transport makes sense (without it, a seat without gunboats never leaves its home island)
     const fogLeft = view.map.visibility.includes('u')
     const landUnits = own((t) => t.domain === 'land')
-    if (fogLeft && landUnits >= 3 && own((t) => t.domain === 'sea' && !isTransport(t)) === 0)
+    const scouts = (t: UnitType) => t.domain === 'sea' && !isTransport(t)
+    if (
+      fogLeft &&
+      landUnits >= 3 &&
+      own(scouts) + building(scouts) < Math.max(1, profile.scoutShips)
+    )
       return 'kanonenboot'
     const transports = own(isTransport) + building(isTransport)
     if (
@@ -597,8 +644,56 @@ function shoreTiles(k: Knowledge, mass: number, near: HexCoord) {
   )
 }
 
+/**
+ * Cities across the water a loaded transport may sail for, best first: the city's worth plus the
+ * other cities to take on its landmass, less its visible defenders, against the distance. Cities
+ * on a landmass where the transport lies at an own pier are left out, the cargo would not land.
+ * `easy` marks a neutral city without a defender in sight.
+ */
+function transportTargets(k: Knowledge, playerId: string, unit: Unit, profile: AiProfile) {
+  const { view } = k
+  const { holder } = k
+  const piers = new Set(
+    neighbors(unit)
+      .filter((n) => view.cities.some((c) => c.ownerId === playerId && sameHex(c, n)))
+      .map((n) => massOf(k, n)),
+  )
+  const foreign = view.cities.filter((c) => c.ownerId !== playerId && massOf(k, c) !== undefined)
+  const perMass = new Map<number, number>()
+  for (const c of foreign) perMass.set(massOf(k, c)!, (perMass.get(massOf(k, c)!) ?? 0) + 1)
+  return foreign
+    .filter((c) => !piers.has(massOf(k, c)))
+    .map((city) => {
+      const defenders = view.units.filter(
+        (u) =>
+          u.ownerId !== playerId &&
+          !u.carriedBy &&
+          unitType(u.unitTypeId).domain === 'land' &&
+          hexDistance(u, city) <= 1,
+      ).length
+      const worth =
+        (city.ownerId === null ? CITY_WORTH.neutral + profile.neutralBias : CITY_WORTH.enemy) +
+        (holder && city.ownerId === holder && holder !== playerId ? BREAK_WORTH : 0) +
+        Math.min(3, perMass.get(massOf(k, city)!)! - 1) -
+        3 * defenders
+      return {
+        city,
+        easy: city.ownerId === null && defenders === 0,
+        value: Math.max(0.5, worth) / (6 + hexDistance(city, unit)),
+      }
+    })
+    .sort((a, b) => b.value - a.value)
+    .slice(0, MAX_CANDIDATES)
+}
+
 /** Where a transport goes: a pier to load at, the shore of the target, or nowhere (wait) */
-function planTransport(k: Knowledge, playerId: string, unit: Unit, type: UnitType): Command | null {
+function planTransport(
+  k: Knowledge,
+  playerId: string,
+  unit: Unit,
+  type: UnitType,
+  profile: AiProfile,
+): Command | null {
   const { view, idx } = k
   const unitId = unit.id
   const goto = (target: HexCoord): Command => ({
@@ -606,22 +701,21 @@ function planTransport(k: Knowledge, playerId: string, unit: Unit, type: UnitTyp
     unitId,
     target: { col: target.col, row: target.row },
   })
-  const loaded = unit.cargoUnitIds.length >= Math.min(3, type.capacity)
-  if (loaded) {
-    // Sail to the nearest city of others that lies on another landmass than the cargo came from
-    const targets = view.cities
-      .filter((c) => c.ownerId !== playerId && massOf(k, c) !== undefined)
-      .sort((a, b) => hexDistance(a, unit) - hexDistance(b, unit))
-      .slice(0, MAX_CANDIDATES)
-    for (const city of targets) {
-      const mass = massOf(k, city)!
-      if (neighbors(unit).some((n) => massOf(k, n) === mass)) return null // across, cargo acts
-      for (const shore of shoreTiles(k, mass, city).slice(0, MAX_CANDIDATES)) {
-        if (sameHex(shore, unit)) return null
-        if (findPath(unit, shore, idx)) return goto(shore)
+  const cargo = unit.cargoUnitIds.length
+  if (cargo >= Math.min(2, type.capacity)) {
+    const targets = transportTargets(k, playerId, unit, profile)
+    const need = Math.min(type.capacity, targets[0]?.easy ? 2 : profile.departAt)
+    if (cargo >= need) {
+      for (const { city } of targets) {
+        const mass = massOf(k, city)!
+        if (neighbors(unit).some((n) => massOf(k, n) === mass)) return null // across, cargo acts
+        for (const shore of shoreTiles(k, mass, city).slice(0, MAX_CANDIDATES)) {
+          if (sameHex(shore, unit)) return null
+          if (findPath(unit, shore, idx)) return goto(shore)
+        }
       }
+      return null
     }
-    return null
   }
   // Load at the own coastal city with the most land units close by
   const piers = view.cities
@@ -667,7 +761,30 @@ function planWarship(k: Knowledge, playerId: string, unit: Unit): Command | null
         b.cargoUnitIds.length - a.cargoUnitIds.length ||
         hexDistance(a, unit) - hexDistance(b, unit),
     )
-  const convoy = transports.find((t) => t.cargoUnitIds.length > 0) ?? transports[0]
+  // Each transport keeps its nearest warship as escort, loaded ones first; the others hunt or scout
+  const warships = view.units.filter((u) => {
+    const t = unitType(u.unitTypeId)
+    return (
+      u.ownerId === playerId &&
+      !u.carriedBy &&
+      t.domain === 'sea' &&
+      t.strength > 0 &&
+      !isTransport(t)
+    )
+  })
+  const taken = new Set<string>()
+  let convoy: Unit | undefined
+  for (const t of transports) {
+    const escort = warships
+      .filter((w) => !taken.has(w.id))
+      .sort((a, b) => hexDistance(a, t) - hexDistance(b, t))[0]
+    if (!escort) break
+    taken.add(escort.id)
+    if (escort.id === unit.id) {
+      convoy = t
+      break
+    }
+  }
   if (convoy) {
     if (hexDistance(convoy, unit) <= 1) return null
     const goal = approach(unit, convoy, idx)
@@ -695,10 +812,15 @@ function planCargo(k: Knowledge, playerId: string, unit: Unit): Command | null {
   const { view, idx } = k
   const transport = view.units.find((u) => u.id === unit.carriedBy)
   if (!transport) return null
-  const homeMasses = new Set(
-    view.cities.filter((c) => c.ownerId === playerId).map((c) => massOf(k, c)),
-  )
+  // On a landmass with own cities the cargo lands only where a foreign city is closer than an own
+  // one: a transport at an own pier is loading, one off the coast of a foreign city has arrived
+  const ownCities = view.cities.filter((c) => c.ownerId === playerId)
   const foreign = view.cities.filter((c) => c.ownerId !== playerId)
+  const nearest = (cities: typeof foreign, mass: number) =>
+    Math.min(
+      ...cities.filter((c) => massOf(k, c) === mass).map((c) => hexDistance(c, transport)),
+      Infinity,
+    )
   const landing = neighbors(transport)
     .filter((n) => {
       const t = idx.tileAt(n)
@@ -707,7 +829,7 @@ function planCargo(k: Knowledge, playerId: string, unit: Unit): Command | null {
         !!t &&
         !isWater(t.terrain) &&
         mass !== undefined &&
-        !homeMasses.has(mass) &&
+        nearest(foreign, mass) < nearest(ownCities, mass) &&
         !idx.cityAt(n) &&
         idx.unitsAt(n).every((u) => u.ownerId === playerId)
       )
@@ -739,7 +861,7 @@ function planUnit(
   const type = unitType(unit.unitTypeId)
   const cityAt = (c: HexCoord) => view.cities.find((x) => sameHex(x, c))
 
-  if (isTransport(type)) return planTransport(k, playerId, unit, type)
+  if (isTransport(type)) return planTransport(k, playerId, unit, type, profile)
 
   // Aircraft: get back to a base before the fuel runs out
   const bases = type.domain === 'air' ? airBases(view.cities, view.units, UNIT_TYPES, playerId) : []
@@ -842,8 +964,11 @@ function planUnit(
 
   // 2. Expand: march towards the nearest city that is not ours
   if (type.canCaptureCities) {
+    const { holder } = k
     const distance = (c: (typeof view.cities)[number]) =>
-      hexDistance(c, unit) - (c.ownerId === null ? profile.neutralBias : 0)
+      hexDistance(c, unit) -
+      (c.ownerId === null ? profile.neutralBias : 0) -
+      (holder && holder !== playerId && c.ownerId === holder ? BREAK_WORTH : 0)
     const cities = view.cities
       .filter((c) => c.ownerId !== playerId)
       .sort((a, b) => distance(a) - distance(b))

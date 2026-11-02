@@ -551,6 +551,109 @@ describe('KI: Transporte', () => {
     expect(inland.a?.carriedBy).toBeNull()
     expect(inland.a?.col).toBe(4)
   })
+
+  it('Ladung landet auch auf einer Insel mit eigener Stadt, wenn dort eine fremde näher liegt', () => {
+    const at = { col: 3, row: 3 }
+    const s = makeState({
+      map: ISLANDS,
+      cities: [city('home', 'p1', 1, 1), city('own', 'p1', 4, 0), city('n', null, 5, 3)],
+      units: [
+        unit('f', 'frachter', 'p1', at.col, at.row, { cargoUnitIds: ['a'], movesLeft: 0 }),
+        unit('a', 'grenadiere', 'p1', at.col, at.row, { carriedBy: 'f' }),
+      ],
+    })
+    const a = playAITurn(s, 'p1', NOW).units.find((u) => u.id === 'a')!
+    expect(a.carriedBy).toBeNull()
+    expect(a.col).toBeGreaterThanOrEqual(4)
+  })
+
+  it('Ladung bleibt am eigenen Anleger an Bord', () => {
+    const s = makeState({
+      map: ISLANDS,
+      cities: [city('home', 'p1', 1, 1), city('n', null, 0, 3), city('far', 'p2', 5, 1)],
+      units: [
+        unit('f', 'frachter', 'p1', PIER.col, PIER.row, { cargoUnitIds: ['a'], movesLeft: 0 }),
+        unit('a', 'grenadiere', 'p1', PIER.col, PIER.row, { carriedBy: 'f' }),
+      ],
+    })
+    // the neutral city on the home island is no reason to unload at the pier
+    const a = playAITurn(s, 'p1', NOW).units.find((u) => u.id === 'a')!
+    expect(a.carriedBy).toBe('f')
+  })
+
+  it('Frachter wählen die unverteidigte neutrale Insel vor einer näheren verteidigten Feindstadt', () => {
+    // Home island, a near island with a defended enemy city, a far island with a neutral one;
+    // the bottom row is open water
+    const map = ['..~~..~~~~..', '..~~..~~~~..', '..~~..~~~~..', '~~~~~~~~~~~~']
+    const s = makeState({
+      map,
+      cities: [city('home', 'p1', 1, 1), city('near', 'p2', 4, 1), city('n', null, 11, 1)],
+      units: [
+        unit('f', 'frachter', 'p1', PIER.col, PIER.row, { cargoUnitIds: ['a', 'b'] }),
+        ...['a', 'b'].map((id) =>
+          unit(id, 'grenadiere', 'p1', PIER.col, PIER.row, { carriedBy: 'f' }),
+        ),
+        unit('d1', 'panzerwagen', 'p2', 4, 1),
+        unit('d2', 'grenadiere', 'p2', 5, 1),
+        // a lookout, only defenders in sight count
+        unit('k', 'kanonenboot', 'p1', 3, 1, { movesLeft: 0 }),
+      ],
+    })
+    const f = playAITurn(s, 'p1', NOW).units.find((u) => u.id === 'f')!
+    const heading = f.order.type === 'goto' ? f.order.target : f
+    expect(heading.col).toBeGreaterThanOrEqual(9)
+  })
+
+  it('ein Kriegsschiff begleitet den Frachter, das zweite erkundet', () => {
+    const map = ['..~~~~~~', '..~~~~~~', '..~~~~~~', '..~~~~~~']
+    const s = makeState({
+      map,
+      cities: [city('home', 'p1', 1, 1), city('far', 'p2', 0, 3)],
+      units: [
+        unit('f', 'frachter', 'p1', PIER.col, PIER.row, { cargoUnitIds: ['a'], movesLeft: 0 }),
+        unit('a', 'grenadiere', 'p1', PIER.col, PIER.row, { carriedBy: 'f', movesLeft: 0 }),
+        unit('k1', 'kanonenboot', 'p1', 3, 1),
+        unit('k2', 'kanonenboot', 'p1', 3, 2),
+      ],
+      unexplored: ['7,0', '7,1', '7,2', '7,3'],
+    })
+    const after = playAITurn(s, 'p1', NOW)
+    const ships = ['k1', 'k2'].map((id) => after.units.find((u) => u.id === id)!)
+    expect(ships.filter((k) => hexDistance(k, PIER) <= 1)).toHaveLength(1)
+    expect(Math.max(...ships.map((k) => k.col))).toBeGreaterThanOrEqual(5)
+  })
+
+  it('baut mit der Vorherrschaft in Reichweite einen Frachter mehr', () => {
+    const build = (victoryCondition: 'dominance' | 'capitals') => {
+      const s = makeState({
+        map: ISLANDS,
+        rules: { victoryCondition },
+        cities: [
+          city('home', 'p1', 1, 1),
+          city('own', 'p1', 0, 3),
+          city('n1', null, 4, 0),
+          city('n2', null, 5, 3),
+        ],
+        units: [
+          unit('f1', 'frachter', 'p1', PIER.col, PIER.row),
+          unit('f2', 'frachter', 'p1', 2, 2),
+          unit('k', 'kanonenboot', 'p1', 3, 0),
+          unit('k2', 'kanonenboot', 'p1', 3, 3),
+          ...[0, 1, 2, 3].map((i) => unit(`g${i}`, 'grenadiere', 'p1', 0, i % 3)),
+        ],
+      })
+      return playAITurn(s, 'p1', NOW).cities[0]!.production!.unitTypeId
+    }
+    expect(build('dominance')).toBe('frachter')
+    expect(build('capitals')).not.toBe('frachter')
+  })
+
+  it('leicht zielt nicht auf Vorherrschaft und erkundet nicht zur See', () => {
+    expect(aiProfile('easy').dominanceDrive).toBe(false)
+    expect(aiProfile('easy').scoutShips).toBe(0)
+    expect(aiProfile('normal').dominanceDrive).toBe(true)
+    expect(aiProfile('hard').scoutShips).toBe(2)
+  })
 })
 
 describe('Simulation KI gegen KI', () => {

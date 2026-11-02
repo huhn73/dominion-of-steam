@@ -78,6 +78,25 @@ function matchupSection(m: MatchupSummary, title: string): string {
     ),
     '',
   )
+  if (m.byMap.length > 1) {
+    out.push('**Spielende je Karte**', '')
+    out.push(
+      table(
+        ['Karte', 'Partien', 'entschieden', 'Ø Ende', 'Spielende', 'Siege'],
+        m.byMap.map((x) => [
+          x.mapId,
+          String(x.games),
+          pct(x.decided),
+          `R${de(x.meanRounds, 0)}`,
+          Object.entries(x.victoryTypes)
+            .map(([k, v]) => `${VICTORY_NAMES[k] ?? k} ${v}`)
+            .join(', '),
+          m.labels.map((l) => `${l.label} ${x.wins[l.label] ?? 0}`).join(' : '),
+        ]),
+      ),
+      '',
+    )
+  }
   out.push(
     '**Sitzvorteil** (Siegquote je Sitz): ' +
       m.bySeat.map((s) => `Sitz ${s.seat + 1} ${pct(s.winRate)}`).join(' · '),
@@ -115,6 +134,24 @@ function matchupSection(m: MatchupSummary, title: string): string {
     ),
     '',
   )
+  if (m.labels.some((l) => l.naval.loadedTurns > 0)) {
+    out.push('**Seetransporte je Partie**', '')
+    out.push(
+      table(
+        ['Teilnehmer', 'Landungen', 'Züge beladen', 'davon wartend', 'neutral über See erobert'],
+        m.labels.map((l) => [
+          l.label,
+          de(l.naval.landings, 1),
+          de(l.naval.loadedTurns, 1),
+          l.naval.loadedTurns
+            ? `${de(l.naval.loadedIdle, 1)} (${pct(l.naval.loadedIdle / l.naval.loadedTurns)})`
+            : '–',
+          de(l.naval.overseasNeutral, 1),
+        ]),
+      ),
+      '',
+    )
+  }
   const types = [...new Set(m.labels.flatMap((l) => Object.keys(l.production)))].sort()
   if (types.length) {
     out.push('**Produktion je Partie** (fertiggestellte Einheiten)', '')
@@ -223,6 +260,7 @@ export function renderReport(s: RunSummary): string {
     '- Das 95 %-Intervall ist das Wilson-Intervall der Siegquote. Rotationen desselben Seeds sind nicht unabhängig, das Intervall ist deshalb etwas zu eng.',
     '- „Ausgeschieden“ zählt Partien, in denen der Teilnehmer keine Stadt und keine Einheit mehr hatte.',
     '- „Sonstige Verluste“ sind Abstürze ohne Treibstoff und Ladung, die mit dem Transporter unterging.',
+    '- „Entschieden“ heißt vor dem Rundenlimit beendet. „Davon wartend“ zählt Züge, die ein beladener Frachter mit derselben Ladung auf demselben Feld beendet wie im Zug davor.',
     '- Bei Stadtangriffen wird die angreifende Einheit immer verbraucht; sie zählt unter „Einheiten verloren“, aber nicht als verlorener Kampf, wenn die Stadt fiel.',
     `- Rohdaten (\`games.jsonl\`, \`summary.json\`) liegen im Laufordner unter \`packages/sim/results/\`.`,
     '',

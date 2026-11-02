@@ -30,6 +30,9 @@ export const PROFILE_KEYS = [
   'subShare',
   'transports',
   'maxTransports',
+  'departAt',
+  'scoutShips',
+  'dominanceDrive',
   'scoutShare',
   'maxScouts',
   'bomberShare',
@@ -112,11 +115,14 @@ function parseProfileValue(key: ProfileKey, value: unknown, path: string) {
     case 'fortify':
     case 'repair':
     case 'transports':
+    case 'dominanceDrive':
       if (typeof value !== 'boolean') fail(path, 'muss true oder false sein')
       return value
     case 'maxShips':
     case 'garrisonTarget':
     case 'maxTransports':
+    case 'departAt':
+    case 'scoutShips':
     case 'maxScouts':
     case 'maxBombers':
       if (!isInt(value) || value < 0) fail(path, 'muss eine ganze Zahl ≥ 0 sein')

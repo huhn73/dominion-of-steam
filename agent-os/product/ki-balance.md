@@ -243,6 +243,35 @@ Neue Siegbedingung Vorherrschaft (Mehrheit der Städte fünf eigene Runden lang:
 
 **Befunde:** Mit einheitlich 60 % endeten Inselpartien nur zu 25–43 % vor dem Deckel, Archipel zu 6–30 % (erste Messung, verworfen); erst die Schwelle von 50 % für Inselwelten bringt Inseln über das Ziel von 50 %. Kapitulationen kommen spät (Mittel R75–108, frühestens R34), „schwer“ gewinnt die entschiedenen Partien deutlich (Inseln 39:4, Kontinent 35:17). Offen bleibt der Archipel im ausgeglichenen Fraktionsduell (21 %): Die KI erobert neutrale Inseln zu zögerlich, um die Mehrheit zu erreichen; Folge-Spec in der Roadmap.
 
+## Nachmessung neutrale Inseln (2. November 2026, Spec `2026-11-02-2209-ki-neutrale-inseln`)
+
+Änderungen an der KI:
+- **Zielwahl:** Frachter wählen ihr Ziel nach Ertrag statt nach Entfernung: Wert der Stadt, weitere Städte auf derselben Insel, sichtbare Verteidiger, Fahrstrecke.
+- **Abfahrt:** Gegen eine unverteidigte neutrale Stadt legen sie schon mit 2 Einheiten ab.
+- **Landung:** Ladung geht auch auf Inseln mit eigener Stadt an Land, wenn eine fremde Stadt näher liegt. Vorher blieb sie dort an Bord.
+- **Geleit:** Je Frachter begleitet ihn ein Kriegsschiff, die übrigen jagen oder erkunden. Erkundet werden bis zu `scoutShips` Kanonenboote (normal 1, schwer 2).
+- **Vorherrschaft:** Mit der Vorherrschaft in Reichweite (`dominanceDrive`, normal und schwer) baut die KI einen Frachter mehr, legt mit 2 Einheiten ab und bevorzugt neutrale Städte. Als Halter bewacht sie bedrohte Städte. Städte eines anderen Halters zieht sie vor.
+
+Die Simulation zählt jetzt Landungen und beladen wartende Frachter und zeigt die Spielenden je Karte. Bericht `2026-11-02-2216-inseln-neutral.md` (Konfiguration `inseln-vorherrschaft.json`), Raster `2026-11-02-2220-archipel-raster.md`.
+
+| Matchup | Weltform | entschieden vorher | nachher | Siege nachher |
+|---|---|---|---|---|
+| schwer gegen normal | Kontinent | 87 % | 93 % | schwer 43, normal 13 |
+| schwer gegen normal | Inseln | 72 % | **93 %** | schwer 50, normal 6 |
+| schwer gegen normal | Archipel | 60 % | **95 %** | schwer 54, normal 3 |
+| Aurelia gegen Eisenbund | Kontinent | 92 % | 97 % | 28 : 30 |
+| Aurelia gegen Eisenbund | Inseln | 53 % | **70 %** | 22 : 20 |
+| Aurelia gegen Eisenbund | Archipel | 22 % | **48 %** (Raster mit 80 Partien: 57 %, zusammen 54 %) | 17 : 12 |
+
+**Befunde:**
+- Der Archipel erreicht im ausgeglichenen Duell das Ziel von 50 %. Beladen wartende Frachter-Züge sinken bei „schwer“ von 31 auf 12 %, bei „normal“ bleiben sie bei 23–28 %.
+- „Schwer“ gewinnt die entschiedenen Inselpartien jetzt fast immer (Archipel 54:3).
+- Im Raster für „normal“ auf dem Archipel bringt `maxTransports` 3 den höchsten Wert (62 %). `departAt` 2 und `scoutShips` 2 bleiben im Rauschen. Die Frachterzahl bleibt bei 2, weil sie aus der Inselbalance stammt.
+- Kontrolle auf dem Kontinent (Siegbedingung Hauptstädte):
+  - `stufen`: schwer gegen normal 62 % (vorher 63), normal gegen leicht 76 % (74), schwer gegen leicht 90 % (91)
+  - `fraktionen`: 38–62 %, Eisenbund gegen Aurelia 62:38 (vorher 56:44, Intervall 52–71 %)
+  - Ø KI-Zug 29–90 ms, Budget nie erschöpft
+
 ## Was die Simulation noch nicht misst
 
 - Spielspaß und Druck auf einen Menschen: KI gegen KI misst nur relative Stärke. Nächster Schritt sind Sparringsgegner mit festem Verhalten (passiv, reiner Expandierer, Rusher), gegen die jede Stufe eine Zielquote hat.

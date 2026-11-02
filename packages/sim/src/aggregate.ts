@@ -42,6 +42,8 @@ export interface LabelSummary {
     damageTaken: number
   }
   attackWinRate: number | null
+  /** Per game */
+  naval: { landings: number; loadedTurns: number; loadedIdle: number; overseasNeutral: number }
   /** Units built per game and type */
   production: Record<string, number>
   turns: {
@@ -62,6 +64,17 @@ export interface SeatSummary {
   winRate: number
 }
 
+/** How the games of one matchup ended on one map */
+export interface MapSummary {
+  mapId: string
+  games: number
+  /** Share of games decided before the round limit or the simulation's cap */
+  decided: number
+  meanRounds: number
+  victoryTypes: Record<string, number>
+  wins: Record<string, number>
+}
+
 export interface MatchupSummary {
   matchupId: string
   sweepParams?: ProfileOverride
@@ -69,6 +82,7 @@ export interface MatchupSummary {
   medianRounds: number
   meanRounds: number
   victoryTypes: Record<string, number>
+  byMap: MapSummary[]
   bySeat: SeatSummary[]
   labels: LabelSummary[]
 }
@@ -199,6 +213,12 @@ function summarizeLabel(
       damageTaken: per((p) => p.combat.damageTaken),
     },
     attackWinRate: attacks ? sum(rows.map((p) => p.combat.won)) / attacks : null,
+    naval: {
+      landings: per((p) => p.naval?.landings ?? 0),
+      loadedTurns: per((p) => p.naval?.loadedTurns ?? 0),
+      loadedIdle: per((p) => p.naval?.loadedIdle ?? 0),
+      overseasNeutral: per((p) => p.naval?.overseasNeutral ?? 0),
+    },
     production,
     turns: {
       avgMs: mean(turnMs),
@@ -220,6 +240,24 @@ export function summarizeMatchup(
   const maxRound = Math.max(0, ...games.map((g) => g.rounds))
   const victoryTypes: Record<string, number> = {}
   for (const g of games) victoryTypes[g.victoryType] = (victoryTypes[g.victoryType] ?? 0) + 1
+  const byMap = [...new Set(games.map((g) => g.mapId))].map((mapId): MapSummary => {
+    const own = games.filter((g) => g.mapId === mapId)
+    const types: Record<string, number> = {}
+    const wins: Record<string, number> = {}
+    for (const g of own) {
+      types[g.victoryType] = (types[g.victoryType] ?? 0) + 1
+      if (g.winnerLabel) wins[g.winnerLabel] = (wins[g.winnerLabel] ?? 0) + 1
+    }
+    const open = own.filter((g) => g.victoryType === 'roundLimit' || g.victoryType === 'aborted')
+    return {
+      mapId,
+      games: own.length,
+      decided: own.length ? 1 - open.length / own.length : 0,
+      meanRounds: mean(own.map((g) => g.rounds)),
+      victoryTypes: types,
+      wins,
+    }
+  })
   const seats = Math.max(0, ...games.map((g) => g.participants.length))
   const bySeat: SeatSummary[] = Array.from({ length: seats }, (_, seat) => {
     const wins = games.filter(
@@ -234,6 +272,7 @@ export function summarizeMatchup(
     medianRounds: median(games.map((g) => g.rounds)),
     meanRounds: mean(games.map((g) => g.rounds)),
     victoryTypes,
+    byMap,
     bySeat,
     labels: labels.map((l) => summarizeLabel(l, games, maxRound)),
   }
