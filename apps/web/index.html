@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Dominion of Steam</title>
+    <meta
+      name="description"
+      content="Rundenbasiertes Strategiespiel im Dieselzeitalter: Städte erobern, Einheiten bauen, Freunde herausfordern."
+    />
+    <meta name="theme-color" content="#171C22" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      // Farbschema und Animationen vor dem ersten Rendern setzen, damit nichts aufblitzt (siehe src/theme/theme.ts)
+      try {
+        var t = localStorage.getItem('dos.theme')
+        var dark =
+          t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.toggle('dark', dark)
+        // „Animationen reduzieren“ (src/settings/motion.ts)
+        if (localStorage.getItem('dos.reduceMotion') === '1')
+          document.documentElement.classList.add('dos-reduce-motion')
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

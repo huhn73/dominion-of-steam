@@ -1,0 +1,35 @@
+# Partie-Setup & KI-Gegner: Shaping-Notizen
+
+## Umfang
+
+Assistent „Neue Partie“ mit echten Daten, serverseitige Prüfung, Anlegen von Partien (sofort laufend oder wartend) mit Plätzen, Einladungen und Einladungslink, Regeln und Siegbedingungen in der Engine, KI-Persönlichkeiten. Nicht enthalten (Meilenstein 05): Lobby, Warteraum mit Bereit-Status und Start durch den Ersteller, Annehmen/Ablehnen von Einladungen, Beitritt über den Link (`/einladung/<token>`) oder zu offenen Partien, Benachrichtigungen, Fraktionswahl der Mitspieler. Nicht enthalten: Durchsetzen abgelaufener Fristen (automatisches Zugende), Musik und Effekte, Porträt-Bilder (die Initialen greifen).
+
+## Entscheidungen
+
+- Der Nutzer hat um selbstständige Umsetzung ohne Rückfragen gebeten; die Entscheidungen sind hier festgehalten.
+- **Regeln aus `setup.ts` an einer Stelle:** `setup.ts` und die Datentypen der Übergabe liegen unverändert (nur Importpfad) in `packages/shared/src/setup/`; die Kopie im Web ist ein Re-Export, wie bei `hex.ts`. `validateDraft` prüft auf dem Server zuerst Form und erlaubte Werte, dann `stepBlocker` für alle Schritte (dieselben Meldungen wie im Assistenten), dann Freunde, Persönlichkeiten und Plätze. Fehler: 422 `INVALID_SETUP` mit deutscher Meldung.
+- **Zusätzliche Serverregel:** Ohne doppelte Fraktionen sind höchstens 4 Plätze möglich (es gibt 4 Fraktionen). Der Assistent erlaubt 6 Plätze; die Meldung erscheint erst beim Erstellen.
+- **Startlogik:** Die Partie startet sofort, wenn kein Platz auf einen Menschen wartet, also nur KI-Plätze und freie Plätze mit „Auffüllen“ (dieselbe Bedingung wie der Hinweis „Nur KI-Gegner: …“). Sobald ein Freund-, Einladungs- oder offener Platz dabei ist, wartet die Partie im Warteraum, auch bei Live-Partien (Hinweis „Live-Partien starten erst, wenn alle Mitspieler beigetreten sind.“). Der Ersteller startet sie in 05; dann ersetzt `launchMatch` bei aktivem Auffüllen alle nicht besetzten Plätze (Freund ohne Beitritt, Link, offen, frei) durch KI (Normal), sonst schlägt der Start mit 409 `SEATS_OPEN` fehl.
+- **KI für freie Plätze:** Der Server wählt zufällig eine Persönlichkeit, die noch nicht in der Partie ist, bevorzugt mit einer Fraktion, die noch niemand hat; ohne doppelte Fraktionen nur solche. Farben: Fraktionsfarbe, bei Doppelung die erste freie aus Amber, Rose, Sky, Lime, Violet, Orange.
+- **Datenmodell wartender Partien:** `matches` mit `status = 'waiting'`, Runde 0, ohne `state`; `setup` (jsonb) hält Regeln, Karteneinstellungen inkl. Seed und `fillEmptyWithAI`; `host_id`; `invite_token` (eindeutig). `match_seats(match_id, seat, kind, player_id, participant_id, faction_id, ai_personality_id, ai_difficulty, ready, joined_at)` mit `kind` = `player` | `ai` | `friend` | `invite` | `open` | `empty`. Der Ersteller ist `player` und gilt als bereit. Laufende Partien (auch Demo und Solo) haben ebenfalls Plätze (`player`/`ai` mit `participant_id`), damit 05/06 „Partien eines Spielers“ per Index finden.
+- **Einladungen:** Tabelle `invitations(id, match_id, player_id, from_id, status pending|accepted|declined, message, created_at, responded_at)`, eindeutig je Partie und Spieler; je Freund-Platz eine Einladung. Beim Start werden offene Einladungen gelöscht.
+- **Einladungslink vor dem Erstellen:** `GET /api/setup` legt je Spieler eine Reservierung an (`setup_reservations`: künftige Partie-ID `m-<12 hex>`, Token im Format `K7Q-2XM-H9P` ohne verwechselbare Zeichen) oder liefert die bestehende; neu Laden zeigt denselben Link. `POST /api/matches { draft, reservationId }` verbraucht sie in der Transaktion; eine verbrauchte oder fremde Reservierung ergibt 409 `RESERVATION_EXPIRED`. Unbenutzte Reservierungen verfallen nicht (höchstens eine pro Spieler).
+- **Herkunft des Links:** `PUBLIC_URL`, sonst `X-Forwarded-Proto`/`X-Forwarded-Host`, sonst Protokoll und `Host` der Anfrage (der Vite-Proxy behält den Host des Browsers).
+- **Kartencode:** `onRandomizeSeed` braucht synchron einen Wert; der Web-Client erzeugt ihn mit derselben Funktion wie der Server (`randomSeed` aus `@dos/shared/game/seed`, ausgelagert aus dem Kartengenerator, Format `WORT-1234`). Kein eigener Endpunkt. Der Server lehnt leere und ungültige Codes ab (`A–Z`, `0–9`, `-`, höchstens 16). Gleicher Code und gleiche Einstellungen samt Platzzahl ergeben dieselbe Welt (Test). Beim Erstellen wird geprüft, ob alle Hauptstädte auf die Karte passen (422 `MAP_TOO_SMALL`).
+- **Startentwurf:** Zufälliger Name aus einer Liste, neuer Kartencode, keine Fraktion, `[du, frei]`; Regeln und Karteneinstellungen aus der letzten selbst angelegten Partie, sonst die Vorgaben der Beispieldaten.
+- **Regeln in der Engine:** `GameState.rules` (`mode` bleibt zusätzlich im Zustand). Frist: asynchron `asyncTurnLimitHours`, live `liveTurnLimitMinutes` oder keine; die Sicht liefert die Frist jetzt auch für Live-Partien mit Zeitlimit. Ältere Zustände erhalten beim Laden `normalizeState` (48 Stunden, „Alle Gegner besiegen“).
+- **Siegbedingungen:** „Alle Gegner besiegen“ gilt immer (≤ 1 aktiver Teilnehmer beim Zugende). „Hauptstädte erobern“: wer die ursprünglichen Hauptstädte aller anderen hält (`capitalCityId`), gewinnt sofort nach der Eroberung. „Rundenlimit“: nach der letzten Runde gewinnt die höchste Punktzahl (Städte × 3 + Einheiten, Gleichstand: früherer Platz). Platzierung: Sieger 1, dann übrige Aktive nach Punkten, dann Ausgeschiedene, früher ausgeschieden = schlechter. `PlayerView.result` und `PlayerView.rules` stehen für 05/06 bereit.
+- **KI-Persönlichkeiten:** Spielweise passt das Profil der Schwierigkeit leicht an: Aggressiv/Offensiv −0,1 Angriffsschwelle; Defensiv/Befestigung +0,1 und eine Wache je eigener Stadt; Expansiv/Wirtschaft ziehen neutrale Städte vor (3 Felder Bonus); Seekrieg mehr Kanonenboote (bis 4); Landkrieg halb so viele; Luftkrieg öfter die Sondereinheit. Aufklärung hat (noch) keine Wirkung.
+- **Anwesenheit:** Nur Sicht und Befehle einer Partie zählen als „im Spiel“, nicht der Warteraum.
+- **Web:** Die Seite lädt `GET /api/setup` bei jedem Besuch neu (kein Cache), rendert `PartieSetup` mit `key = reservationId`. Serverfehler erscheinen als Meldung oben (`role="alert"`, schließbar), der Assistent bleibt mit allen Eingaben stehen. „Link kopiert“ als kurze Bestätigung; „Teilen“ nutzt `navigator.share`, sonst Kopieren. Abbrechen führt in die Lobby. Gestartete Partien öffnen das Spielfeld, wartende den vorläufigen Warteraum `/warteraum/:matchId` (Name, Plätze, Link); das Spielfeld einer wartenden Partie leitet dorthin um.
+- **Dev-Solo-Partien** laufen über `createFromDraft` (Persönlichkeiten Kessler, Halvorsen, Ostrow; Live, „Alle Gegner besiegen“).
+
+## Kontext
+
+- **Visuals:** `visuals/screenshot.png` (Vorlage), Screenshots der Umsetzung (`umsetzung-*.png`: Regeln, Mitspieler, Übersicht hell; KI-Dialog dunkel; Smartphone hell und dunkel)
+- **Referenzen:** siehe `references.md`
+- **Produktbezug:** Partien mit Regeln und Gegnern anlegen; Grundlage für Lobby/Warteraum (05) und Bilanz (06)
+
+## Angewandte Standards
+
+Noch keine.

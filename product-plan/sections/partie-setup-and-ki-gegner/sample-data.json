@@ -1,0 +1,334 @@
+{
+  "_meta": {
+    "models": {
+      "you": "Der angemeldete Spieler, der die Partie anlegt und immer Platz 1 belegt.",
+      "factions": "Die spielbaren Fraktionen mit den Angaben, die für die Fraktionswahl nötig sind.",
+      "aiPersonalities": "KI-Gegner mit Namen, Titel, Porträt, fester Fraktion und Spielweise, die ihr Verhalten prägt.",
+      "friends": "Die Freundesliste des Spielers mit Online-Status für Einladungen.",
+      "options": "Die wählbaren Werte für Kartengröße, Landanteil, Gelände, neutrale Städte, Zugzeiten und Siegbedingungen.",
+      "draft": "Der Startzustand des Assistenten für eine neue Partie: Vorgabewerte für Regeln und Karte, noch keine Fraktion und außer dem eigenen nur ein freier Platz."
+    },
+    "relationships": [
+      "Eine AiPersonality gehört fest zu einer Faction (factionId).",
+      "Ein Seat im draft verweist je nach Art auf einen Friend (friendId) oder eine AiPersonality (personalityId); Platz 1 ist immer you.",
+      "draft.factionId ist die Fraktion des Spielers; KI-Plätze übernehmen die Fraktion ihrer Persönlichkeit.",
+      "draft.map.size verweist auf eine Option in options.mapSizes."
+    ]
+  },
+  "you": {
+    "id": "player-bjoern",
+    "name": "Björn",
+    "avatarUrl": null
+  },
+  "inviteLink": "https://dominion-of-steam.app/einladung/K7Q-2XM-H9P",
+  "factions": [
+    {
+      "id": "eisenbund",
+      "name": "Eisenbund von Valdrin",
+      "shortName": "Eisenbund",
+      "color": "amber",
+      "motto": "Aus Kohle Stahl, aus Stahl Gewissheit.",
+      "trait": "Schwerindustrie: Landeinheiten werden eine Runde schneller gebaut.",
+      "emblemUrl": "/art/factions/eisenbund-emblem.png",
+      "heroImageUrl": "/art/factions/eisenbund-hero.webp"
+    },
+    {
+      "id": "aurelia",
+      "name": "Aurelische Republik",
+      "shortName": "Aurelia",
+      "color": "rose",
+      "motto": "Wer die Wellen hält, hält die Welt.",
+      "trait": "Seemacht: Schiffe haben +1 Bewegung.",
+      "emblemUrl": "/art/factions/aurelia-emblem.png",
+      "heroImageUrl": "/art/factions/aurelia-hero.webp"
+    },
+    {
+      "id": "nordmark",
+      "name": "Nordmark-Kollektiv",
+      "shortName": "Nordmark",
+      "color": "sky",
+      "motto": "Über den Wolken gibt es keine Grenzen.",
+      "trait": "Luftschifffahrt: Lufteinheiten haben +50 % Reichweite.",
+      "emblemUrl": "/art/factions/nordmark-emblem.png",
+      "heroImageUrl": "/art/factions/nordmark-hero.webp"
+    },
+    {
+      "id": "salzkueste",
+      "name": "Salzküsten-Liga",
+      "shortName": "Salzküste",
+      "color": "lime",
+      "motto": "Unsere Mauern stehen länger als eure Geduld.",
+      "trait": "Befestigung: Städte erhalten +1 Verteidigung.",
+      "emblemUrl": "/art/factions/salzkueste-emblem.png",
+      "heroImageUrl": "/art/factions/salzkueste-hero.webp"
+    }
+  ],
+  "aiPersonalities": [
+    {
+      "id": "kessler",
+      "name": "Admiral Kessler",
+      "title": "Großadmiral der Republik",
+      "factionId": "aurelia",
+      "portraitUrl": "/art/portraits/kessler.webp",
+      "style": [
+        "Aggressiv",
+        "Seekrieg"
+      ],
+      "description": "Sucht früh die Entscheidungsschlacht auf See und blockiert gegnerische Küsten."
+    },
+    {
+      "id": "varenne",
+      "name": "Senatorin Varenne",
+      "title": "Handelsministerin",
+      "factionId": "aurelia",
+      "portraitUrl": "/art/portraits/varenne.webp",
+      "style": [
+        "Expansiv",
+        "Wirtschaft"
+      ],
+      "description": "Besetzt neutrale Inseln schneller als alle anderen und meidet offene Kriege, solange sie wächst."
+    },
+    {
+      "id": "brandt",
+      "name": "Zechenmeister Brandt",
+      "title": "Vorsitzender des Hammerhauses",
+      "factionId": "eisenbund",
+      "portraitUrl": "/art/portraits/brandt.webp",
+      "style": [
+        "Defensiv",
+        "Landkrieg"
+      ],
+      "description": "Baut seine Städte zu Festungen aus und rückt erst vor, wenn genug Dampfkolosse bereitstehen. Wer ihn zu früh angreift, beißt sich an seinen Mauern die Zähne aus; wer ihn zu lange gewähren lässt, sieht sich einer Walze aus Stahl gegenüber, die Stadt um Stadt einnimmt."
+    },
+    {
+      "id": "eisenhart",
+      "name": "Generalin Eisenhart",
+      "title": "Oberbefehlshaberin der Zechengarde",
+      "factionId": "eisenbund",
+      "portraitUrl": "/art/portraits/eisenhart.webp",
+      "style": [
+        "Offensiv",
+        "Landkrieg"
+      ],
+      "description": "Setzt auf schnelle Panzerwagen-Vorstöße und greift schwach verteidigte Städte sofort an."
+    },
+    {
+      "id": "halvorsen",
+      "name": "Kapitänin Halvorsen",
+      "title": "Flottenkapitänin der Wolkenflotte",
+      "factionId": "nordmark",
+      "portraitUrl": "/art/portraits/halvorsen.webp",
+      "style": [
+        "Aufklärung",
+        "Luftkrieg"
+      ],
+      "description": "Kennt die Karte früher als alle anderen und schlägt dort zu, wo die Verteidigung dünn ist."
+    },
+    {
+      "id": "lindqvist",
+      "name": "Ingenieur Lindqvist",
+      "title": "Werftmeister von Nordhavn",
+      "factionId": "nordmark",
+      "portraitUrl": "/art/portraits/lindqvist.webp",
+      "style": [],
+      "description": "Spielt abwartend und reagiert auf Bedrohungen."
+    },
+    {
+      "id": "ostrow",
+      "name": "Graf Ostrow",
+      "title": "Festungskommandant von Salzwacht",
+      "factionId": "salzkueste",
+      "portraitUrl": "/art/portraits/ostrow.webp",
+      "style": [
+        "Defensiv",
+        "Befestigung"
+      ],
+      "description": "Hält, was er hat, und verteidigt seine Küsten bis zum letzten Mann."
+    }
+  ],
+  "friends": [
+    {
+      "id": "lena",
+      "name": "Lena Hartmann",
+      "avatarUrl": null,
+      "status": "online",
+      "lastSeen": null
+    },
+    {
+      "id": "mira",
+      "name": "Mira Okonkwo",
+      "avatarUrl": null,
+      "status": "inGame",
+      "lastSeen": null
+    },
+    {
+      "id": "jonas",
+      "name": "Jonas Vogt",
+      "avatarUrl": null,
+      "status": "online",
+      "lastSeen": null
+    },
+    {
+      "id": "tobias",
+      "name": "Tobias Brenner",
+      "avatarUrl": null,
+      "status": "offline",
+      "lastSeen": "2026-10-29T21:14:00Z"
+    },
+    {
+      "id": "selin",
+      "name": "Selin Arslan",
+      "avatarUrl": null,
+      "status": "offline",
+      "lastSeen": "2026-10-24T18:02:00Z"
+    },
+    {
+      "id": "paul",
+      "name": "Paul Kretschmer-Wittenberg",
+      "avatarUrl": null,
+      "status": "offline",
+      "lastSeen": "2026-08-11T09:30:00Z"
+    }
+  ],
+  "options": {
+    "mapSizes": [
+      {
+        "id": "small",
+        "label": "Klein",
+        "width": 14,
+        "height": 10,
+        "recommendedPlayers": [
+          2,
+          3
+        ]
+      },
+      {
+        "id": "medium",
+        "label": "Mittel",
+        "width": 18,
+        "height": 12,
+        "recommendedPlayers": [
+          2,
+          4
+        ]
+      },
+      {
+        "id": "large",
+        "label": "Groß",
+        "width": 26,
+        "height": 18,
+        "recommendedPlayers": [
+          3,
+          5
+        ]
+      },
+      {
+        "id": "huge",
+        "label": "Riesig",
+        "width": 36,
+        "height": 24,
+        "recommendedPlayers": [
+          4,
+          6
+        ]
+      }
+    ],
+    "landShare": {
+      "min": 20,
+      "max": 70,
+      "step": 5,
+      "minLabel": "Inselwelt",
+      "maxLabel": "Kontinente"
+    },
+    "levels": [
+      {
+        "id": "low",
+        "label": "Wenig"
+      },
+      {
+        "id": "normal",
+        "label": "Normal"
+      },
+      {
+        "id": "high",
+        "label": "Viel"
+      }
+    ],
+    "asyncTurnLimits": [
+      {
+        "hours": 12,
+        "label": "12 Stunden"
+      },
+      {
+        "hours": 24,
+        "label": "24 Stunden"
+      },
+      {
+        "hours": 48,
+        "label": "48 Stunden"
+      }
+    ],
+    "liveTurnLimits": [
+      {
+        "minutes": null,
+        "label": "Aus"
+      },
+      {
+        "minutes": 2,
+        "label": "2 Minuten"
+      },
+      {
+        "minutes": 5,
+        "label": "5 Minuten"
+      }
+    ],
+    "victoryConditions": [
+      {
+        "id": "elimination",
+        "label": "Alle Gegner besiegen",
+        "description": "Gewonnen hat, wer als Letzter noch Städte besitzt."
+      },
+      {
+        "id": "capitals",
+        "label": "Hauptstädte erobern",
+        "description": "Gewonnen hat, wer alle gegnerischen Hauptstädte hält."
+      },
+      {
+        "id": "roundLimit",
+        "label": "Rundenlimit",
+        "description": "Nach der letzten Runde gewinnt, wer die meisten Punkte für Städte und Einheiten hat."
+      }
+    ],
+    "roundLimits": [
+      50,
+      100,
+      150
+    ]
+  },
+  "draft": {
+    "name": "Die Kohleinseln II",
+    "mode": "async",
+    "asyncTurnLimitHours": 24,
+    "liveTurnLimitMinutes": null,
+    "victoryCondition": "capitals",
+    "roundLimit": 100,
+    "allowDuplicateFactions": false,
+    "seats": [
+      {
+        "kind": "you"
+      },
+      {
+        "kind": "empty"
+      }
+    ],
+    "fillEmptyWithAI": true,
+    "map": {
+      "size": "medium",
+      "landShare": 45,
+      "neutralCities": "normal",
+      "terrain": "normal",
+      "seed": "KOHLE-4417"
+    },
+    "factionId": null
+  }
+}

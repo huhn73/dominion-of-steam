@@ -1,0 +1,166 @@
+{
+  "version": 1,
+  "approval_date": "2026-10-31",
+  "music": {
+    "menu-lobby": "/audio/music/menu-lobby.ogg",
+    "menu-setup": "/audio/music/menu-setup.ogg",
+    "field-explore": "/audio/music/field-explore.ogg",
+    "field-tension": "/audio/music/field-tension.ogg",
+    "field-combat": "/audio/music/field-combat.ogg",
+    "eisenbund-theme": "/audio/music/eisenbund-theme.ogg",
+    "eisenbund-victory": "/audio/music/eisenbund-victory.ogg",
+    "eisenbund-defeat": "/audio/music/eisenbund-defeat.ogg",
+    "aurelia-theme": "/audio/music/aurelia-theme.ogg",
+    "aurelia-victory": "/audio/music/aurelia-victory.ogg",
+    "aurelia-defeat": "/audio/music/aurelia-defeat.ogg",
+    "nordmark-theme": "/audio/music/nordmark-theme.ogg",
+    "nordmark-victory": "/audio/music/nordmark-victory.ogg",
+    "nordmark-defeat": "/audio/music/nordmark-defeat.ogg",
+    "salzkueste-theme": "/audio/music/salzkueste-theme.ogg",
+    "salzkueste-victory": "/audio/music/salzkueste-victory.ogg",
+    "salzkueste-defeat": "/audio/music/salzkueste-defeat.ogg"
+  },
+  "ambience": {
+    "amb-sea": "/audio/ambience/amb-sea.ogg",
+    "amb-coast": "/audio/ambience/amb-coast.ogg",
+    "amb-plains": "/audio/ambience/amb-plains.ogg",
+    "amb-forest": "/audio/ambience/amb-forest.ogg",
+    "amb-mountains": "/audio/ambience/amb-mountains.ogg",
+    "amb-city": "/audio/ambience/amb-city.ogg",
+    "amb-fog": "/audio/ambience/amb-fog.ogg"
+  },
+  "sfx": {
+    "ui-click": [
+      "/audio/sfx/ui-click-1.ogg",
+      "/audio/sfx/ui-click-2.ogg",
+      "/audio/sfx/ui-click-3.ogg"
+    ],
+    "ui-toggle": ["/audio/sfx/ui-toggle-1.ogg", "/audio/sfx/ui-toggle-2.ogg"],
+    "ui-panel-open": ["/audio/sfx/ui-panel-open.ogg"],
+    "ui-panel-close": ["/audio/sfx/ui-panel-close.ogg"],
+    "ui-error": ["/audio/sfx/ui-error.ogg"],
+    "ui-saved": ["/audio/sfx/ui-saved.ogg"],
+    "notify-your-turn": ["/audio/sfx/notify-your-turn.ogg"],
+    "notify-invite": ["/audio/sfx/notify-invite.ogg"],
+    "notify-deadline": ["/audio/sfx/notify-deadline.ogg"],
+    "turn-start": ["/audio/sfx/turn-start.ogg"],
+    "turn-end": ["/audio/sfx/turn-end.ogg"],
+    "replay-step": ["/audio/sfx/replay-step.ogg"],
+    "move-invalid": ["/audio/sfx/move-invalid.ogg"],
+    "path-preview": ["/audio/sfx/path-preview.ogg"],
+    "combat-gun": [
+      "/audio/sfx/combat-gun-1.ogg",
+      "/audio/sfx/combat-gun-2.ogg",
+      "/audio/sfx/combat-gun-3.ogg"
+    ],
+    "combat-cannon": ["/audio/sfx/combat-cannon.ogg"],
+    "combat-air": ["/audio/sfx/combat-air.ogg"],
+    "explosion-small": ["/audio/sfx/explosion-small.ogg"],
+    "explosion-large": ["/audio/sfx/explosion-large.ogg"],
+    "city-captured": ["/audio/sfx/city-captured.ogg"],
+    "city-lost": ["/audio/sfx/city-lost.ogg"],
+    "production-done": ["/audio/sfx/production-done.ogg"],
+    "fuel-low": ["/audio/sfx/fuel-low.ogg"],
+    "grenadiere-select": [
+      "/audio/sfx/grenadiere-select-1.ogg",
+      "/audio/sfx/grenadiere-select-2.ogg"
+    ],
+    "grenadiere-move": ["/audio/sfx/grenadiere-move-1.ogg", "/audio/sfx/grenadiere-move-2.ogg"],
+    "panzerwagen-select": [
+      "/audio/sfx/panzerwagen-select-1.ogg",
+      "/audio/sfx/panzerwagen-select-2.ogg"
+    ],
+    "panzerwagen-move": ["/audio/sfx/panzerwagen-move-1.ogg", "/audio/sfx/panzerwagen-move-2.ogg"],
+    "dampfkoloss-select": [
+      "/audio/sfx/dampfkoloss-select-1.ogg",
+      "/audio/sfx/dampfkoloss-select-2.ogg"
+    ],
+    "dampfkoloss-move": ["/audio/sfx/dampfkoloss-move-1.ogg", "/audio/sfx/dampfkoloss-move-2.ogg"],
+    "kanonenboot-select": [
+      "/audio/sfx/kanonenboot-select-1.ogg",
+      "/audio/sfx/kanonenboot-select-2.ogg"
+    ],
+    "kanonenboot-move": ["/audio/sfx/kanonenboot-move-1.ogg", "/audio/sfx/kanonenboot-move-2.ogg"],
+    "panzerkreuzer-select": [
+      "/audio/sfx/panzerkreuzer-select-1.ogg",
+      "/audio/sfx/panzerkreuzer-select-2.ogg"
+    ],
+    "panzerkreuzer-move": [
+      "/audio/sfx/panzerkreuzer-move-1.ogg",
+      "/audio/sfx/panzerkreuzer-move-2.ogg"
+    ],
+    "tauchboot-select": ["/audio/sfx/tauchboot-select-1.ogg", "/audio/sfx/tauchboot-select-2.ogg"],
+    "tauchboot-move": ["/audio/sfx/tauchboot-move-1.ogg", "/audio/sfx/tauchboot-move-2.ogg"],
+    "frachter-select": ["/audio/sfx/frachter-select-1.ogg", "/audio/sfx/frachter-select-2.ogg"],
+    "frachter-move": ["/audio/sfx/frachter-move-1.ogg", "/audio/sfx/frachter-move-2.ogg"],
+    "flugzeugtraeger-select": [
+      "/audio/sfx/flugzeugtraeger-select-1.ogg",
+      "/audio/sfx/flugzeugtraeger-select-2.ogg"
+    ],
+    "flugzeugtraeger-move": [
+      "/audio/sfx/flugzeugtraeger-move-1.ogg",
+      "/audio/sfx/flugzeugtraeger-move-2.ogg"
+    ],
+    "blitzkorvette-select": [
+      "/audio/sfx/blitzkorvette-select-1.ogg",
+      "/audio/sfx/blitzkorvette-select-2.ogg"
+    ],
+    "blitzkorvette-move": [
+      "/audio/sfx/blitzkorvette-move-1.ogg",
+      "/audio/sfx/blitzkorvette-move-2.ogg"
+    ],
+    "doppeldecker-select": [
+      "/audio/sfx/doppeldecker-select-1.ogg",
+      "/audio/sfx/doppeldecker-select-2.ogg"
+    ],
+    "doppeldecker-move": [
+      "/audio/sfx/doppeldecker-move-1.ogg",
+      "/audio/sfx/doppeldecker-move-2.ogg"
+    ],
+    "schwerbomber-select": [
+      "/audio/sfx/schwerbomber-select-1.ogg",
+      "/audio/sfx/schwerbomber-select-2.ogg"
+    ],
+    "schwerbomber-move": [
+      "/audio/sfx/schwerbomber-move-1.ogg",
+      "/audio/sfx/schwerbomber-move-2.ogg"
+    ],
+    "wolkenkreuzer-select": [
+      "/audio/sfx/wolkenkreuzer-select-1.ogg",
+      "/audio/sfx/wolkenkreuzer-select-2.ogg"
+    ],
+    "wolkenkreuzer-move": [
+      "/audio/sfx/wolkenkreuzer-move-1.ogg",
+      "/audio/sfx/wolkenkreuzer-move-2.ogg"
+    ]
+  },
+  "playback": {
+    "volume_buses": ["master", "music", "sfx", "ambience"],
+    "music_loop_ids": [
+      "menu-lobby",
+      "menu-setup",
+      "field-explore",
+      "field-tension",
+      "field-combat"
+    ],
+    "adaptive_field": {
+      "mode": "crossfade complete state mixes; do not add them together",
+      "states": ["field-explore", "field-tension", "field-combat"],
+      "keep_shared_timeline": true,
+      "frames": 3666496,
+      "sample_rate_hz": 48000,
+      "duration_seconds": 76.38533333333334,
+      "tempo_estimate_bpm": 87.975,
+      "tempo_note": "Estimated, not exactly 88 BPM; no time-stretch applied",
+      "crossfade_bars": 2,
+      "time_signature": "4/4 (assumed from production prompt)"
+    },
+    "variants": "Randomize per event; avoid immediately repeating the same variant when possible"
+  },
+  "qa_notes": [
+    "All assets selected or approved in listening previews by user.",
+    "Panzerwagen sounds accepted provisionally.",
+    "Full five-repeat listening audit and in-game balance test not documented.",
+    "Game playback integration is not implemented in this asset-only workspace."
+  ]
+}

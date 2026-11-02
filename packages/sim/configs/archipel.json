@@ -1,0 +1,30 @@
+{
+  "name": "archipel",
+  "matchups": [
+    {
+      "id": "hard-vs-normal",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium",
+      "worldShape": "archipelago",
+      "landShare": 35
+    }
+  ],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 150
+}

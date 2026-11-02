@@ -1,0 +1,358 @@
+{
+  "name": "sparring",
+  "matchups": [
+    {
+      "id": "easy-vs-passiv",
+      "participants": [
+        {
+          "label": "easy",
+          "factionId": "eisenbund",
+          "difficulty": "easy"
+        },
+        {
+          "label": "passiv",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.65,
+            "siege": false,
+            "cityValue": false,
+            "transports": false,
+            "bomberShare": 0,
+            "replan": "none",
+            "defend": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "easy-vs-expander",
+      "participants": [
+        {
+          "label": "easy",
+          "factionId": "eisenbund",
+          "difficulty": "easy"
+        },
+        {
+          "label": "expander",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "siege": false,
+            "neutralBias": 3,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "easy-vs-rusher",
+      "participants": [
+        {
+          "label": "easy",
+          "factionId": "eisenbund",
+          "difficulty": "easy"
+        },
+        {
+          "label": "rusher",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.35,
+            "siegeRatio": 1,
+            "armourShare": 0.2,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "normal-vs-passiv",
+      "participants": [
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "passiv",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.65,
+            "siege": false,
+            "cityValue": false,
+            "transports": false,
+            "bomberShare": 0,
+            "replan": "none",
+            "defend": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "normal-vs-expander",
+      "participants": [
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "expander",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "siege": false,
+            "neutralBias": 3,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "normal-vs-rusher",
+      "participants": [
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "rusher",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.35,
+            "siegeRatio": 1,
+            "armourShare": 0.2,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hard-vs-passiv",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "passiv",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.65,
+            "siege": false,
+            "cityValue": false,
+            "transports": false,
+            "bomberShare": 0,
+            "replan": "none",
+            "defend": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "hard-vs-expander",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "expander",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "siege": false,
+            "neutralBias": 3,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hard-vs-rusher",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "rusher",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.35,
+            "siegeRatio": 1,
+            "armourShare": 0.2,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "easy-vs-turtle",
+      "participants": [
+        {
+          "label": "easy",
+          "factionId": "eisenbund",
+          "difficulty": "easy"
+        },
+        {
+          "label": "turtle",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.65,
+            "siege": false,
+            "cityValue": false,
+            "defend": true,
+            "fortify": true,
+            "garrison": true,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "easy-vs-navy",
+      "participants": [
+        {
+          "label": "easy",
+          "factionId": "eisenbund",
+          "difficulty": "easy"
+        },
+        {
+          "label": "navy",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "transports": true,
+            "maxTransports": 2,
+            "shipShare": 0.5,
+            "maxShips": 4,
+            "bomberShare": 0.3,
+            "subShare": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "normal-vs-turtle",
+      "participants": [
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "turtle",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.65,
+            "siege": false,
+            "cityValue": false,
+            "defend": true,
+            "fortify": true,
+            "garrison": true,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "normal-vs-navy",
+      "participants": [
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "navy",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "transports": true,
+            "maxTransports": 2,
+            "shipShare": 0.5,
+            "maxShips": 4,
+            "bomberShare": 0.3,
+            "subShare": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "hard-vs-turtle",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "turtle",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "attackThreshold": 0.65,
+            "siege": false,
+            "cityValue": false,
+            "defend": true,
+            "fortify": true,
+            "garrison": true,
+            "transports": false,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hard-vs-navy",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "navy",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "transports": true,
+            "maxTransports": 2,
+            "shipShare": 0.5,
+            "maxShips": 4,
+            "bomberShare": 0.3,
+            "subShare": 0.3
+          }
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 50,
+  "rotateSeats": true,
+  "roundLimit": 100
+}

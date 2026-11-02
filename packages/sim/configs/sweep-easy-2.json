@@ -1,0 +1,27 @@
+{
+  "name": "sweep-easy-2",
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": {
+      "label": "normal",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "subject": {
+      "label": "easy",
+      "factionId": "eisenbund",
+      "difficulty": "easy"
+    },
+    "grid": {
+      "skipShare": [0, 0.1],
+      "attackThreshold": [0.55, 0.6]
+    }
+  }
+}

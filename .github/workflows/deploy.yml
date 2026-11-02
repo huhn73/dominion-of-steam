@@ -1,0 +1,99 @@
+# Push auf main: Tests → Image nach ghcr.io → per SSH auf dem Server aktualisieren (deploy/README.md)
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: dos
+          POSTGRES_PASSWORD: dos
+          POSTGRES_DB: dos_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U dos"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+        env:
+          TEST_DATABASE_URL: postgres://dos:dos@localhost:5432/dos_test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Anbieterdaten für Impressum und Datenschutz aus den Repository-Variablen (deploy/README.md §5)
+          build-args: |
+            VITE_ANBIETER_NAME=${{ vars.ANBIETER_NAME }}
+            VITE_ANBIETER_STRASSE=${{ vars.ANBIETER_STRASSE }}
+            VITE_ANBIETER_ORT=${{ vars.ANBIETER_ORT }}
+            VITE_ANBIETER_LAND=${{ vars.ANBIETER_LAND }}
+            VITE_ANBIETER_EMAIL=${{ vars.ANBIETER_EMAIL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /opt/dominion
+            docker compose pull app
+            docker compose up -d --remove-orphans
+            docker image prune -f
+            docker compose ps

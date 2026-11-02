@@ -1,0 +1,29 @@
+{
+  "name": "@dos/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./game": "./src/game/index.ts",
+    "./game/*": "./src/game/*.ts",
+    "./engine": "./src/game/engine/index.ts",
+    "./compendium": "./src/compendium/index.ts",
+    "./account": "./src/account/index.ts",
+    "./setup": "./src/setup/index.ts",
+    "./setup/*": "./src/setup/*.ts",
+    "./lobby": "./src/lobby/index.ts",
+    "./notifications": "./src/notifications/index.ts",
+    "./lobby/*": "./src/lobby/*.ts",
+    "./profile": "./src/profile/index.ts",
+    "./profile/*": "./src/profile/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

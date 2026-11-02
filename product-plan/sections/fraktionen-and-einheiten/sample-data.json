@@ -1,0 +1,413 @@
+{
+  "_meta": {
+    "models": {
+      "factions": "Die fiktiven Nationen der Dieselpunk-Welt mit Leitspruch, Farbe, Geschichte, Fraktionsbonus, Spielstil und optionaler Sondereinheit. Bildpfade zeigen auf public/art/factions/; fehlende Dateien werden durch Platzhalter ersetzt.",
+      "unitTypes": "Alle Einheitentypen mit Werten, Beschreibung, Taktik-Tipps und optional der Fraktion, für die sie exklusiv sind. Bildpfade zeigen auf public/art/units/; fehlende Dateien werden durch Platzhalter ersetzt. Allgemeine Einheiten haben pro Fraktion eine eigene Illustration (variantIllustrationUrls), Sondereinheiten nur ihre eigene."
+    },
+    "relationships": [
+      "Eine Faction hat höchstens eine Sondereinheit (specialUnitTypeId); die Salzküsten-Liga hat keine.",
+      "Ein UnitType mit factionId gehört exklusiv zu dieser Faction; UnitTypes ohne factionId kann jede Faction bauen.",
+      "Der bonus einer Faction verändert einen Wert (stat) aller UnitTypes eines Einsatzgebiets (domain); ein bonus ohne stat wirkt nicht auf Einheiten.",
+      "variantIllustrationUrls ordnet einer Faction-ID das Bild ihrer Variante zu; fehlt die Datei, wird illustrationUrl und danach der Platzhalter verwendet."
+    ]
+  },
+  "factions": [
+    {
+      "id": "eisenbund",
+      "name": "Eisenbund von Valdrin",
+      "shortName": "Eisenbund",
+      "motto": "Aus Kohle Stahl, aus Stahl Gewissheit.",
+      "color": "amber",
+      "emblemUrl": "/art/factions/eisenbund-emblem.png",
+      "heroImageUrl": "/art/factions/eisenbund-hero.webp",
+      "trait": "Schwerindustrie: Landeinheiten werden eine Runde schneller gebaut.",
+      "bonus": {
+        "label": "Schwerindustrie",
+        "description": "Landeinheiten werden eine Runde schneller gebaut.",
+        "domain": "land",
+        "stat": "productionTurns",
+        "modifier": -1,
+        "mode": "add"
+      },
+      "playstyle": [
+        "Defensiv",
+        "Landkrieg",
+        "Langsamer Aufbau"
+      ],
+      "playstyleSummary": "Für geduldige Strategen, die mit überlegenen Landstreitkräften Stadt um Stadt einnehmen. Auf See und in der Luft muss der Eisenbund mit Standardeinheiten auskommen.",
+      "history": "Als die alten Kohlereviere von Valdrin nach dem Großen Stillstand ihre Fürsten verjagten, schlossen sich die Bergbaustädte zu einem Bund zusammen, der nur einer Sache traut: dem, was man schmieden kann. Ein Rat aus Zechenmeistern regiert vom Hammerhaus in Eisenhafen aus, und jede Stadt entsendet so viele Stimmen, wie sie Hochöfen betreibt.\n\nDer Eisenbund führt Kriege, wie er Stollen gräbt: langsam, gründlich und ohne zurückzuweichen. Seine Dampfkolosse sind auf dem ganzen Kontinent gefürchtet, auch wenn Spötter behaupten, man könne einem davon bequem zu Fuß entkommen. Mit seinen Nachbarn verbindet ihn wenig mehr als ein gegenseitiges Misstrauen, das die Diplomaten des Bundes zuverlässig vertiefen.",
+      "specialUnitTypeId": "dampfkoloss"
+    },
+    {
+      "id": "aurelia",
+      "name": "Aurelische Republik",
+      "shortName": "Aurelia",
+      "motto": "Wer die Wellen hält, hält die Welt.",
+      "color": "rose",
+      "emblemUrl": "/art/factions/aurelia-emblem.png",
+      "heroImageUrl": "/art/factions/aurelia-hero.webp",
+      "trait": "Seemacht: Schiffe haben +1 Bewegung.",
+      "bonus": {
+        "label": "Seemacht",
+        "description": "Schiffe haben +1 Bewegung.",
+        "domain": "sea",
+        "stat": "movement",
+        "modifier": 1,
+        "mode": "add"
+      },
+      "playstyle": [
+        "Offensiv",
+        "Seekrieg",
+        "Schnelle Expansion"
+      ],
+      "playstyleSummary": "Für Spieler, die Inselketten rasch besetzen und mit beweglichen Flotten Druck machen. Zu Land fehlt der Republik die Ausdauer für lange Feldzüge.",
+      "history": "Die Aurelische Republik entstand aus einem Bündnis von Handelshäfen, deren Kaufleute irgendwann feststellten, dass Kanonen bessere Verträge schreiben als Notare. Ihre Flotte ist die größte der bekannten Welt, und ihre Admiräle sitzen im Senat.",
+      "specialUnitTypeId": "blitzkorvette"
+    },
+    {
+      "id": "nordmark",
+      "name": "Nordmark-Kollektiv",
+      "shortName": "Nordmark",
+      "motto": "Über den Wolken gibt es keine Grenzen.",
+      "color": "sky",
+      "emblemUrl": "/art/factions/nordmark-emblem.png",
+      "heroImageUrl": "/art/factions/nordmark-hero.webp",
+      "trait": "Luftschifffahrt: Lufteinheiten haben +50 % Reichweite.",
+      "bonus": {
+        "label": "Luftschifffahrt",
+        "description": "Lufteinheiten haben +50 % Reichweite.",
+        "domain": "air",
+        "stat": "range",
+        "modifier": 1.5,
+        "mode": "multiply"
+      },
+      "playstyle": [
+        "Aufklärung",
+        "Luftkrieg",
+        "Flexibel"
+      ],
+      "playstyleSummary": "Für Spieler, die zuerst sehen und dann zuschlagen. Die große Reichweite der Luftschiffe deckt weite Teile der Karte ab.",
+      "history": "Im kargen Norden lernte man früh, dass der kürzeste Weg über die Gletscher durch die Luft führt. Das Kollektiv wird von gewählten Kapitänen geführt, und seine Wolkenkreuzer sind Werft, Kaserne und Rathaus zugleich.",
+      "specialUnitTypeId": "wolkenkreuzer"
+    },
+    {
+      "id": "salzkueste",
+      "name": "Salzküsten-Liga",
+      "shortName": "Salzküste",
+      "motto": "Unsere Mauern stehen länger als eure Geduld.",
+      "color": "lime",
+      "emblemUrl": "/art/factions/salzkueste-emblem.png",
+      "heroImageUrl": "/art/factions/salzkueste-hero.webp",
+      "trait": "Befestigung: Städte erhalten +1 Verteidigung.",
+      "bonus": {
+        "label": "Befestigung",
+        "description": "Städte erhalten +1 Verteidigung.",
+        "domain": null,
+        "stat": null,
+        "modifier": 1,
+        "mode": "add"
+      },
+      "playstyle": [
+        "Befestigung",
+        "Verteidigung"
+      ],
+      "playstyleSummary": "Für Spieler, die lieber halten als nehmen. Ohne Sondereinheit liegt die Stärke der Liga in schwer einnehmbaren Städten.",
+      "history": "Ein loser Bund von Festungsstädten entlang der Salzmarschen, zusammengehalten von gemeinsamen Feinden und dem Salzhandel.",
+      "specialUnitTypeId": null
+    }
+  ],
+  "unitTypes": [
+    {
+      "id": "grenadiere",
+      "name": "Grenadiere",
+      "domain": "land",
+      "strength": 2,
+      "defense": 2,
+      "movement": 1,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 4,
+      "factionId": null,
+      "canCaptureCities": true,
+      "description": "Die Grundlage jeder Armee: Fußtruppen mit Gasmasken und Gewehrgranaten. Langsam, aber die einzigen, die überall hinkommen.",
+      "tactics": [
+        "Lass in jeder eroberten Stadt eine Einheit Grenadiere auf Wache zurück.",
+        "Auf Hügeln und in Wäldern sind Grenadiere schwer zu vertreiben."
+      ],
+      "illustrationUrl": "/art/units/grenadiere.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/grenadiere.webp",
+        "aurelia": "/art/units/aurelia/grenadiere.webp",
+        "nordmark": "/art/units/nordmark/grenadiere.webp",
+        "salzkueste": "/art/units/salzkueste/grenadiere.webp"
+      }
+    },
+    {
+      "id": "panzerwagen",
+      "name": "Panzerwagen",
+      "domain": "land",
+      "strength": 4,
+      "defense": 3,
+      "movement": 2,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 7,
+      "factionId": null,
+      "canCaptureCities": true,
+      "description": "Gepanzerte Dampfwagen mit Schnellfeuerkanone. Schnell genug, um neutrale Städte vor dem Gegner zu erreichen.",
+      "tactics": [
+        "Nutze die doppelte Bewegung, um Lücken in der Front zu schließen.",
+        "Panzerwagen eignen sich gut für Mehrrunden-Märsche zu weit entfernten Städten."
+      ],
+      "illustrationUrl": "/art/units/panzerwagen.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/panzerwagen.webp",
+        "aurelia": "/art/units/aurelia/panzerwagen.webp",
+        "nordmark": "/art/units/nordmark/panzerwagen.webp",
+        "salzkueste": "/art/units/salzkueste/panzerwagen.webp"
+      }
+    },
+    {
+      "id": "dampfkoloss",
+      "name": "Dampfkoloss",
+      "domain": "land",
+      "strength": 6,
+      "defense": 5,
+      "movement": 1,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 12,
+      "factionId": "eisenbund",
+      "canCaptureCities": true,
+      "description": "Der Dampfkoloss ist eine fahrende Festung auf Kettenlaufwerken, so hoch wie ein Kirchturm und angetrieben von drei Kesseln, die gemeinsam mehr Kohle verbrennen als eine Kleinstadt im Winter. Er bewegt sich nur ein Feld pro Runde, doch kaum eine Einheit kann seinem Panzer etwas anhaben. In der Schlacht um die Zechen von Grauwasser soll ein einzelner Koloss drei Tage lang eine ganze Armee aufgehalten haben, bis ihm schließlich die Kohle ausging.",
+      "tactics": [
+        "Begleite den Koloss mit Grenadieren, damit er nicht eingekesselt wird.",
+        "Plane seinen Weg früh: Er braucht für jede Strecke doppelt so lange wie ein Panzerwagen.",
+        "Ein Koloss in einer Stadt macht sie praktisch uneinnehmbar."
+      ],
+      "illustrationUrl": "/art/units/dampfkoloss.webp",
+      "variantIllustrationUrls": {}
+    },
+    {
+      "id": "kanonenboot",
+      "name": "Kanonenboot",
+      "domain": "sea",
+      "strength": 2,
+      "defense": 2,
+      "movement": 4,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 6,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Kleine, wendige Schiffe für Küstenschutz und Aufklärung.",
+      "tactics": [
+        "Stelle Kanonenboote auf Patrouille entlang deiner Küsten."
+      ],
+      "illustrationUrl": "/art/units/kanonenboot.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/kanonenboot.webp",
+        "aurelia": "/art/units/aurelia/kanonenboot.webp",
+        "nordmark": "/art/units/nordmark/kanonenboot.webp",
+        "salzkueste": "/art/units/salzkueste/kanonenboot.webp"
+      }
+    },
+    {
+      "id": "panzerkreuzer",
+      "name": "Panzerkreuzer",
+      "domain": "sea",
+      "strength": 6,
+      "defense": 6,
+      "movement": 3,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 14,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Das Rückgrat jeder Flotte: schwer gepanzert, langsam und teuer.",
+      "tactics": [
+        "Panzerkreuzer schützen Frachter auf dem Weg zu fremden Küsten.",
+        "Greife mit ihnen nur an, wenn die Siegchance hoch ist. Ein verlorener Kreuzer kostet 14 Runden Produktion."
+      ],
+      "illustrationUrl": "/art/units/panzerkreuzer.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/panzerkreuzer.webp",
+        "aurelia": "/art/units/aurelia/panzerkreuzer.webp",
+        "nordmark": "/art/units/nordmark/panzerkreuzer.webp",
+        "salzkueste": "/art/units/salzkueste/panzerkreuzer.webp"
+      }
+    },
+    {
+      "id": "tauchboot",
+      "name": "Tauchboot",
+      "domain": "sea",
+      "strength": 5,
+      "defense": 1,
+      "movement": 3,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 9,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Unsichtbare Jäger unter Wasser. Hoher Angriff, aber kaum Panzerung.",
+      "tactics": [
+        "Tauchboote sind ideal gegen Panzerkreuzer, aber verwundbar, sobald sie entdeckt sind."
+      ],
+      "illustrationUrl": "/art/units/tauchboot.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/tauchboot.webp",
+        "aurelia": "/art/units/aurelia/tauchboot.webp",
+        "nordmark": "/art/units/nordmark/tauchboot.webp",
+        "salzkueste": "/art/units/salzkueste/tauchboot.webp"
+      }
+    },
+    {
+      "id": "frachter",
+      "name": "Transportfrachter",
+      "domain": "sea",
+      "strength": 0,
+      "defense": 1,
+      "movement": 3,
+      "range": null,
+      "capacity": 6,
+      "cargoDomain": "land",
+      "productionTurns": 8,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Unbewaffnete Transportschiffe für bis zu sechs Landeinheiten.",
+      "tactics": [
+        "Ein voller Frachter ohne Geleitschutz ist eine Einladung an jedes Tauchboot.",
+        "Lade Einheiten direkt aus einer Küstenstadt, um Bewegungspunkte zu sparen."
+      ],
+      "illustrationUrl": "/art/units/frachter.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/frachter.webp",
+        "aurelia": "/art/units/aurelia/frachter.webp",
+        "nordmark": "/art/units/nordmark/frachter.webp",
+        "salzkueste": "/art/units/salzkueste/frachter.webp"
+      }
+    },
+    {
+      "id": "flugzeugtraeger",
+      "name": "Flugzeugträger",
+      "domain": "sea",
+      "strength": 1,
+      "defense": 5,
+      "movement": 3,
+      "range": null,
+      "capacity": 4,
+      "cargoDomain": "air",
+      "productionTurns": 16,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Ein schwimmendes Flugfeld mit Hangardeck für bis zu vier Flugzeuge. Lufteinheiten können auf ihm landen und auftanken, weit entfernt von jeder Stadt.",
+      "tactics": [
+        "Mit einem Träger reichen Doppeldecker und Bomber bis an fremde Küsten.",
+        "Ein Träger selbst ist kaum bewaffnet. Halte Kreuzer in seiner Nähe."
+      ],
+      "illustrationUrl": "/art/units/flugzeugtraeger.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/flugzeugtraeger.webp",
+        "aurelia": "/art/units/aurelia/flugzeugtraeger.webp",
+        "nordmark": "/art/units/nordmark/flugzeugtraeger.webp",
+        "salzkueste": "/art/units/salzkueste/flugzeugtraeger.webp"
+      }
+    },
+    {
+      "id": "blitzkorvette",
+      "name": "Blitzkorvette",
+      "domain": "sea",
+      "strength": 3,
+      "defense": 2,
+      "movement": 6,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 8,
+      "factionId": "aurelia",
+      "canCaptureCities": false,
+      "description": "Die schnellste Einheit der aurelischen Flotte, gebaut für Überfälle auf Handelswege.",
+      "tactics": [],
+      "illustrationUrl": "/art/units/blitzkorvette.webp",
+      "variantIllustrationUrls": {}
+    },
+    {
+      "id": "doppeldecker",
+      "name": "Doppeldecker",
+      "domain": "air",
+      "strength": 1,
+      "defense": 1,
+      "movement": 6,
+      "range": 12,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 5,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Leichte Flugzeuge mit begrenztem Treibstoff. Unverzichtbar zur Aufklärung.",
+      "tactics": [
+        "Fliege nie weiter als die halbe Reichweite von der nächsten eigenen Stadt weg.",
+        "Doppeldecker decken den Kriegsnebel schneller auf als jede andere Einheit."
+      ],
+      "illustrationUrl": "/art/units/doppeldecker.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/doppeldecker.webp",
+        "aurelia": "/art/units/aurelia/doppeldecker.webp",
+        "nordmark": "/art/units/nordmark/doppeldecker.webp",
+        "salzkueste": "/art/units/salzkueste/doppeldecker.webp"
+      }
+    },
+    {
+      "id": "schwerbomber",
+      "name": "Schwerbomber",
+      "domain": "air",
+      "strength": 5,
+      "defense": 1,
+      "movement": 4,
+      "range": 16,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 10,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Viermotoriger Bomber mit gepanzerter Kanzel und großer Bombenlast. Er trifft Städte und Bodentruppen schwer, ist aber gegen Jäger nahezu wehrlos.",
+      "tactics": [
+        "Greife Verteidiger in Städten mit Bombern an, bevor deine Landeinheiten stürmen.",
+        "Lass Bomber nie ohne Doppeldecker-Begleitschutz in Reichweite feindlicher Flugzeuge."
+      ],
+      "illustrationUrl": "/art/units/schwerbomber.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/schwerbomber.webp",
+        "aurelia": "/art/units/aurelia/schwerbomber.webp",
+        "nordmark": "/art/units/nordmark/schwerbomber.webp",
+        "salzkueste": "/art/units/salzkueste/schwerbomber.webp"
+      }
+    },
+    {
+      "id": "wolkenkreuzer",
+      "name": "Wolkenkreuzer",
+      "domain": "air",
+      "strength": 3,
+      "defense": 3,
+      "movement": 3,
+      "range": 30,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 12,
+      "factionId": "nordmark",
+      "canCaptureCities": false,
+      "description": "Riesige Luftschiffe mit Bordgeschützen und enormer Reichweite.",
+      "tactics": [
+        "Wolkenkreuzer können wochenlang über feindlichem Gebiet kreisen und Truppenbewegungen melden."
+      ],
+      "illustrationUrl": "/art/units/wolkenkreuzer.webp",
+      "variantIllustrationUrls": {}
+    }
+  ]
+}

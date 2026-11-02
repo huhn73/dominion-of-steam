@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: dos-db
+    environment:
+      POSTGRES_USER: dos
+      POSTGRES_PASSWORD: dos
+      POSTGRES_DB: dos
+    ports:
+      - '5442:5432'
+    volumes:
+      - dos-db:/var/lib/postgresql/data
+      - ./apps/server/db-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dos']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  # Fängt alle E-Mails ab (Benachrichtigungen): Weboberfläche http://localhost:8025
+  mailpit:
+    image: axllent/mailpit
+    container_name: dos-mailpit
+    ports:
+      - '8025:8025'
+      - '1025:1025'
+
+  app:
+    build:
+      context: .
+      args:
+        DEV_TOOLS: 'true'
+    container_name: dos-app
+    environment:
+      DATABASE_URL: postgres://dos:dos@db:5432/dos
+      SMTP_URL: smtp://mailpit:1025
+      PUBLIC_URL: http://localhost:8080
+      # Hochgeladene Avatare (benanntes Volume, überlebt Neubauten)
+      UPLOADS_DIR: /app/uploads
+    volumes:
+      - dos-uploads:/app/uploads
+    ports:
+      - '8080:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+volumes:
+  dos-db:
+  dos-uploads:

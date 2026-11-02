@@ -1,0 +1,65 @@
+{
+  "name": "inseln-ohne",
+  "matchups": [
+    {
+      "id": "hard-vs-normal",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard",
+          "profile": {
+            "transports": false,
+            "scoutShare": 0,
+            "bomberShare": 0
+          }
+        },
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "transports": false,
+            "scoutShare": 0,
+            "bomberShare": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "aurelia-vs-eisenbund",
+      "participants": [
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal",
+          "profile": {
+            "transports": false,
+            "scoutShare": 0,
+            "bomberShare": 0
+          }
+        },
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "profile": {
+            "transports": false,
+            "scoutShare": 0,
+            "bomberShare": 0
+          }
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium",
+      "worldShape": "islands",
+      "landShare": 35
+    }
+  ],
+  "seeds": 50,
+  "rotateSeats": true,
+  "roundLimit": 150
+}

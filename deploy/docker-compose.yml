@@ -1,0 +1,76 @@
+# Dominion of Steam in Produktion: Caddy (https) → App → Postgres, dazu tägliche Dumps.
+# Liegt auf dem Server unter /opt/dominion/ zusammen mit Caddyfile und .env (siehe README.md).
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: dos
+    # Kein Port nach außen: nur app und backup erreichen die Datenbank
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dos']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    image: ghcr.io/huhn73/dominion-of-steam:${APP_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://dos:${POSTGRES_PASSWORD}@db:5432/dos
+      UPLOADS_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Täglicher pg_dump nach /backups (Volume db_backups), Aufbewahrung 7 Tage / 4 Wochen / 6 Monate
+  backup:
+    image: prodrigestivill/postgres-backup-local:17
+    restart: unless-stopped
+    user: postgres:postgres
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: dos
+      POSTGRES_USER: dos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_EXTRA_OPTS: -Z6 --blobs
+      SCHEDULE: '@daily'
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+    volumes:
+      - db_backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:
+  db_data:
+  uploads:
+  db_backups:

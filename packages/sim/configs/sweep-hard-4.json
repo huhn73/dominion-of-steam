@@ -1,0 +1,28 @@
+{
+  "name": "sweep-hard-4",
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": {
+      "label": "normal",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "subject": {
+      "label": "hard",
+      "factionId": "eisenbund",
+      "difficulty": "hard"
+    },
+    "grid": {
+      "armourShare": [0.4, 0.6, 0.8],
+      "fortify": [false, true],
+      "siegeRatio": [1.5, 2]
+    }
+  }
+}

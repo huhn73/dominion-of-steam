@@ -1,0 +1,245 @@
+{
+  "_meta": {
+    "models": {
+      "profile": "Das Profil des angemeldeten Spielers mit Anzeigename, Avatar, Mitglied-seit-Datum und Lieblingsfraktion.",
+      "stats": "Die Gesamtbilanz des Spielers über alle beendeten Partien.",
+      "factionStats": "Partien und Siege je Fraktion; gamesPlayed 0 heißt noch nie gespielt.",
+      "history": "Die beendeten Partien des Spielers mit Ergebnis, Platzierung und Mitspielern (neueste zuerst).",
+      "factions": "Die Fraktionen mit Farbe und Wappen.",
+      "settings": "Alle Einstellungen des Spielers: Benachrichtigungen, Darstellung, Ton, Steuerung.",
+      "account": "Kontodaten für die Rubrik Konto."
+    },
+    "relationships": [
+      "profile.favoriteFactionId, factionStats[].factionId und history[].factionId verweisen auf factions.",
+      "stats fasst history zusammen; history enthält hier nur die letzten Einträge, hasMoreHistory zeigt an, dass ältere nachgeladen werden können."
+    ]
+  },
+  "profile": {
+    "id": "you",
+    "displayName": "Björn",
+    "avatarUrl": null,
+    "memberSince": "2026-06-12T00:00:00Z",
+    "favoriteFactionId": "eisenbund"
+  },
+  "stats": {
+    "gamesPlayed": 23,
+    "wins": 11,
+    "citiesCaptured": 187,
+    "unitsBuilt": 642,
+    "longestGameRounds": 131
+  },
+  "factionStats": [
+    {
+      "factionId": "eisenbund",
+      "gamesPlayed": 12,
+      "wins": 8
+    },
+    {
+      "factionId": "aurelia",
+      "gamesPlayed": 6,
+      "wins": 2
+    },
+    {
+      "factionId": "nordmark",
+      "gamesPlayed": 5,
+      "wins": 1
+    },
+    {
+      "factionId": "salzkueste",
+      "gamesPlayed": 0,
+      "wins": 0
+    }
+  ],
+  "history": [
+    {
+      "id": "h1",
+      "name": "Rußige Pfade",
+      "endedAt": "2026-10-27T21:10:00Z",
+      "result": "victory",
+      "placement": 1,
+      "playerCount": 3,
+      "rounds": 48,
+      "factionId": "eisenbund",
+      "opponents": [
+        "Lena Hartmann",
+        "Zechenmeister Brandt (KI)"
+      ]
+    },
+    {
+      "id": "h2",
+      "name": "Gegen die Republik",
+      "endedAt": "2026-10-22T18:45:00Z",
+      "result": "defeat",
+      "placement": 2,
+      "playerCount": 2,
+      "rounds": 63,
+      "factionId": "nordmark",
+      "opponents": [
+        "Admiral Kessler (KI)"
+      ]
+    },
+    {
+      "id": "h3",
+      "name": "Testlauf",
+      "endedAt": "2026-10-19T08:02:00Z",
+      "result": "surrendered",
+      "placement": 4,
+      "playerCount": 4,
+      "rounds": 7,
+      "factionId": "aurelia",
+      "opponents": [
+        "Mira Okonkwo",
+        "Tobias Brenner",
+        "Graf Ostrow (KI)"
+      ]
+    },
+    {
+      "id": "h4",
+      "name": "Die Brücke von Grauwasser",
+      "endedAt": "2026-10-11T22:30:00Z",
+      "result": "victory",
+      "placement": 1,
+      "playerCount": 4,
+      "rounds": 102,
+      "factionId": "aurelia",
+      "opponents": [
+        "Lena Hartmann",
+        "Jonas Vogt",
+        "Selin Arslan"
+      ]
+    },
+    {
+      "id": "h5",
+      "name": "Inselreich",
+      "endedAt": "2026-09-30T20:00:00Z",
+      "result": "defeat",
+      "placement": 3,
+      "playerCount": 5,
+      "rounds": 88,
+      "factionId": "eisenbund",
+      "opponents": [
+        "Lena Hartmann",
+        "Mira Okonkwo",
+        "Jonas Vogt",
+        "Kapitänin Halvorsen (KI)"
+      ]
+    },
+    {
+      "id": "h6",
+      "name": "Sonntagsfeldzug",
+      "endedAt": "2026-09-21T17:40:00Z",
+      "result": "victory",
+      "placement": 1,
+      "playerCount": 2,
+      "rounds": 35,
+      "factionId": "eisenbund",
+      "opponents": [
+        "Jonas Vogt"
+      ]
+    },
+    {
+      "id": "h7",
+      "name": "Kohle für alle",
+      "endedAt": "2026-09-14T19:05:00Z",
+      "result": "victory",
+      "placement": 1,
+      "playerCount": 3,
+      "rounds": 57,
+      "factionId": "eisenbund",
+      "opponents": [
+        "Tobias Brenner",
+        "Senatorin Varenne (KI)"
+      ]
+    },
+    {
+      "id": "h8",
+      "name": "Nebel über Nordhavn",
+      "endedAt": "2026-09-02T21:55:00Z",
+      "result": "defeat",
+      "placement": 2,
+      "playerCount": 3,
+      "rounds": 74,
+      "factionId": "nordmark",
+      "opponents": [
+        "Lena Hartmann",
+        "Mira Okonkwo"
+      ]
+    }
+  ],
+  "hasMoreHistory": true,
+  "factions": [
+    {
+      "id": "eisenbund",
+      "name": "Eisenbund von Valdrin",
+      "shortName": "Eisenbund",
+      "color": "amber",
+      "emblemUrl": "/art/factions/eisenbund-emblem.png"
+    },
+    {
+      "id": "aurelia",
+      "name": "Aurelische Republik",
+      "shortName": "Aurelia",
+      "color": "rose",
+      "emblemUrl": "/art/factions/aurelia-emblem.png"
+    },
+    {
+      "id": "nordmark",
+      "name": "Nordmark-Kollektiv",
+      "shortName": "Nordmark",
+      "color": "sky",
+      "emblemUrl": "/art/factions/nordmark-emblem.png"
+    },
+    {
+      "id": "salzkueste",
+      "name": "Salzküsten-Liga",
+      "shortName": "Salzküste",
+      "color": "lime",
+      "emblemUrl": "/art/factions/salzkueste-emblem.png"
+    }
+  ],
+  "pushPermission": "default",
+  "settings": {
+    "notifications": {
+      "yourTurn": {
+        "push": true,
+        "email": true
+      },
+      "deadlineSoon": {
+        "push": true,
+        "email": false
+      },
+      "invitation": {
+        "push": true,
+        "email": true
+      },
+      "matchEnded": {
+        "push": false,
+        "email": false
+      },
+      "emailDelayHours": 6
+    },
+    "display": {
+      "theme": "system",
+      "reduceMotion": false,
+      "combatAnimations": true,
+      "autoplayReplay": true
+    },
+    "sound": {
+      "muted": false,
+      "master": 80,
+      "effects": 70,
+      "music": 40,
+      "ambience": 55
+    },
+    "controls": {
+      "rightClick": "cancel",
+      "confirmEndTurn": true,
+      "dragUnits": true,
+      "zoomSensitivity": 50
+    }
+  },
+  "account": {
+    "email": "bjoern@example.de",
+    "activeSessions": 3
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "inselwelt",
+  "matchups": [
+    {
+      "id": "hard-vs-normal",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "aurelia-vs-eisenbund",
+      "participants": [
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        },
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "ffa-persoenlichkeiten",
+      "participants": [
+        {
+          "label": "varenne",
+          "factionId": "aurelia",
+          "difficulty": "normal",
+          "personalityId": "varenne"
+        },
+        {
+          "label": "kessler",
+          "factionId": "aurelia",
+          "difficulty": "normal",
+          "personalityId": "kessler"
+        },
+        {
+          "label": "brandt",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "personalityId": "brandt"
+        },
+        {
+          "label": "ostrow",
+          "factionId": "salzkueste",
+          "difficulty": "normal",
+          "personalityId": "ostrow"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium",
+      "worldShape": "islands",
+      "landShare": 35
+    }
+  ],
+  "seeds": 50,
+  "rotateSeats": true,
+  "roundLimit": 150
+}

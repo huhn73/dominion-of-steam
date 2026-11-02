@@ -1,0 +1,5 @@
+# Reverse-Proxy mit automatischem Let's Encrypt-Zertifikat (Domain aus .env)
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3000
+}

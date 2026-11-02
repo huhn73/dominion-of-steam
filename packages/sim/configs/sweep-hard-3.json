@@ -1,0 +1,28 @@
+{
+  "name": "sweep-hard-3",
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": {
+      "label": "normal",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "subject": {
+      "label": "hard",
+      "factionId": "eisenbund",
+      "difficulty": "hard"
+    },
+    "grid": {
+      "siegeRatio": [1.5, 2, 3],
+      "bomberShare": [0, 0.15],
+      "transports": [false, true]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "smoke",
+  "matchups": [
+    {
+      "id": "hard-vs-normal",
+      "participants": [
+        { "label": "hard-eisenbund", "factionId": "eisenbund", "difficulty": "hard" },
+        { "label": "normal-eisenbund", "factionId": "eisenbund", "difficulty": "normal" }
+      ]
+    }
+  ],
+  "maps": [{ "size": "small" }],
+  "seeds": 2,
+  "rotateSeats": true,
+  "roundLimit": 20
+}

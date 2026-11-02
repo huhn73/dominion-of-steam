@@ -1,0 +1,38 @@
+{
+  "name": "fraktionen-ffa",
+  "matchups": [
+    {
+      "id": "ffa-4",
+      "participants": [
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        },
+        {
+          "label": "nordmark",
+          "factionId": "nordmark",
+          "difficulty": "normal"
+        },
+        {
+          "label": "salzkueste",
+          "factionId": "salzkueste",
+          "difficulty": "normal"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "large"
+    }
+  ],
+  "seeds": 50,
+  "rotateSeats": true,
+  "roundLimit": 100
+}

@@ -1,0 +1,57 @@
+# Produkt-Roadmap
+
+## Phase 1: MVP (umgesetzt)
+
+Alle sechs Meilensteine der Design-Übergabe sind umgesetzt (Specs in `agent-os/specs/`, dazu der Zwischenschritt Konten & Anmeldung). Die Anleitungen liegen in `product-plan/instructions/incremental/`.
+
+1. **Shell** (`01-shell.md`): Design-Tokens und Anwendungs-Shell mit Menü- und Spiel-Modus
+2. **Spielfeld & Züge** (`02-spielfeld-and-zuge.md`): Kartenansicht mit Kriegsnebel, Städten, Einheitenbewegung, Kampf und Rundenablauf, solo gegen eine einfache KI spielbar
+3. **Fraktionen & Einheiten** (`03-fraktionen-and-einheiten.md`): Kompendium der Fraktionen und aller Einheitentypen mit Werten, Sondereinheiten, Fraktionsvarianten und Bauzeiten
+4. **Partie-Setup & KI-Gegner** (`04-partie-setup-and-ki-gegner.md`): Assistent für neue Partien mit Regeln, eigener Fraktion, Gegnern und Mitspielern, Karteneinstellungen und KI-Persönlichkeiten
+5. **Lobby & Multiplayer** (`05-lobby-and-multiplayer.md`): Startseite mit eigenen Partien, Einladungen, offenen und beendeten Partien sowie Warteraum, live und asynchron
+6. **Spielerprofil & Einstellungen** (`06-spielerprofil-and-einstellungen.md`): Bilanz, Partieverlauf und Einstellungen für Benachrichtigungen (Web-Push und E-Mail), Darstellung, Ton, Steuerung und Konto
+
+## Phase 1b: Playtest Runde 1
+
+Beobachtungen aus der ersten gespielten Runde, Details und Zuordnung in `playtest-runde-1.md`. Reihenfolge:
+
+0. ~~**Prüfung Startstädte**~~ erledigt am 31. Oktober 2026: kein Bug, die KI erobert neutrale Städte im Kriegsnebel ab Runde 4 bis 6 (Befund in `playtest-runde-1.md`)
+1. ~~**Kampfregeln**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-0207-kampfregeln/`): Domänen beim Angriff, Nachrücken nach Sieg, Hinweis zum Heranfahren, Gelände- und Stadtbonus, Stadtschaden unter Beschuss
+2. ~~**Spielfeld-Bedienung**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-0241-spielfeld-bedienung/`): Stapelzähler und Garnison, Tipp-Zyklus mit Feldliste, „Nächste Einheit“ ab Cursor mit Taste N, Kampfsequenz, Produktionsübersicht
+3. ~~**Rundenbericht**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1026-rundenbericht/`): Berichtskarte vor der Wiedergabe mit Verlusten, Gefechten, Städten, Entdeckungen und Gegnerbewegungen, neue Ereignisse für gesichtete Feinde und entdeckte Städte, Einstellung „Rundenbericht zu Zugbeginn“
+4. ~~**Einheitenbefehle**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1225-flugzeuge-erkunden/`): Erkundungsbefehl für Flugzeuge (statt Patrouille über einer Stadt, im Shaping präzisiert), Treibstoffschutz mit roten Feldern, Nachfrage „Kein Rückweg“, Zugende-Warnung und „Zur Basis“
+
+## Phase 1c: Playtest Runde 2
+
+Beobachtungen aus der zweiten gespielten Runde, Details und Zuordnung in `playtest-runde-2.md`. Reihenfolge:
+
+1. ~~**Ton beim Wechsel**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1139-ton-beim-wechsel/`): Ergebnisstück und Fraktionsthema blenden aus, wenn Menümusik startet oder die Partie verlassen wird; Abmelden blendet alles aus (vorher lief die Musik weiter und beim nächsten Login spielte eine zweite Engine dazu), Engine über dem Router, Musik startet direkt nach dem Login
+2. ~~**Kampfsystem mit Trefferpunkten**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1238-kampf-trefferpunkte/`): Trefferpunkte und Schaden je Typ, Kampf in Runden bis zur Vernichtung einer Seite, Angriff kostet einen Bewegungspunkt, Stadtangriff verbraucht die Einheit (Panzer hinterlässt Grenadiere), Reparatur +1 je Runde, KI mit mehreren Befehlen je Einheit, Anzeige in TP, Migration alter Spielstände
+3. ~~**Kartengrößen**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1707-kartengroessen/`): fünf quadratische Stufen 20×20 bis 200×200, Rundenlimit bis 500 oder ohne, dünnere Städte mit generierten Namen; kompakter Spielstand und komprimierte Sicht, KI mit Arbeitsbudget (≤ 10 s je Zug), Gelände und Minikarte auf Canvas, Kamera mit Einpassen und Tasten. Festlegung vom 1. November 2026: Der Landanteil darf nicht zu groß sein, damit getrennte Inseln entstehen (bei 55 % Land erzeugt der Generator praktisch eine Landmasse, erst bei 30 % auf „Groß“ liegen die Hauptstädte in 13 von 30 Karten auf verschiedenen Inseln); Vorgabe und Grenzen von `landShare` entsprechend wählen oder Inseln im Generator garantieren. Nachtrag: Rundenlimit Mittel 150, Hauptstädte zufällig über die Landmassen, Landanteil-Vorgabe 35 % (sinnvoll 20–40 %); Inseln garantiert die Weltform (Punkt 10)
+4. **Freies Vorspiel** zurückgestellt am 1. November 2026 als Idee: gleichzeitige Züge, bis ein Kontakt möglich wird, dann Rundenmodus (Befund und Zielbild in `playtest-runde-2.md`, Spec 4)
+5. ~~**KI-Simulation und Parameter-Sweep**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1326-ki-simulation/`): Paket `packages/sim` spielt Partien KI gegen KI headless und parallel, sammelt Siegquoten, Eroberungen, Kämpfe, Produktion und Zugdauer, schreibt Berichte nach `agent-os/product/ki-simulation/` und rastert Profilparameter; Befunde in `agent-os/product/ki-balance.md`
+6. ~~**KI-Regeln je Stufe und Fraktion**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1358-ki-regeln/`): „leicht“ greift an, lässt aber besetzte Städte in Ruhe; „schwer“ ohne Münzwurf-Angriffe, plant Wache-Einheiten neu, verteidigt bedrohte Städte; Stadtangriffe nach Ertrag statt Schwelle (löst Salzküste und Ostrow); Produktion wird bei jedem Neustart neu gewürfelt. Nachmessung in `ki-balance.md`: schwer gegen normal 45 → 67 %, leicht gegen normal 0 → 21 %, Salzküste in Duellen 74–92 → 35–58 %
+7. ~~**KI-Verhalten, zweiter Block**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1430-ki-verhalten-2/`): Belagerung verteidigter Städte mit Übermacht, Verfolgung versprengter Feinde, Panzerwagen-Schwerpunkt für „schwer“, Schwerbomber mit Rückweg-Prüfung, Frachter mit Landungen auf fremden Inseln, Grenzgarnison für „Befestigung“ (Ostrow), ein Aufklärer für „Aufklärung“. Patts am Rundenlimit von 272 auf 112 von 400 (schwer gegen normal 62 %), schwer gegen leicht von 294 auf 33; Nachmessung 2 in `ki-balance.md`
+8. ~~**KI-Verhalten, dritter Block**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1530-ki-verhalten-3/`): Eisenbund-Bonus nur noch ab fünf Runden Bauzeit (Vierer 43 → 26 %), Reparaturpausen für „schwer“, Dampfkoloss, Wolkenkreuzer und Blitzkorvette im KI-Einsatz, Kriegsschiffe als Geleitschutz und Schiffsjäger (Aurelia auf Inselkarten 33 → 55 %), „leicht“ nachjustiert, Sparringsgegner (leicht verliert gegen alle, schwer gewinnt gegen alle); Nachmessung 3 in `ki-balance.md`
+9. ~~**KI-Verhalten, vierter Block**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1610-ki-verhalten-4/`): Garnisonsziel für bedrohte Städte, Tauchboote als Schiffsjäger, Sparringsgegner Turtle und Marine. „Schwer“ gegen „normal“ 66 % (Ziel erreicht), alle Zielwerte der KI-Balance erfüllt; Nachmessung 4 in `ki-balance.md`
+10. ~~**Echte Inselwelt**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-1830-inselwelt/`): Weltform Kontinent, Inseln, Archipel im Generator, Setup, Server, Lobby und Simulation; jede Hauptstadt auf eigener Küsteninsel (30 von 30 Welten in allen 54 Messzellen), Heimatinseln im Zielband, neutrale Inseln mit Städten, Kontinent byte-identisch; `pnpm sim maps`
+11. ~~**Balance auf Inselwelten**~~ umgesetzt am 1. November 2026 (`agent-os/specs/2026-11-01-2015-inselbalance-tarnung/`): Kanonenboot als Geleit, Korvette nur Sondereinheit (Aurelia auf Inseln 80–88 → 45–54 %), Frachter normal 2 und schwer 3, keine Doppelaufträge mehr, „leicht“ 26 %, Träger als Flugbasis der KI, Tauchboote getarnt (sichtbar nur mit eigenem Tauchboot in der Nähe oder nach Auflaufen). Ursprünglicher Punkt: Aurelia gewinnt Inselduelle 80–88 % (Blitzkorvette als Geleit versenkt Frachter samt Ladung) und Inselpartien enden fast nur nach Punkten (`ki-balance.md`, „Nachmessung Inselwelt“): Geleitschutz und Korvette als Regel- und KI-Frage, Siegbedingung oder Punktwertung für Inselwelten prüfen; dazu Träger als Flugbasis und Sichtbarkeit von Tauchbooten
+12. **Siegbedingung auf Inselwelten:** Inselpartien enden zu 89–98 % am Rundenlimit, weil Ausschaltung über See selten gelingt; entscheiden, ob das so bleibt oder Inselwelten eine eigene Siegbedingung bzw. Punktwertung bekommen (`ki-balance.md`, „Nachmessung Inselbalance“)
+
+## Phase 2: Nach dem Launch
+
+Noch nicht priorisiert. Kandidaten aus den bekannten Lücken von Phase 1:
+
+- **Echtzeit:** WebSockets/SSE statt Polling (Lobby 15 s, Warteraum 4 s, Partie), wie im Tech-Stack vorgesehen
+- ~~**Ton**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1700-ton/`): Web-Audio-Engine mit vier Bussen, Menümusik nach Route, adaptive Spielfeldmusik aus drei Schichten mit Fraktionsthema, Sieg und Niederlage, Geländeambiente nach Kartenausschnitt, Effekte über Spielfeld-Cues und Event-Delegation, Stummschalter in der Kopfzeile, Benachrichtigungstöne aus dem Lobby-Polling
+- **Spielfeld-Einstellungen:** „Einheiten ziehen“ und „Nachfrage beim Zugende“ in den Spielfeld-Komponenten auswerten (bisher nur gespeichert); Zoom-Empfindlichkeit auch für Pinch-Zoom
+- ~~**Konten**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1530-konten-bestaetigung/`): Passwort vergessen, weiche E-Mail-Bestätigung bei der Registrierung (ohne Bestätigung keine E-Mails), Hinweis-Mails bei E-Mail- und Passwortänderung, Rate-Limiting je IP, Konto löschen nur mit Passwort
+- **Konten, offen:** Moderation von Anzeigenamen (Sperrliste, reservierte Namen)
+- **Avatare:** Zuschnitt und Verkleinerung auf dem Server (bisher unverändert gespeichert), Aufräumen verwaister Dateien
+- **Profil:** Filter des Partieverlaufs serverseitig (bisher nur über die geladenen Einträge), Bilanz bei vielen Partien vorberechnen statt bei jedem Aufruf aus den Spielständen ableiten, öffentliche Profile anderer Spieler, Erfolge/Abzeichen
+- **Freunde:** Oberfläche zum Verwalten (Hinzufügen geht bisher nur im Partie-Setup), Freundschaftsanfragen statt sofortiger Freundschaft
+- **Inhalte:** Illustrationen und Porträts laut Art-Brief (bisher greifen Initialen und SVG-Wappen), Sprachwahl
+- ~~**Betrieb**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1320-deployment/`, Anleitung in `deploy/README.md`): netcup-VPS mit Docker, Caddy mit Let's Encrypt, Cookie `Secure` hinter dem Proxy, Dev-Werkzeuge in Produktion aus, tägliche Datenbank-Dumps plus Upload-Archiv und Offsite-Kopie, GitHub Actions nach GHCR und SSH-Deploy, E-Mail über Mailjet
+- ~~**Online-Auftritt**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1900-online-auftritt/`): Impressum, Datenschutzerklärung und Lizenzseite als öffentliche Routen mit Links unter der Anmeldekarte, in der Menü-Fußzeile und im Benutzermenü, Lesezeichen-Icons mit Web-Manifest aus dem gelieferten Logo, Schriften gebündelt statt Google Fonts. Anbieterdaten kommen beim Build aus den Repository-Variablen `ANBIETER_*`
+- ~~**Spielabschluss**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1945-spielabschluss/`): Ergebniskarte über der Karte mit Stempel, Rangliste und Kennzahlen, Pille zum Wiederöffnen, Kopfzeile „Beendet · …“, Polling endet, „Zur Lobby“ (Lücke aus dem Playtest: nach dem Sieg blieb „Warte auf Gegner“ stehen)
+- **Betrieb, offen:** Multi-Stage-Image ohne Dev-Abhängigkeiten, Staging-Umgebung

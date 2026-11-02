@@ -1,0 +1,125 @@
+{
+  "name": "persoenlichkeiten",
+  "matchups": [
+    {
+      "id": "kessler-vs-normal",
+      "participants": [
+        {
+          "label": "kessler",
+          "factionId": "aurelia",
+          "difficulty": "normal",
+          "personalityId": "kessler"
+        },
+        {
+          "label": "referenz",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "varenne-vs-normal",
+      "participants": [
+        {
+          "label": "varenne",
+          "factionId": "aurelia",
+          "difficulty": "normal",
+          "personalityId": "varenne"
+        },
+        {
+          "label": "referenz",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "brandt-vs-normal",
+      "participants": [
+        {
+          "label": "brandt",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "personalityId": "brandt"
+        },
+        {
+          "label": "referenz",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "eisenhart-vs-normal",
+      "participants": [
+        {
+          "label": "eisenhart",
+          "factionId": "eisenbund",
+          "difficulty": "normal",
+          "personalityId": "eisenhart"
+        },
+        {
+          "label": "referenz",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "halvorsen-vs-normal",
+      "participants": [
+        {
+          "label": "halvorsen",
+          "factionId": "nordmark",
+          "difficulty": "normal",
+          "personalityId": "halvorsen"
+        },
+        {
+          "label": "referenz",
+          "factionId": "nordmark",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "lindqvist-vs-normal",
+      "participants": [
+        {
+          "label": "lindqvist",
+          "factionId": "nordmark",
+          "difficulty": "normal",
+          "personalityId": "lindqvist"
+        },
+        {
+          "label": "referenz",
+          "factionId": "nordmark",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "ostrow-vs-normal",
+      "participants": [
+        {
+          "label": "ostrow",
+          "factionId": "salzkueste",
+          "difficulty": "normal",
+          "personalityId": "ostrow"
+        },
+        {
+          "label": "referenz",
+          "factionId": "salzkueste",
+          "difficulty": "normal"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 50,
+  "rotateSeats": true,
+  "roundLimit": 100
+}

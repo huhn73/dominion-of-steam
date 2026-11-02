@@ -1,0 +1,26 @@
+{
+  "name": "sweep-hard-6",
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": {
+      "label": "normal",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "subject": {
+      "label": "hard",
+      "factionId": "eisenbund",
+      "difficulty": "hard"
+    },
+    "grid": {
+      "garrisonTarget": [1, 2, 3, 99]
+    }
+  }
+}

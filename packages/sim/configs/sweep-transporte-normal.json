@@ -1,0 +1,31 @@
+{
+  "name": "sweep-transporte-normal",
+  "maps": [
+    {
+      "size": "medium",
+      "worldShape": "islands",
+      "landShare": 35
+    }
+  ],
+  "seeds": 25,
+  "rotateSeats": true,
+  "roundLimit": 150,
+  "sweep": {
+    "reference": {
+      "label": "normal",
+      "factionId": "eisenbund",
+      "difficulty": "normal",
+      "profile": {
+        "maxTransports": 1
+      }
+    },
+    "subject": {
+      "label": "normal2",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "grid": {
+      "maxTransports": [1, 2, 3, 4]
+    }
+  }
+}

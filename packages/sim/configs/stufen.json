@@ -1,0 +1,61 @@
+{
+  "name": "stufen",
+  "matchups": [
+    {
+      "id": "hard-vs-normal",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "normal-vs-easy",
+      "participants": [
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "easy",
+          "factionId": "eisenbund",
+          "difficulty": "easy"
+        }
+      ]
+    },
+    {
+      "id": "hard-vs-easy",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "easy",
+          "factionId": "eisenbund",
+          "difficulty": "easy"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium"
+    },
+    {
+      "size": "small"
+    }
+  ],
+  "seeds": 100,
+  "rotateSeats": true,
+  "roundLimit": 100
+}

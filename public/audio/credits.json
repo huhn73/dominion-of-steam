@@ -1,0 +1,133 @@
+{
+  "sfx_source_recordings": [
+    {
+      "title": "Mechanical Sounds",
+      "author": "Brian MacIntosh (BMacZero)",
+      "source": "https://opengameart.org/content/mechanical-sounds",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "Steam release sounds",
+      "author": "bart",
+      "source": "https://opengameart.org/content/steam-release-sounds",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "68 Workshop Sounds",
+      "author": "bart",
+      "source": "https://opengameart.org/content/68-workshop-sounds",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "steam-whistle",
+      "author": "bart",
+      "source": "https://opengameart.org/content/steam-whistle",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "map",
+      "author": "Julie Damsgaard / Spring Spring",
+      "source": "https://opengameart.org/content/opening-and-closing-a-map-sounds",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "steamboat",
+      "author": "Spring Spring",
+      "source": "https://opengameart.org/content/steamboat-engine-sound",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "engine-start",
+      "author": "looneybits",
+      "source": "https://opengameart.org/content/car-engine-start-up-02",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "naval",
+      "author": "Thimras",
+      "source": "https://opengameart.org/content/battle-at-sea",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "metal-explosion",
+      "author": "Spring Spring",
+      "source": "https://opengameart.org/content/mechanical-explosion",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "firearms",
+      "author": "Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney",
+      "source": "https://opengameart.org/content/the-free-firearm-sound-library",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "Passage of Small Propeller Plane",
+      "author": "Joseph SARDIN",
+      "source": "https://bigsoundbank.com/passage-of-small-propeller-plane-s2478.html",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "Airplane, pass #1",
+      "author": "Dj Lio",
+      "source": "https://bigsoundbank.com/airplane-pass-1-s3004.html",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "Fantasy Weapons and Apparel SFX Library",
+      "author": "Vehicle / Jan Schupke",
+      "source": "https://opengameart.org/node/48439",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "waves",
+      "author": "transitking; extracts by qubodup",
+      "source": "https://opengameart.org/content/water-waves",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "winch",
+      "author": "bart",
+      "source": "https://opengameart.org/content/chain-winch-sounds",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "bubbles",
+      "author": "Brian MacIntosh / BMacZero",
+      "source": "https://opengameart.org/content/bubble-sound-effects",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "0261",
+      "author": "DenisChardonnet",
+      "source": "https://bigsoundbank.com/horn-of-a-ship-1-s0261.html",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "3508",
+      "author": "Le tiroir du fond",
+      "source": "https://bigsoundbank.com/ocean-liner-horn-4-s3508.html",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    }
+  ],
+  "sfx_note": "Aus CC0-Aufnahmen bearbeitet/abgemischt. Der U-Boot-Ping wurde für das Projekt prozedural erzeugt.",
+  "music_and_ambience": "Vom Projektinhaber mit Suno erstellt; die Original-WAV-Dateien werden privat aufbewahrt.",
+  "excluded_source": "The rejected CC-BY aircraft-loop candidate is not used in shipped audio."
+}

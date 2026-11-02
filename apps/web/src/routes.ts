@@ -1,0 +1,20 @@
+export const routes = {
+  lobby: '/',
+  newMatch: '/neue-partie',
+  factions: '/fraktionen',
+  faction: (factionId: string) => `/fraktionen/${factionId}`,
+  unitType: (unitTypeId: string, variantFactionId?: string | null) =>
+    `/einheiten/${unitTypeId}${variantFactionId ? `?ausfuehrung=${variantFactionId}` : ''}`,
+  profile: '/profil',
+  settings: '/einstellungen',
+  match: (matchId: string) => `/partie/${matchId}`,
+  waitingRoom: (matchId: string) => `/warteraum/${matchId}`,
+  invite: (token: string) => `/einladung/${token}`,
+  login: '/anmelden',
+  register: '/registrieren',
+  forgotPassword: '/passwort-vergessen',
+  resetPassword: '/passwort-zuruecksetzen',
+  imprint: '/impressum',
+  privacy: '/datenschutz',
+  licenses: '/lizenzen',
+} as const

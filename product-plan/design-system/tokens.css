@@ -1,0 +1,28 @@
+/* Design-Tokens für Dominion of Steam */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+:root {
+  /* Farben: Tailwind-Paletten */
+  --color-primary: amber;   /* Messing: Buttons, aktive Zustände, Hauptaktionen */
+  --color-secondary: teal;  /* Patina: Hover, Fokus, Hinweise, Tags */
+  --color-neutral: stone;   /* Ruß und Stahl: Flächen, Text, Rahmen */
+
+  /* Kernwerte, wo eine Farbe direkt gebraucht wird */
+  --color-primary-500: #f59e0b;
+  --color-primary-600: #d97706;
+  --color-secondary-600: #0d9488;
+  --color-neutral-900: #1c1917;
+  --color-neutral-50: #fafaf9;
+
+  /* Fraktionsfarben (Spielsteine, Wappen, Akzente) */
+  --faction-amber: #f59e0b;
+  --faction-rose: #f43f5e;
+  --faction-sky: #0ea5e9;
+  --faction-lime: #84cc16;
+
+  /* Schriften */
+  --font-heading: 'Big Shoulders Display', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}

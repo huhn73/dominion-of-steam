@@ -1,0 +1,715 @@
+{
+  "_meta": {
+    "models": {
+      "now": "Zeitpunkt, auf den sich Fristen und Countdowns in den Beispieldaten beziehen.",
+      "you": "Der angemeldete Spieler.",
+      "pushPermission": "Ob der Browser Push-Benachrichtigungen erlaubt ('default' = noch nicht gefragt).",
+      "factions": "Die Fraktionen mit Farbe und Wappen für Teilnehmeranzeigen.",
+      "matches": "Die eigenen Partien: am Zug, andere am Zug oder im Warteraum. Mit Teilnehmern, Regeln, Karteneinstellungen und einer groben Mini-Lagekarte.",
+      "invitations": "Erhaltene Einladungen zu Partien anderer Spieler.",
+      "openMatches": "Öffentliche Partien anderer Spieler mit freien Plätzen.",
+      "finishedMatches": "Die zuletzt beendeten Partien mit Ergebnis.",
+      "waitingRoom": "Der Warteraum einer Partie, die auf Mitspieler wartet, mit allen Plätzen und ihrem Status."
+    },
+    "relationships": [
+      "Ein Match hat mehrere Participants; der Spieler selbst ist der Participant mit isYou = true.",
+      "Participant.factionId verweist auf eine Faction; KI-Gegner haben isAI = true und eine aiDifficulty.",
+      "Match.miniMap ist ein Raster aus Zeichen: '~' Wasser, '.' neutrales Land, Ziffern = Index des Participants, dem das Gebiet gehört.",
+      "waitingRoom.matchId verweist auf das Match mit status 'waitingForPlayers'.",
+      "Eine Invitation führt nach dem Annehmen in den Warteraum der eingeladenen Partie."
+    ]
+  },
+  "now": "2026-10-30T13:00:00Z",
+  "you": {
+    "id": "you",
+    "name": "Björn",
+    "avatarUrl": null
+  },
+  "pushPermission": "default",
+  "deadlineWarningHours": 3,
+  "factions": [
+    {
+      "id": "eisenbund",
+      "name": "Eisenbund von Valdrin",
+      "shortName": "Eisenbund",
+      "color": "amber",
+      "emblemUrl": "/art/factions/eisenbund-emblem.png"
+    },
+    {
+      "id": "aurelia",
+      "name": "Aurelische Republik",
+      "shortName": "Aurelia",
+      "color": "rose",
+      "emblemUrl": "/art/factions/aurelia-emblem.png"
+    },
+    {
+      "id": "nordmark",
+      "name": "Nordmark-Kollektiv",
+      "shortName": "Nordmark",
+      "color": "sky",
+      "emblemUrl": "/art/factions/nordmark-emblem.png"
+    },
+    {
+      "id": "salzkueste",
+      "name": "Salzküsten-Liga",
+      "shortName": "Salzküste",
+      "color": "lime",
+      "emblemUrl": "/art/factions/salzkueste-emblem.png"
+    }
+  ],
+  "matches": [
+    {
+      "id": "m-kohle",
+      "name": "Die Kohleinseln",
+      "status": "yourTurn",
+      "round": 14,
+      "turnDeadline": "2026-10-31T11:00:00Z",
+      "currentParticipantId": "you",
+      "remindedAt": null,
+      "isHost": true,
+      "participants": [
+        {
+          "id": "you",
+          "name": "Björn",
+          "avatarUrl": null,
+          "isYou": true,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "eisenbund",
+          "status": "active",
+          "cityCount": 3
+        },
+        {
+          "id": "ai-kessler",
+          "name": "Admiral Kessler",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": true,
+          "aiDifficulty": "hard",
+          "factionId": "aurelia",
+          "status": "active",
+          "cityCount": 4
+        },
+        {
+          "id": "lena",
+          "name": "Lena Hartmann",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "nordmark",
+          "status": "active",
+          "cityCount": 3
+        },
+        {
+          "id": "ai-ostrow",
+          "name": "Graf Ostrow",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": true,
+          "aiDifficulty": "normal",
+          "factionId": "salzkueste",
+          "status": "eliminated",
+          "cityCount": 0
+        }
+      ],
+      "rules": {
+        "mode": "async",
+        "turnLimitLabel": "24 Stunden",
+        "victoryCondition": "Hauptstädte erobern",
+        "allowDuplicateFactions": false
+      },
+      "map": {
+        "sizeLabel": "Mittel",
+        "width": 18,
+        "height": 12,
+        "landShare": 45,
+        "seed": "KOHLE-4417"
+      },
+      "miniMap": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~...~~.~~~~",
+        "~~~~~~~~~~~~~~~.....~~~~",
+        "~~~~~~~~~~~~~~.....~~~~~",
+        "~~~~........~~~.~~~~~~~~",
+        "~~0...111...2.2~~~~~~~~~",
+        "0000.11111122222.~~~~~~~",
+        "00000111111122222~~~~~~~",
+        "000000011111122222~~~~~~",
+        "00000111111122222~~~~~~~",
+        "0000..111112222~~~~~~~~~",
+        "~00....1.1.~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "m-salz",
+      "name": "Salz und Schwefel",
+      "status": "yourTurn",
+      "round": 31,
+      "turnDeadline": "2026-10-30T14:40:00Z",
+      "currentParticipantId": "you",
+      "remindedAt": null,
+      "isHost": false,
+      "participants": [
+        {
+          "id": "you",
+          "name": "Björn",
+          "avatarUrl": null,
+          "isYou": true,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "eisenbund",
+          "status": "active",
+          "cityCount": 6
+        },
+        {
+          "id": "tobias",
+          "name": "Tobias Brenner",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "salzkueste",
+          "status": "active",
+          "cityCount": 7
+        },
+        {
+          "id": "mira",
+          "name": "Mira Okonkwo",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "aurelia",
+          "status": "active",
+          "cityCount": 2
+        }
+      ],
+      "rules": {
+        "mode": "async",
+        "turnLimitLabel": "12 Stunden",
+        "victoryCondition": "Alle Gegner besiegen",
+        "allowDuplicateFactions": false
+      },
+      "map": {
+        "sizeLabel": "Groß",
+        "width": 26,
+        "height": 18,
+        "landShare": 55,
+        "seed": "SCHLOT-2290"
+      },
+      "miniMap": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~0......~~~~~~",
+        "~~~~~~~0000000....~~~~~~",
+        "~~~~~~00000000.....1~~~~",
+        "~~~~~~00000000....111.~~",
+        "~~~2000000000....11111~~",
+        "~~~222000000....1111111.",
+        "~~222200000....111111111",
+        "~~22222000....1111111111",
+        "~~~22......~~~.111111111",
+        "~~~~~~.~~~~~~~~~11111111"
+      ]
+    },
+    {
+      "id": "m-freitag",
+      "name": "Freitagsrunde",
+      "status": "yourTurn",
+      "round": 6,
+      "turnDeadline": null,
+      "currentParticipantId": "you",
+      "remindedAt": null,
+      "isHost": false,
+      "participants": [
+        {
+          "id": "you",
+          "name": "Björn",
+          "avatarUrl": null,
+          "isYou": true,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "nordmark",
+          "status": "active",
+          "cityCount": 2
+        },
+        {
+          "id": "jonas",
+          "name": "Jonas Vogt",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "eisenbund",
+          "status": "active",
+          "cityCount": 2
+        }
+      ],
+      "rules": {
+        "mode": "live",
+        "turnLimitLabel": "5 Minuten",
+        "victoryCondition": "Rundenlimit · 50 Runden",
+        "allowDuplicateFactions": false
+      },
+      "map": {
+        "sizeLabel": "Klein",
+        "width": 14,
+        "height": 10,
+        "landShare": 40,
+        "seed": "DAMPF-1187"
+      },
+      "miniMap": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~~~~..~~.0~~~~~",
+        "~~~~~...........00000~~~",
+        "~~~............1.0000~~~",
+        "~~.............11000~.~~",
+        ".............1111111~~~~",
+        "..............11~1~~~~~~",
+        "~.............~~~~~~~~~~",
+        "~~.........~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "m-nordwind",
+      "name": "Nordwind",
+      "status": "othersTurn",
+      "round": 9,
+      "turnDeadline": "2026-10-31T20:15:00Z",
+      "currentParticipantId": "lena",
+      "remindedAt": null,
+      "isHost": true,
+      "participants": [
+        {
+          "id": "you",
+          "name": "Björn",
+          "avatarUrl": null,
+          "isYou": true,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "aurelia",
+          "status": "active",
+          "cityCount": 3
+        },
+        {
+          "id": "lena",
+          "name": "Lena Hartmann",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "nordmark",
+          "status": "active",
+          "cityCount": 4
+        },
+        {
+          "id": "ai-brandt",
+          "name": "Zechenmeister Brandt",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": true,
+          "aiDifficulty": "normal",
+          "factionId": "eisenbund",
+          "status": "active",
+          "cityCount": 3
+        }
+      ],
+      "rules": {
+        "mode": "async",
+        "turnLimitLabel": "48 Stunden",
+        "victoryCondition": "Hauptstädte erobern",
+        "allowDuplicateFactions": false
+      },
+      "map": {
+        "sizeLabel": "Mittel",
+        "width": 18,
+        "height": 12,
+        "landShare": 35,
+        "seed": "HAFEN-5021"
+      },
+      "miniMap": [
+        "~~~.......~~~~~~~~~~~~~~",
+        "~~..........~~~~~~~~~~~~",
+        "~...1........~~~~~~~~~~~",
+        "~..111.......~~~~~~~~~~~",
+        "~.11111......~~~~~~~~~~~",
+        "~1111111.....~~~~~~~~~~~",
+        "~~~11111....~~~~~~~~~~~~",
+        "~~~1111....~~~~~~~~00~0~",
+        "~~~~~~..~~~~~~~~~000000~",
+        "~~~~~~~~~~~~~~~~.~00000~",
+        "~~~~~~~~~~~~~~~~~2~0~~~~",
+        "~~~~~~~~~~~~~~~~~~~~~~~~"
+      ]
+    },
+    {
+      "id": "m-gischt",
+      "name": "Eisen gegen Gischt",
+      "status": "othersTurn",
+      "round": 22,
+      "turnDeadline": "2026-10-30T23:30:00Z",
+      "currentParticipantId": "mira",
+      "remindedAt": "2026-10-30T10:05:00Z",
+      "isHost": false,
+      "participants": [
+        {
+          "id": "you",
+          "name": "Björn",
+          "avatarUrl": null,
+          "isYou": true,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "eisenbund",
+          "status": "active",
+          "cityCount": 5
+        },
+        {
+          "id": "mira",
+          "name": "Mira Okonkwo",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "aurelia",
+          "status": "active",
+          "cityCount": 5
+        },
+        {
+          "id": "selin",
+          "name": "Selin Arslan",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "salzkueste",
+          "status": "surrendered",
+          "cityCount": 1
+        },
+        {
+          "id": "ai-selin",
+          "name": "KI für Selin Arslan",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": true,
+          "aiDifficulty": "normal",
+          "factionId": "salzkueste",
+          "status": "active",
+          "cityCount": 2
+        }
+      ],
+      "rules": {
+        "mode": "async",
+        "turnLimitLabel": "24 Stunden",
+        "victoryCondition": "Alle Gegner besiegen",
+        "allowDuplicateFactions": true
+      },
+      "map": {
+        "sizeLabel": "Groß",
+        "width": 26,
+        "height": 18,
+        "landShare": 50,
+        "seed": "NIETE-7734"
+      },
+      "miniMap": [
+        "~~~~~~~~~~~~~~~~~~~~~~~~",
+        "~~~~~~~~~~.3...~.~~~~~~~",
+        "~~~~~~~~..33....11~~~~~~",
+        "~~~~~~....333..111~~~~~~",
+        "~~~~~.....333311111~~~~~",
+        "~~~~.......3..1111111~~~",
+        "~~~...........10111111~~",
+        "~~~~..........00011111~~",
+        "~~~~~~~.~....0000001111~",
+        "~~~~~~~~~...00000000111~",
+        "~~~~~~~~~~~00000000001~~",
+        "~~~~~~~~~~~~00000000~~~~"
+      ]
+    },
+    {
+      "id": "m-kohle2",
+      "name": "Die Kohleinseln II",
+      "status": "waitingForPlayers",
+      "round": 0,
+      "turnDeadline": null,
+      "currentParticipantId": null,
+      "remindedAt": null,
+      "isHost": true,
+      "participants": [
+        {
+          "id": "you",
+          "name": "Björn",
+          "avatarUrl": null,
+          "isYou": true,
+          "isAI": false,
+          "aiDifficulty": null,
+          "factionId": "eisenbund",
+          "status": "active",
+          "cityCount": 0
+        },
+        {
+          "id": "ai-kessler",
+          "name": "Admiral Kessler",
+          "avatarUrl": null,
+          "isYou": false,
+          "isAI": true,
+          "aiDifficulty": "hard",
+          "factionId": "aurelia",
+          "status": "active",
+          "cityCount": 0
+        }
+      ],
+      "rules": {
+        "mode": "async",
+        "turnLimitLabel": "24 Stunden",
+        "victoryCondition": "Hauptstädte erobern",
+        "allowDuplicateFactions": false
+      },
+      "map": {
+        "sizeLabel": "Mittel",
+        "width": 18,
+        "height": 12,
+        "landShare": 45,
+        "seed": "KOHLE-5530"
+      },
+      "miniMap": [],
+      "waitingFor": 2
+    }
+  ],
+  "invitations": [
+    {
+      "id": "inv-1",
+      "matchName": "Inselhüpfen",
+      "from": {
+        "id": "jonas",
+        "name": "Jonas Vogt",
+        "avatarUrl": null
+      },
+      "mode": "live",
+      "turnLimitLabel": "2 Minuten",
+      "mapSizeLabel": "Klein",
+      "seatsTaken": 2,
+      "seatsTotal": 3,
+      "sentAt": "2026-10-30T12:41:00Z",
+      "message": "Kurze Runde heute Abend?"
+    },
+    {
+      "id": "inv-2",
+      "matchName": "Der lange Winter der Nordmark und das Erbe der Salzküste",
+      "from": {
+        "id": "selin",
+        "name": "Selin Arslan",
+        "avatarUrl": null
+      },
+      "mode": "async",
+      "turnLimitLabel": "48 Stunden",
+      "mapSizeLabel": "Riesig",
+      "seatsTaken": 4,
+      "seatsTotal": 6,
+      "sentAt": "2026-10-28T19:20:00Z",
+      "message": null
+    }
+  ],
+  "openMatches": [
+    {
+      "id": "open-1",
+      "name": "Anfänger willkommen",
+      "host": "Kalle Rauch",
+      "mode": "async",
+      "turnLimitLabel": "24 Stunden",
+      "mapSizeLabel": "Mittel",
+      "victoryCondition": "Hauptstädte erobern",
+      "seatsTaken": 2,
+      "seatsTotal": 4,
+      "availableFactionIds": [
+        "eisenbund",
+        "salzkueste"
+      ]
+    },
+    {
+      "id": "open-2",
+      "name": "Blitzkrieg am Mittag",
+      "host": "Nadia Feld",
+      "mode": "live",
+      "turnLimitLabel": "2 Minuten",
+      "mapSizeLabel": "Klein",
+      "victoryCondition": "Alle Gegner besiegen",
+      "seatsTaken": 1,
+      "seatsTotal": 2,
+      "availableFactionIds": [
+        "aurelia",
+        "nordmark",
+        "salzkueste"
+      ]
+    },
+    {
+      "id": "open-3",
+      "name": "Sechs Mächte",
+      "host": "Ole Brandstetter",
+      "mode": "async",
+      "turnLimitLabel": "48 Stunden",
+      "mapSizeLabel": "Riesig",
+      "victoryCondition": "Rundenlimit · 150 Runden",
+      "seatsTaken": 5,
+      "seatsTotal": 6,
+      "availableFactionIds": []
+    },
+    {
+      "id": "open-4",
+      "name": "Seeschlacht",
+      "host": "Ida Wendt",
+      "mode": "async",
+      "turnLimitLabel": "12 Stunden",
+      "mapSizeLabel": "Groß",
+      "victoryCondition": "Alle Gegner besiegen",
+      "seatsTaken": 3,
+      "seatsTotal": 5,
+      "availableFactionIds": [
+        "eisenbund",
+        "nordmark"
+      ]
+    },
+    {
+      "id": "open-5",
+      "name": "Feierabendpartie",
+      "host": "Marek Sommer",
+      "mode": "live",
+      "turnLimitLabel": "Ohne Limit",
+      "mapSizeLabel": "Mittel",
+      "victoryCondition": "Hauptstädte erobern",
+      "seatsTaken": 2,
+      "seatsTotal": 3,
+      "availableFactionIds": [
+        "aurelia"
+      ]
+    }
+  ],
+  "finishedMatches": [
+    {
+      "id": "fin-1",
+      "name": "Rußige Pfade",
+      "endedAt": "2026-10-27T21:10:00Z",
+      "result": "victory",
+      "placement": 1,
+      "playerCount": 3,
+      "rounds": 48,
+      "winner": "Björn",
+      "factionId": "eisenbund"
+    },
+    {
+      "id": "fin-2",
+      "name": "Gegen die Republik",
+      "endedAt": "2026-10-22T18:45:00Z",
+      "result": "defeat",
+      "placement": 2,
+      "playerCount": 2,
+      "rounds": 63,
+      "winner": "Admiral Kessler (KI)",
+      "factionId": "nordmark"
+    },
+    {
+      "id": "fin-3",
+      "name": "Testlauf",
+      "endedAt": "2026-10-19T08:02:00Z",
+      "result": "surrendered",
+      "placement": 4,
+      "playerCount": 4,
+      "rounds": 7,
+      "winner": "Mira Okonkwo",
+      "factionId": "salzkueste"
+    },
+    {
+      "id": "fin-4",
+      "name": "Die Brücke von Grauwasser",
+      "endedAt": "2026-10-11T22:30:00Z",
+      "result": "victory",
+      "placement": 1,
+      "playerCount": 4,
+      "rounds": 102,
+      "winner": "Björn",
+      "factionId": "aurelia"
+    },
+    {
+      "id": "fin-5",
+      "name": "Inselreich",
+      "endedAt": "2026-09-30T20:00:00Z",
+      "result": "defeat",
+      "placement": 3,
+      "playerCount": 5,
+      "rounds": 88,
+      "winner": "Lena Hartmann",
+      "factionId": "eisenbund"
+    }
+  ],
+  "waitingRoom": {
+    "matchId": "m-kohle2",
+    "matchName": "Die Kohleinseln II",
+    "isHost": true,
+    "inviteLink": "https://dominion-of-steam.app/einladung/K7Q-2XM-H9P",
+    "rules": {
+      "mode": "async",
+      "turnLimitLabel": "24 Stunden",
+      "victoryCondition": "Hauptstädte erobern",
+      "allowDuplicateFactions": false
+    },
+    "map": {
+      "sizeLabel": "Mittel",
+      "width": 18,
+      "height": 12,
+      "landShare": 45,
+      "seed": "KOHLE-5530"
+    },
+    "fillEmptyWithAI": true,
+    "seats": [
+      {
+        "kind": "player",
+        "name": "Björn",
+        "avatarUrl": null,
+        "isYou": true,
+        "isHost": true,
+        "factionId": "eisenbund",
+        "status": "ready"
+      },
+      {
+        "kind": "player",
+        "name": "Jonas Vogt",
+        "avatarUrl": null,
+        "isYou": false,
+        "isHost": false,
+        "factionId": "nordmark",
+        "status": "joined"
+      },
+      {
+        "kind": "ai",
+        "name": "Admiral Kessler",
+        "avatarUrl": null,
+        "isYou": false,
+        "isHost": false,
+        "factionId": "aurelia",
+        "status": "ready",
+        "aiDifficulty": "hard"
+      },
+      {
+        "kind": "invited",
+        "name": "Lena Hartmann",
+        "avatarUrl": null,
+        "isYou": false,
+        "isHost": false,
+        "factionId": null,
+        "status": "pending"
+      },
+      {
+        "kind": "open",
+        "name": null,
+        "avatarUrl": null,
+        "isYou": false,
+        "isHost": false,
+        "factionId": null,
+        "status": "pending"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+/* Fonts are bundled (no requests to Google Fonts): same cuts as the former stylesheet link.
+   Without the .css suffix because big-shoulders-display only exports the "./*" pattern. */
+@import '@fontsource/barlow/400';
+@import '@fontsource/barlow/500';
+@import '@fontsource/barlow/600';
+@import '@fontsource/barlow/700';
+@import '@fontsource/big-shoulders-display/700';
+@import '@fontsource/big-shoulders-display/800';
+@import '@fontsource/big-shoulders-display/900';
+@import '@fontsource/ibm-plex-mono/400';
+@import '@fontsource/ibm-plex-mono/600';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* Dunkler Modus über die Klasse .dark an <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Werte aus product-plan/design-system/tokens.css */
+@theme {
+  --font-heading: 'Big Shoulders Display', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --color-faction-amber: #f59e0b;
+  --color-faction-rose: #f43f5e;
+  --color-faction-sky: #0ea5e9;
+  --color-faction-lime: #84cc16;
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+body {
+  @apply bg-stone-100 dark:bg-stone-950;
+}
+
+/* Einstellung „Animationen reduzieren“ (Klasse an <html>, siehe src/settings/motion.ts) */
+html.dos-reduce-motion *,
+html.dos-reduce-motion *::before,
+html.dos-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+/* Einstellung „Kampfanimationen“ aus: Explosion und Blitz auf der Karte entfallen */
+.dos-no-combat-fx .dos-blast,
+.dos-no-combat-fx .dos-flash {
+  display: none;
+}

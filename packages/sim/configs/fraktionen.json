@@ -1,0 +1,103 @@
+{
+  "name": "fraktionen",
+  "matchups": [
+    {
+      "id": "eisenbund-vs-aurelia",
+      "participants": [
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "eisenbund-vs-nordmark",
+      "participants": [
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "nordmark",
+          "factionId": "nordmark",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "eisenbund-vs-salzkueste",
+      "participants": [
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "salzkueste",
+          "factionId": "salzkueste",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "aurelia-vs-nordmark",
+      "participants": [
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        },
+        {
+          "label": "nordmark",
+          "factionId": "nordmark",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "aurelia-vs-salzkueste",
+      "participants": [
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        },
+        {
+          "label": "salzkueste",
+          "factionId": "salzkueste",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "nordmark-vs-salzkueste",
+      "participants": [
+        {
+          "label": "nordmark",
+          "factionId": "nordmark",
+          "difficulty": "normal"
+        },
+        {
+          "label": "salzkueste",
+          "factionId": "salzkueste",
+          "difficulty": "normal"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 50,
+  "rotateSeats": true,
+  "roundLimit": 100
+}

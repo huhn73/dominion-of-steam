@@ -1,0 +1,20 @@
+product-plan/
+agent-os/
+pnpm-lock.yaml
+dist/
+# Unverändert aus der Design-Übergabe übernommen (product-plan/shell/components/)
+apps/web/src/shell/AppShell.tsx
+apps/web/src/shell/MainNav.tsx
+apps/web/src/shell/UserMenu.tsx
+apps/web/src/sections/spielfeld/components/
+packages/shared/src/game/hex.ts
+packages/shared/src/game/bonus.ts
+apps/server/drizzle/
+apps/web/src/sections/fraktionen/components/
+apps/web/src/sections/partie-setup/components/
+packages/shared/src/setup/setup.ts
+packages/shared/src/setup/types.ts
+apps/web/src/sections/lobby/components/
+packages/shared/src/lobby/types.ts
+apps/web/src/sections/profil/components/
+packages/shared/src/profile/types.ts

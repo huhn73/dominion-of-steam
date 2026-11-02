@@ -1,0 +1,29 @@
+{
+  "name": "sweep-normal",
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": {
+      "label": "referenz",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "subject": {
+      "label": "subjekt",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "grid": {
+      "attackThreshold": [0.45, 0.55, 0.65],
+      "neutralBias": [0, 3],
+      "shipShare": [0, 0.35],
+      "garrison": [false, true]
+    }
+  }
+}
