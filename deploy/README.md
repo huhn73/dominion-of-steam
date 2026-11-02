@@ -137,9 +137,26 @@ docker compose start app
 
 Uploads: `docker run --rm -v dominion_uploads:/data -v /opt/dominion/backups:/backup alpine tar xzf /backup/uploads-<datum>.tar.gz -C /data`.
 
+## Versionen und Releases
+
+Die Version steht in `package.json` (alle Pakete tragen dieselbe) und wird mit einem Skript gesetzt:
+
+```bash
+pnpm release minor        # oder patch, major, 1.0.0
+git commit -am "Version 0.10.0"
+```
+
+Beim Deploy liest der Workflow die Version. Gibt es noch keinen Tag `v0.10.0`, ist dieser Build das Release: Das Image bekommt zusätzlich den Tag `v0.10.0`, und nach erfolgreichem Deploy legt der Job `release` den Git-Tag und ein GitHub-Release mit automatisch erzeugten Notizen an. Jeder weitere Deploy ohne neue Version läuft als `0.10.0+abc1234`. Das Spiel zeigt die Version klein in der Fußzeile und unter der Anmeldekarte (Commit und Build-Datum im Tooltip), `/api/health` liefert `version` und `commit`:
+
+```bash
+curl -s https://<DOMAIN>/api/health    # {"ok":true,"version":"0.10.0","commit":"…"}
+```
+
+Lokal gebaute Stände heißen `0.10.0-dev`.
+
 ## Rollback
 
-Tags der gebauten Images stehen auf der Package-Seite in GitHub. In `.env` `APP_TAG=sha-abc1234` setzen, dann `docker compose up -d app`. Zurück auf `latest` genauso. Migrationen laufen nur vorwärts; ein Rollback über eine Migration hinweg braucht den Datenbank-Dump von davor.
+Tags der gebauten Images stehen auf der Package-Seite in GitHub. In `.env` `APP_TAG=v0.9.0` (Release) oder `APP_TAG=sha-abc1234` setzen, dann `docker compose up -d app`. Zurück auf `latest` genauso. Migrationen laufen nur vorwärts; ein Rollback über eine Migration hinweg braucht den Datenbank-Dump von davor.
 
 ## Alltag
 

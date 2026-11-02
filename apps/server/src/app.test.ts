@@ -15,7 +15,12 @@ describe('GET /api/health', () => {
   it('meldet ok', async () => {
     const app = buildApp({ db: {} as never })
     const res = await app.inject({ method: 'GET', url: '/api/health' })
-    expect(res.json()).toEqual({ ok: true })
+    // Without the image build's APP_VERSION the version of the package is a development build
+    expect(res.json()).toMatchObject({
+      ok: true,
+      version: expect.stringMatching(/^\d+\.\d+\.\d+-dev$/),
+      commit: null,
+    })
   })
 })
 

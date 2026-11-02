@@ -79,6 +79,8 @@ describe('Rechtliche Seiten', () => {
     await screen.findByText('Björn, an allen Fronten ist es ruhig.')
     const footer = screen.getByRole('contentinfo')
     expect(within(footer).getByRole('navigation', { name: 'Rechtliches' })).toBeInTheDocument()
+    // The running version sits next to the copyright
+    expect(within(footer).getByLabelText(/^Version \d+\.\d+\.\d+/)).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Benutzermenü für Björn' }))
     await userEvent.click(screen.getByRole('menuitem', { name: 'Rechtliches' }))
     expect(await screen.findByRole('heading', { name: 'Impressum' })).toBeInTheDocument()

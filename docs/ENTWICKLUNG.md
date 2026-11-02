@@ -187,6 +187,8 @@ Konfigurationen sind JSON (`matchups` mit Label, Fraktion, Stufe, Persönlichkei
 
 Produktion läuft auf einem Server mit Docker: Caddy (https über Let's Encrypt) vor der App aus `ghcr.io/huhn73/dominion-of-steam`, Postgres und Uploads in Volumes, tägliche Dumps, E-Mail über SMTP. Jeder Push auf `main` läuft durch `.github/workflows/deploy.yml` (Tests, Image, SSH-Deploy). Einrichtung, Variablen, Backups und Rollback: [`deploy/README.md`](../deploy/README.md).
 
+**Version:** `pnpm release <patch|minor|major|x.y.z>` setzt sie in allen `package.json`; der Deploy-Workflow markiert neue Versionen als Release (`deploy/README.md`, „Versionen und Releases“). Die App liest sie über `apps/web/src/version.ts` (Build-Werte `VITE_APP_VERSION`, `VITE_APP_COMMIT`, `VITE_APP_BUILT`, sonst `<version>-dev` aus `package.json`) und zeigt sie mit `shell/AppVersion.tsx` in den Fußzeilen; der Server meldet sie unter `/api/health`.
+
 Ohne `DEV_TOOLS=true` (Produktion) legt der Server weder Dev-Konten noch die Demo-Partie an und die Dev-Endpunkte fehlen; das lokale `docker compose` baut das Image mit `DEV_TOOLS=true`. Hinter dem Reverse-Proxy sorgt `TRUST_PROXY=true` dafür, dass das Sitzungs-Cookie `Secure` bekommt.
 
 ## Nächste Schritte

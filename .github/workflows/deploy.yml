@@ -1,4 +1,5 @@
-# Push auf main: Tests → Image nach ghcr.io → per SSH auf dem Server aktualisieren (deploy/README.md)
+# Push auf main: Tests → Image nach ghcr.io → per SSH auf dem Server aktualisieren → bei neuer
+# Version Tag und GitHub-Release (deploy/README.md, „Versionen und Releases“)
 name: Deploy
 
 on:
@@ -48,8 +49,25 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.version.outputs.release }}
     steps:
       - uses: actions/checkout@v4
+      # Version from package.json (pnpm release): without a tag v<version> yet this build is the
+      # release, otherwise a build between releases labelled <version>+<commit>
+      - id: version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "label=$version+${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "label=$version" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "built=$(git log -1 --format=%cI)" >> "$GITHUB_OUTPUT"
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
@@ -63,6 +81,7 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha,prefix=sha-
+            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ steps.version.outputs.release == 'true' }}
       - uses: docker/build-push-action@v6
         with:
           context: .
@@ -77,6 +96,9 @@ jobs:
             VITE_ANBIETER_ORT=${{ vars.ANBIETER_ORT }}
             VITE_ANBIETER_LAND=${{ vars.ANBIETER_LAND }}
             VITE_ANBIETER_EMAIL=${{ vars.ANBIETER_EMAIL }}
+            APP_VERSION=${{ steps.version.outputs.label }}
+            APP_COMMIT=${{ github.sha }}
+            APP_BUILT=${{ steps.version.outputs.built }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -97,3 +119,19 @@ jobs:
             docker compose up -d --remove-orphans
             docker image prune -f
             docker compose ps
+
+  # A new version that reached the server: tag v<version> and the GitHub release with generated
+  # notes. If the deploy fails, nothing is tagged and the next run tries again.
+  release:
+    needs: [build, deploy]
+    if: needs.build.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          gh release create "v$VERSION" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Dominion of Steam $VERSION" --generate-notes

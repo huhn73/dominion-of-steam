@@ -1,6 +1,7 @@
 import { useState, type InputHTMLAttributes, type ReactNode } from 'react'
 import { Cog, Eye, EyeOff } from 'lucide-react'
 import { LegalLinks, type LegalPageId } from '../rechtliches/LegalLinks'
+import { AppVersion } from '../../shell/AppVersion'
 
 /**
  * Full-page frame of the login, register and legal pages: wordmark, a riveted brass card and
@@ -74,6 +75,9 @@ export function AuthLayout({
           </div>
         )}
         <LegalLinks current={legalPage} className="mt-6" />
+        <div className="mt-1 text-center">
+          <AppVersion />
+        </div>
       </div>
     </div>
   )

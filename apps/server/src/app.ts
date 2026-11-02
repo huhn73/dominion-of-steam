@@ -1,7 +1,7 @@
 import Fastify from 'fastify'
 import fastifyCookie from '@fastify/cookie'
 import fastifyCompress from '@fastify/compress'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, readFileSync } from 'node:fs'
 import fastifyMultipart from '@fastify/multipart'
 import fastifyStatic from '@fastify/static'
 import fastifyRateLimit from '@fastify/rate-limit'
@@ -32,6 +32,13 @@ import { devRoutes } from './routes/dev'
 import { matchRoutes } from './routes/matches'
 import { requestOrigin, setupRoutes } from './routes/setup'
 import { loadSession, SESSION_COOKIE, setSessionCookie } from './session'
+
+/** Version from the root package.json, shown with „-dev“ when the image build set none */
+const packageVersion = (
+  JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8')) as {
+    version: string
+  }
+).version
 
 export interface AppOptions {
   db: Db
@@ -123,7 +130,12 @@ export function buildApp({
     if (req.renewSessionToken) setSessionCookie(req, reply, req.renewSessionToken)
   })
 
-  app.get(`${API_PREFIX}/health`, async () => ({ ok: true }))
+  // Version and commit of the running image (Dockerfile, deploy workflow): check what is deployed
+  app.get(`${API_PREFIX}/health`, async () => ({
+    ok: true,
+    version: process.env.APP_VERSION || `${packageVersion}-dev`,
+    commit: process.env.APP_COMMIT || null,
+  }))
   app.get(`${API_PREFIX}/compendium`, async (_req, reply) => {
     reply.header('Cache-Control', 'public, max-age=300')
     return {

@@ -1,5 +1,6 @@
 {
   "name": "dominion-of-steam",
+  "version": "0.9.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +10,8 @@
     "typecheck": "pnpm -r typecheck",
     "lint": "prettier --check .",
     "format": "prettier --write .",
-    "sim": "pnpm --filter @dos/sim sim"
+    "sim": "pnpm --filter @dos/sim sim",
+    "release": "node scripts/release.mjs"
   },
   "devDependencies": {
     "prettier": "^3.9.10",

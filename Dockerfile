@@ -20,10 +20,17 @@ ARG VITE_ANBIETER_STRASSE
 ARG VITE_ANBIETER_ORT
 ARG VITE_ANBIETER_LAND
 ARG VITE_ANBIETER_EMAIL
-RUN pnpm --filter @dos/web build
+# Version, Commit und Build-Datum vom Deploy-Workflow; ohne sie zeigt das Spiel „<version>-dev“
+ARG APP_VERSION
+ARG APP_COMMIT
+ARG APP_BUILT
+RUN VITE_APP_VERSION=$APP_VERSION VITE_APP_COMMIT=$APP_COMMIT VITE_APP_BUILT=$APP_BUILT \
+  pnpm --filter @dos/web build
 
 ENV NODE_ENV=production \
     DEV_TOOLS=$DEV_TOOLS \
+    APP_VERSION=$APP_VERSION \
+    APP_COMMIT=$APP_COMMIT \
     STATIC_DIR=/app/apps/web/dist \
     PORT=3000
 EXPOSE 3000
