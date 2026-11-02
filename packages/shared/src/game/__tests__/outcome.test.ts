@@ -11,6 +11,7 @@ const participant = (over: Partial<Participant>): Participant => ({
   factionId: 'eisenbund',
   color: 'amber',
   status: 'active',
+  capitulated: false,
   cityCount: 2,
   unitCount: 3,
   ...over,

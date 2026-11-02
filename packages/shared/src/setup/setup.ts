@@ -6,7 +6,10 @@ import type {
   MapSizeOption,
   Seat,
   SetupOptions,
+  VictoryConditionId,
 } from './types'
+import type { WorldShape } from '../game/worldShapes'
+import { DEFAULT_PRESET } from './data'
 
 // Typography: Big Shoulders Display (headings), Barlow (body), IBM Plex Mono (codes, numbers)
 
@@ -101,4 +104,26 @@ export function roundLimitAfterSizeChange(
 ): number | null {
   const untouched = draft.roundLimit === roundLimitForSize(options, draft.map.size)
   return untouched ? roundLimitForSize(options, nextSizeId) : draft.roundLimit
+}
+
+/** Island worlds rarely end by elimination: the wizard suggests „Vorherrschaft“ for them */
+const SUGGESTED_FOR_ISLANDS: VictoryConditionId = 'dominance'
+const isIslandWorld = (shape: WorldShape | undefined) =>
+  shape === 'islands' || shape === 'archipelago'
+
+/**
+ * Victory condition after the player picks another world shape: switching to an island world
+ * suggests „Vorherrschaft“ while the condition is still the default; back to the continent, a
+ * suggested „Vorherrschaft“ returns to the default. A condition the player chose stays.
+ */
+export function victoryConditionAfterShapeChange(
+  draft: Pick<MatchDraft, 'victoryCondition' | 'map'>,
+  nextShape: WorldShape,
+): VictoryConditionId {
+  const fallback = DEFAULT_PRESET.victoryCondition
+  const wasIslands = isIslandWorld(draft.map.worldShape)
+  const toIslands = isIslandWorld(nextShape)
+  if (toIslands && !wasIslands && draft.victoryCondition === fallback) return SUGGESTED_FOR_ISLANDS
+  if (!toIslands && wasIslands && draft.victoryCondition === SUGGESTED_FOR_ISLANDS) return fallback
+  return draft.victoryCondition
 }

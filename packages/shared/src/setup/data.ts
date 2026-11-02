@@ -123,6 +123,12 @@ export const SETUP_OPTIONS: SetupOptions = {
       description: 'Gewonnen hat, wer alle gegnerischen Hauptstädte hält.',
     },
     {
+      id: 'dominance',
+      label: 'Vorherrschaft',
+      description:
+        'Gewonnen hat, wer fünf eigene Runden in Folge die Mehrheit aller Städte hält: 60 % auf dem Kontinent, 50 % auf Inseln und Archipel. Passt zu Inselwelten, wo kaum jemand ganz ausgeschaltet wird.',
+    },
+    {
       id: 'roundLimit',
       label: 'Rundenlimit',
       description:

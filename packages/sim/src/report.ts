@@ -23,7 +23,9 @@ function table(header: string[], rows: (string | number)[][]): string {
 
 const VICTORY_NAMES: Record<string, string> = {
   elimination: 'Ausschaltung',
+  capitulation: 'Kapitulation',
   capitals: 'Hauptstädte',
+  dominance: 'Vorherrschaft',
   roundLimit: 'Rundenlimit',
   aborted: 'Abbruch (Rundendeckel)',
 }

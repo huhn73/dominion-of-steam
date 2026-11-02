@@ -46,6 +46,8 @@ const SECTION_OF: Record<GameEventType, ReportSectionId> = {
   unitBuilt: 'home',
   fuelLow: 'home',
   exploration: 'home',
+  dominance: 'cities',
+  capitulation: 'cities',
 }
 
 const TITLES: Record<ReportSectionId, string> = {

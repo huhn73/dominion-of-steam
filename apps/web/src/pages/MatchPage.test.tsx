@@ -198,7 +198,12 @@ describe('Ton in der Partie', () => {
   it('spielt das Fraktionsstück bei Sieg und beendet die Schichten', async () => {
     const view = demoView()
     const me = view.participants.find((p) => p.isYou)!
-    view.result = { winnerId: me.id, endedAt: '2026-10-31T12:00:00Z', placements: { [me.id]: 1 } }
+    view.result = {
+      winnerId: me.id,
+      endedAt: '2026-10-31T12:00:00Z',
+      placements: { [me.id]: 1 },
+      reason: 'elimination',
+    }
     mockApi({ 'GET /matches/demo/view': () => ({ json: view }) })
     const { audio } = renderApp('/partie/demo')
     await screen.findByRole('application', { name: 'Spielkarte' })
@@ -214,6 +219,7 @@ describe('Ton in der Partie', () => {
       winnerId: me.id,
       endedAt: '2026-10-31T12:00:00Z',
       placements: Object.fromEntries([me, ...others].map((p, i) => [p.id, i + 1])),
+      reason: 'elimination',
     }
     mockApi({ 'GET /matches/demo/view': () => ({ json: view }) })
     sessionStorage.clear() // the result piece plays once per match and browser tab

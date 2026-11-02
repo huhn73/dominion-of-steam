@@ -26,7 +26,16 @@ export {
 export { createMatch, type NewMatch, type NewParticipant } from './create'
 export { playAITurn, type AiTurnOptions } from './ai'
 export { createRng, hashString } from './rng'
-export { checkVictory, finishMatch, leaderByScore, score, updateEliminations } from './victory'
+export {
+  checkVictory,
+  cityShare,
+  dominanceView,
+  finishMatch,
+  leaderByScore,
+  score,
+  updateDominance,
+  updateEliminations,
+} from './victory'
 export { aiProfile, type AiProfile } from './ai'
 export { surrender, endIfNoHumans } from './surrender'
 export { miniMap } from './minimap'

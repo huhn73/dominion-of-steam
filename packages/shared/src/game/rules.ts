@@ -1,4 +1,5 @@
 import type { CombatOdds, Terrain, UnitDomain, UnitType } from './types'
+import type { WorldShape } from './worldShapes'
 
 /**
  * Combat rules shared by the engine (authoritative), the AI, the server previews and the web
@@ -140,3 +141,25 @@ export function canEnter(type: Pick<UnitType, 'domain'>, terrain: Terrain): bool
       return isWaterTerrain(terrain)
   }
 }
+
+/**
+ * Victory condition 'dominance': share of all cities (neutral ones count) a participant must
+ * hold. Island worlds ask for less: neutral islands are slow to take, and at 60 % most island
+ * matches still ran into the round limit (`agent-os/product/ki-balance.md`, „Nachmessung Enden“).
+ */
+export const DOMINANCE_SHARE: Record<WorldShape, number> = {
+  continent: 0.6,
+  islands: 0.5,
+  archipelago: 0.5,
+}
+/** … at the end of this many own turns in a row */
+export const DOMINANCE_TURNS = 5
+
+/**
+ * An AI capitulates when the match is lost for it: its starting capital is in enemy hands, it
+ * holds less than this share of the leader's cities, the leader has at least `…_LEADER_CITIES`
+ * and the match is at least `…_MIN_ROUND` rounds old.
+ */
+export const CAPITULATION_CITY_SHARE = 0.25
+export const CAPITULATION_LEADER_CITIES = 6
+export const CAPITULATION_MIN_ROUND = 20

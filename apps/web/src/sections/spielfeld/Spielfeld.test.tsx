@@ -594,6 +594,28 @@ describe('Angriffsmarkierungen', () => {
   })
 })
 
+describe('Vorherrschaft', () => {
+  it('zeigt den Countdown für den Führenden, aus eigener Sicht mit „du“', () => {
+    const { unmount } = renderBoard({
+      dominance: { participantId: 'p2', share: 0.62, turnsLeft: 3 },
+    })
+    const name = data.participants.find((p) => p.id === 'p2')!.name
+    expect(
+      screen.getByText(`Vorherrschaft: ${name} · 62 % der Städte · noch 3 Runden`),
+    ).toBeInTheDocument()
+    unmount()
+    renderBoard({ dominance: { participantId: 'p1', share: 0.6, turnsLeft: 1 } })
+    expect(
+      screen.getByText('Vorherrschaft: du · 60 % der Städte · noch 1 Runde'),
+    ).toBeInTheDocument()
+  })
+
+  it('zeigt keinen Countdown ohne Vorherrschaft', () => {
+    renderBoard()
+    expect(screen.queryByText(/Vorherrschaft:/)).toBeNull()
+  })
+})
+
 describe('Partieabschluss', () => {
   const finished = {
     match: { ...data.match, phase: 'waiting' as const, round: 93, turnDeadline: null },
@@ -601,13 +623,18 @@ describe('Partieabschluss', () => {
       winnerId: 'p1',
       endedAt: '2026-10-31T12:00:00Z',
       placements: { p1: 1, p2: 2, p3: 3, p4: 4 },
+      reason: 'elimination' as const,
     },
   }
 
   it('zeigt die Ergebniskarte mit Rangliste statt des Warte-Banners', () => {
     renderBoard(finished)
     const dialog = screen.getByRole('dialog', { name: 'Sieg' })
-    expect(within(dialog).getByText(/beendet in Runde 93 · Sieger: Björn/)).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(
+        /beendet in Runde 93 durch Ausschaltung aller Gegner · Sieger: Björn/,
+      ),
+    ).toBeInTheDocument()
     const rows = within(dialog).getAllByRole('row').slice(1)
     expect(rows.map((r) => within(r).getAllByRole('cell')[0]!.textContent)).toEqual([
       '1',
@@ -645,6 +672,19 @@ describe('Partieabschluss', () => {
     expect(screen.getByRole('dialog', { name: 'Sieg' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Zur Lobby' }))
     expect(onLeave).toHaveBeenCalled()
+  })
+
+  it('nennt Vorherrschaft als Grund und markiert Kapitulierte', () => {
+    renderBoard({
+      ...finished,
+      result: { ...finished.result, reason: 'dominance' },
+      participants: data.participants.map((p) =>
+        p.id === 'p4' ? { ...p, status: 'eliminated' as const, capitulated: true } : p,
+      ),
+    })
+    const dialog = screen.getByRole('dialog', { name: 'Sieg' })
+    expect(within(dialog).getByText(/beendet in Runde 93 durch Vorherrschaft/)).toBeInTheDocument()
+    expect(within(dialog).getByText('kapituliert')).toBeInTheDocument()
   })
 
   it('stempelt Niederlage und Aufgabe', () => {

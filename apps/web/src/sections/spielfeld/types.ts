@@ -2,6 +2,7 @@
 import type {
   CombatPreview,
   CombatResult,
+  Dominance,
   Faction,
   GameEvent,
   GameMap,
@@ -61,6 +62,8 @@ export interface SpielfeldUndZuegeProps {
   onCue?: (cue: BoardCue) => void
   /** Set once the match is finished: shows the result card instead of the waiting banner */
   result?: MatchResult | null
+  /** Victory condition „Vorherrschaft“: who holds the city share, shown as a countdown pill */
+  dominance?: Dominance | null
   /** „Zur Lobby“ on the result card */
   onLeave?: () => void
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Crosshair, Fuel, Hourglass, Map as MapIcon, Maximize2, Play, SkipForward, Swords, Trophy, X } from 'lucide-react'
+import { Crosshair, Crown, Fuel, Hourglass, Map as MapIcon, Maximize2, Play, SkipForward, Swords, Trophy, X } from 'lucide-react'
 import type { BoardCue, GameEvent, HexCoord, SpielfeldUndZuegeProps, Unit } from '../types'
 import { ambienceMix, mixChanged } from '../../../audio/ambience'
 import {
@@ -90,6 +90,7 @@ export function Spielfeld({
   onEndTurn,
   onCue,
   result = null,
+  dominance = null,
   onLeave,
 }: SpielfeldUndZuegeProps) {
   const youId = match.youId
@@ -1105,13 +1106,33 @@ export function Spielfeld({
         </div>
       )}
 
-      {/* Waiting banner */}
-      {match.phase === 'waiting' && !result && (
-        <div className="absolute inset-x-0 top-16 z-20 flex justify-center px-3 sm:top-4">
-          <div className="flex items-center gap-2 rounded-full bg-stone-950/90 px-4 py-2 text-sm text-stone-200 shadow-xl">
-            <Hourglass className="size-4 animate-pulse text-amber-400" />
-            Warte auf {waitingFor.join(' & ')} …
-          </div>
+      {/* Waiting banner and the dominance countdown */}
+      {!result && (match.phase === 'waiting' || dominance) && (
+        <div className="pointer-events-none absolute inset-x-0 top-16 z-20 flex flex-col items-center gap-2 px-3 sm:top-4">
+          {match.phase === 'waiting' && (
+            <div className="flex items-center gap-2 rounded-full bg-stone-950/90 px-4 py-2 text-sm text-stone-200 shadow-xl">
+              <Hourglass className="size-4 animate-pulse text-amber-400" />
+              Warte auf {waitingFor.join(' & ')} …
+            </div>
+          )}
+          {dominance && (
+            <div
+              role="status"
+              className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm shadow-xl ${
+                dominance.participantId === youId
+                  ? 'border-teal-500/60 bg-teal-950/90 text-teal-100'
+                  : 'border-amber-500/60 bg-stone-950/90 text-amber-100'
+              }`}
+            >
+              <Crown className="size-4 text-amber-400" />
+              Vorherrschaft:{' '}
+              {dominance.participantId === youId
+                ? 'du'
+                : (participantById.get(dominance.participantId)?.name ?? 'Unbekannt')}{' '}
+              · {Math.floor(dominance.share * 100)} % der Städte · noch{' '}
+              {dominance.turnsLeft === 1 ? '1 Runde' : `${dominance.turnsLeft} Runden`}
+            </div>
+          )}
         </div>
       )}
 

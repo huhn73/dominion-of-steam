@@ -6,6 +6,7 @@ import type { PlayerView } from '../view'
 import { combatOdds } from './combat'
 import { currentParticipant, type GameState } from './state'
 import { exploredOf, seesUnit, visibleIndices } from './visibility'
+import { dominanceView } from './victory'
 
 const CODE_U = 'u'.charCodeAt(0)
 const CODE_E = 'e'.charCodeAt(0)
@@ -83,6 +84,7 @@ export function projectView(
     factionId: p.factionId,
     color: p.color,
     status: p.status,
+    capitulated: p.capitulatedRound != null,
     cityCount: state.cities.filter((c) => c.ownerId === p.id).length,
     unitCount: state.units.filter((u) => u.ownerId === p.id).length,
   }))
@@ -150,7 +152,9 @@ export function projectView(
             placements: Object.fromEntries(
               state.participants.flatMap((p) => (p.placement ? [[p.id, p.placement]] : [])),
             ),
+            reason: state.endReason,
           }
         : null,
+    dominance: dominanceView(state),
   }
 }

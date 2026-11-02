@@ -1,4 +1,4 @@
-import { AlertTriangle, Binoculars, ChevronDown, ClipboardList, Compass, Flag, Fuel, Hammer, MapPinned, ScrollText, Skull, Swords } from 'lucide-react'
+import { AlertTriangle, Binoculars, ChevronDown, ClipboardList, Compass, Crown, Flag, FlagOff, Fuel, Hammer, MapPinned, ScrollText, Skull, Swords } from 'lucide-react'
 import type { GameEvent, GameEventType } from '../types'
 
 interface EventLogProps {
@@ -20,6 +20,8 @@ export const EVENT_STYLE: Record<GameEventType, { icon: typeof Flag; className: 
   unitBuilt: { icon: Hammer, className: 'text-teal-600 dark:text-teal-400' },
   unitLost: { icon: Skull, className: 'text-rose-600 dark:text-rose-400' },
   fuelLow: { icon: Fuel, className: 'text-amber-600 dark:text-amber-400' },
+  dominance: { icon: Crown, className: 'text-amber-600 dark:text-amber-400' },
+  capitulation: { icon: FlagOff, className: 'text-stone-500 dark:text-stone-400' },
 }
 
 export function EventLog({ events, open, onToggle, onSelect, onOpenReport }: EventLogProps) {

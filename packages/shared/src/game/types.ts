@@ -32,7 +32,10 @@ export interface Match {
   youId: string
 }
 
-export type VictoryCondition = 'elimination' | 'capitals' | 'roundLimit'
+export type VictoryCondition = 'elimination' | 'capitals' | 'roundLimit' | 'dominance'
+
+/** Why a match ended (shown on the result card) */
+export type EndReason = 'elimination' | 'capitals' | 'roundLimit' | 'dominance' | 'noHumans'
 
 /** Rules chosen in the setup wizard */
 export interface GameRules {
@@ -54,6 +57,17 @@ export interface MatchResult {
   endedAt: string
   /** Placement per participant id, 1 = winner */
   placements: Record<string, number>
+  /** How it ended; null for matches finished before the reason was recorded */
+  reason: EndReason | null
+}
+
+/** A participant holding the city share for the victory condition 'dominance' */
+export interface Dominance {
+  participantId: string
+  /** Share of all cities, 0..1 */
+  share: number
+  /** Own turns still needed to win */
+  turnsLeft: number
 }
 
 export interface Participant {
@@ -65,6 +79,8 @@ export interface Participant {
   factionId: string
   color: ParticipantColor
   status: 'active' | 'eliminated'
+  /** An AI that gave up a lost match; its cities became neutral */
+  capitulated: boolean
   cityCount: number
   unitCount: number
 }
@@ -185,6 +201,8 @@ export type GameEventType =
   | 'unitBuilt'
   | 'unitLost'
   | 'fuelLow'
+  | 'dominance'
+  | 'capitulation'
 
 export interface GameEvent extends HexCoord {
   id: string

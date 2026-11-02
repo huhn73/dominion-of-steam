@@ -39,6 +39,15 @@ const secondary =
 const primary =
   "flex min-h-11 flex-1 items-center justify-center gap-1 rounded-md bg-amber-500 px-3 text-sm font-bold uppercase tracking-wider text-stone-950 hover:bg-amber-400"
 
+/** How the match was decided („beendet in Runde 93 durch …“); null for older matches */
+const REASON_LABEL: Record<NonNullable<MatchResult['reason']>, string> = {
+  elimination: 'Ausschaltung aller Gegner',
+  capitals: 'Eroberung aller Hauptstädte',
+  roundLimit: 'das Rundenlimit',
+  dominance: 'Vorherrschaft',
+  noHumans: 'Aufgabe aller Spieler',
+}
+
 /** Result card at the end of a match: outcome stamp and the ranking with the final counts */
 export function Partieabschluss({ match, participants, result, onViewMap, onLeave }: PartieabschlussProps) {
   const outcome = matchOutcome({ match, participants, result }) ?? 'defeat'
@@ -65,6 +74,7 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
           </h2>
           <p className="truncate text-xs text-stone-500 dark:text-stone-400">
             {match.name} · beendet in Runde {match.round}
+            {result.reason && ` durch ${REASON_LABEL[result.reason]}`}
             {winner ? ` · Sieger: ${winner.name}` : ' · Kein Sieger'}
           </p>
         </div>
@@ -121,14 +131,14 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
                       <span className="min-w-0 truncate font-semibold">
                         {p.name}
                         {isYou && <span className="ml-1 font-normal text-stone-500 dark:text-stone-400">(du)</span>}
-                        {out && <span className="ml-1 font-normal italic sm:hidden">(ausgeschieden)</span>}
+                        {out && <span className="ml-1 font-normal italic sm:hidden">({p.capitulated ? 'kapituliert' : 'ausgeschieden'})</span>}
                       </span>
                       {p.isAI && (
                         <span className="rounded bg-stone-200 px-1 font-['IBM_Plex_Mono'] text-[10px] uppercase text-stone-600 dark:bg-stone-800 dark:text-stone-300">
                           KI
                         </span>
                       )}
-                      {out && <span className="hidden truncate text-xs italic sm:inline">ausgeschieden</span>}
+                      {out && <span className="hidden truncate text-xs italic sm:inline">{p.capitulated ? 'kapituliert' : 'ausgeschieden'}</span>}
                     </div>
                   </td>
                   <td className="px-2 py-1.5 text-right font-['IBM_Plex_Mono']">{out ? '–' : p.cityCount}</td>

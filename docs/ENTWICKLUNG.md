@@ -94,6 +94,17 @@ Stand nach Playtest Runde 2 (`agent-os/specs/2026-11-01-1707-kartengroessen/`):
 
 Ist eine Partie entschieden (`view.result`), legt sich die Ergebniskarte über die Karte: Stempel „Sieg“, „Niederlage“ oder „Aufgegeben“, Rangliste nach Platzierung mit Städten, Einheiten und Punkten (3 je Stadt, 1 je Einheit), ausgeschiedene Teilnehmer gedämpft. „Karte ansehen“ schließt die Karte, eine Pille „Beendet · Sieg“ mit „Ergebnis“ öffnet sie wieder, „Zur Lobby“ verlässt die Partie. Die Kopfzeile zeigt „Beendet · …“, die Aktionsleiste bleibt gesperrt („Partie beendet“), das Polling endet. Beim erneuten Öffnen einer beendeten Partie erscheint die Karte wieder; Sieges- und Niederlagenmusik spielt nur einmal je Sitzung. Logik in `packages/shared` (`matchOutcome`, `participantScore`), Karte in `sections/spielfeld/components/Partieabschluss.tsx` (`agent-os/specs/2026-10-31-1945-spielabschluss/`).
 
+## Siegbedingungen
+
+Vier Siegbedingungen stehen im Partie-Setup zur Wahl (`packages/shared/src/setup/data.ts`, Prüfung in `engine/victory.ts`); „Letzter übrig“ beendet jede Partie:
+
+- **Alle Gegner besiegen:** Wer als Letzter Städte oder Einheiten hat, gewinnt.
+- **Hauptstädte erobern** (Vorgabe): Wer alle gegnerischen Starthauptstädte hält, gewinnt.
+- **Rundenlimit:** Nach der letzten Runde gewinnt, wer die meisten Punkte hat (3 je Stadt, 1 je Einheit).
+- **Vorherrschaft** (`agent-os/specs/2026-11-02-1952-enden-inselwelten/`): Wer am Ende von fünf eigenen Zügen in Folge die Mehrheit aller Städte hält (neutrale mitgezählt), gewinnt: 60 % auf dem Kontinent, 50 % auf Inseln und Archipel (`DOMINANCE_SHARE` je Weltform, `DOMINANCE_TURNS` in `game/rules.ts`; der Spielstand merkt sich die Weltform in `map.worldShape`). Alle Teilnehmer bekommen Ereignisse beim Erreichen, Herunterzählen und Brechen, das Spielfeld zeigt eine Pille mit Countdown (`view.dominance`). Wählt man im Assistenten Inseln oder Archipel, schlägt er „Vorherrschaft“ vor, solange die Siegbedingung noch auf der Vorgabe steht (`victoryConditionAfterShapeChange`).
+
+**Kapitulation:** Eine KI gibt zu Beginn ihres Zuges auf, wenn ihre Starthauptstadt einem Gegner gehört, der Führende mindestens 6 Städte hat und sie weniger als ein Viertel davon, ab Runde 20 (`shouldCapitulate` in `engine/surrender.ts`, Schwellen `CAPITULATION_*` in `rules.ts`). Sie scheidet aus, ihre Einheiten verschwinden samt Ladung, ihre Städte werden neutral. Das gilt auch für KI-Plätze aufgegebener Spieler, nie für Menschen. Die Ergebniskarte nennt den Grund des Endes (`result.reason`) und markiert Kapitulierte.
+
 ## Rundenbericht
 
 Stand nach Playtest Runde 1 (`agent-os/specs/2026-10-31-1026-rundenbericht/`):

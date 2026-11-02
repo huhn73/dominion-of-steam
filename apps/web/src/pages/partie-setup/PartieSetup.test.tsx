@@ -286,8 +286,14 @@ describe('Neue Partie', () => {
     await next()
     expect(screen.getByText(/Imperium · 200×200 · 40.000 Felder/)).toBeInTheDocument()
     expect(screen.getByText('Inseln')).toBeInTheDocument()
+    // Islands suggest the victory condition „Vorherrschaft“ instead of the default
+    expect(screen.getByText('Vorherrschaft')).toBeInTheDocument()
     // Back to the rules: the limit follows the size and the hint names it
     await userEvent.click(screen.getAllByRole('button', { name: /Ändern/ })[0]!)
+    expect(screen.getByRole('radio', { name: /Vorherrschaft/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
     await userEvent.click(screen.getByRole('radio', { name: /Rundenlimit/ }))
     expect(screen.getByText('Empfohlen für Imperium: 500')).toBeInTheDocument()
     expect(

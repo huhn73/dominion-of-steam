@@ -17,7 +17,14 @@ import {
   type UnitState,
 } from './state'
 import { seesUnit, sightingSnapshot, updateKnowledge, visibleTiles } from './visibility'
-import { checkVictory, finishMatch, leaderByScore, updateEliminations } from './victory'
+import { capitulate, shouldCapitulate } from './surrender'
+import {
+  checkVictory,
+  finishMatch,
+  leaderByScore,
+  updateDominance,
+  updateEliminations,
+} from './victory'
 
 const inOwnCity = (state: GameState, u: UnitState) =>
   state.cities.some((c) => c.ownerId === u.ownerId && sameHex(c, u))
@@ -47,6 +54,7 @@ export function endTurn(state: GameState, now = new Date()): GameState {
   updateEliminations(state)
   updateKnowledge(state)
   current.seenAtTurnEnd = sightingSnapshot(state, current.id)
+  updateDominance(state, current)
   if (checkVictory(state, now)) return state
 
   let seat = state.seat
@@ -59,10 +67,17 @@ export function endTurn(state: GameState, now = new Date()): GameState {
         state.rules.roundLimit != null &&
         state.round >= state.rules.roundLimit
       ) {
-        finishMatch(state, leaderByScore(state)?.id ?? null, now)
+        finishMatch(state, leaderByScore(state)?.id ?? null, now, 'roundLimit')
         return state
       }
       state.round += 1
+    }
+    // An AI whose match is lost gives up instead of playing its turn
+    const next = state.participants[seat]!
+    if (shouldCapitulate(state, next)) {
+      capitulate(state, next.id)
+      updateEliminations(state)
+      if (checkVictory(state, now)) return state
     }
   } while (state.participants[seat]!.status !== 'active')
   state.seat = seat

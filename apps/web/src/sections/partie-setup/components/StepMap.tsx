@@ -1,6 +1,6 @@
 import { Copy, Dices } from 'lucide-react'
 import type { MapSettings, MatchDraft, SetupOptions } from '../types'
-import { roundLimitAfterSizeChange } from './setup'
+import { roundLimitAfterSizeChange, victoryConditionAfterShapeChange } from './setup'
 import { Field, Segmented } from './ui'
 
 const FOOTPRINT_MIN = 16
@@ -77,12 +77,17 @@ export function StepMap({ draft, options, onChange, onRandomizeSeed }: StepMapPr
         </div>
       </Field>
 
-      <Field label="Weltform" hint="Kontinent: eine große Landmasse mit Buchten. Inseln: jede Hauptstadt auf eigener Insel, dazwischen neutrale Inseln. Archipel: viele kleine Inseln, Seewege entscheiden.">
+      <Field label="Weltform" hint="Kontinent: eine große Landmasse mit Buchten. Inseln: jede Hauptstadt auf eigener Insel, dazwischen neutrale Inseln. Archipel: viele kleine Inseln, Seewege entscheiden. Für Inseln und Archipel schlägt der Assistent die Siegbedingung „Vorherrschaft“ vor.">
         <Segmented
           label="Weltform"
           value={map.worldShape ?? 'continent'}
           options={options.worldShapes.map((w) => ({ value: w.id, label: w.label }))}
-          onChange={(v) => setMap({ worldShape: v })}
+          onChange={(v) =>
+            onChange({
+              map: { ...map, worldShape: v },
+              victoryCondition: victoryConditionAfterShapeChange(draft, v),
+            })
+          }
         />
       </Field>
 

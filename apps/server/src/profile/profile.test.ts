@@ -131,7 +131,7 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     state.round = round
     for (const p of state.participants) Object.assign(p, stats[p.id] ?? {})
     if (surrenderBy) surrender(state, surrenderBy, new Date(endedAt))
-    if (finish) finishMatch(state, winner ?? null, new Date(endedAt))
+    if (finish) finishMatch(state, winner ?? null, new Date(endedAt), 'elimination')
     await insertMatch(db, state)
     return state
   }

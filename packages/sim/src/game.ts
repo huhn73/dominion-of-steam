@@ -10,16 +10,19 @@ export interface GameHooks {
   onRound?: (state: GameState) => void
 }
 
+/**
+ * How a finished game ended; a last one standing because the last opponent capitulated counts
+ * as capitulation
+ */
 function classify(state: GameState): VictoryType {
-  const active = state.participants.filter((p) => p.status === 'active')
-  if (active.length <= 1) return 'elimination'
-  if (
-    state.rules.victoryCondition === 'roundLimit' &&
-    state.rules.roundLimit != null &&
-    state.round >= state.rules.roundLimit
-  )
-    return 'roundLimit'
-  return 'capitals'
+  const reason = state.endReason ?? 'elimination'
+  if (reason === 'elimination') {
+    const last = state.participants
+      .filter((p) => p.status === 'eliminated')
+      .sort((a, b) => (b.eliminatedSeq ?? 0) - (a.eliminatedSeq ?? 0))[0]
+    return last?.capitulatedRound != null ? 'capitulation' : 'elimination'
+  }
+  return reason === 'noHumans' ? 'elimination' : reason
 }
 
 /** Play one game headless, every seat by the AI, and collect its metrics */

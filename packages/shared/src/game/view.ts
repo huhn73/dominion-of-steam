@@ -2,6 +2,7 @@ import type {
   City,
   CombatPreview,
   CombatResult,
+  Dominance,
   Faction,
   GameEvent,
   GameMap,
@@ -31,6 +32,8 @@ export interface PlayerView {
   rules: GameRules
   /** Set once the match is finished */
   result: MatchResult | null
+  /** Victory condition 'dominance': who holds the city share and for how much longer */
+  dominance: Dominance | null
 }
 
 /** How the match ended for the viewer */

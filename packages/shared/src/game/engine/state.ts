@@ -1,5 +1,6 @@
 import type {
   City,
+  EndReason,
   GameRules,
   Faction,
   GameEvent,
@@ -11,6 +12,7 @@ import type {
   UnitType,
 } from '../types'
 import { bitsFromKeys } from '../bits'
+import type { WorldShape } from '../worldShapes'
 import { FACTIONS, UNIT_TYPES } from '../catalog'
 import { encodeTerrain } from '../mapcodec'
 import { createRng } from './rng'
@@ -40,6 +42,13 @@ export interface GameState {
   winnerId: string | null
   /** ISO timestamp when the match finished */
   endedAt: string | null
+  /** How the match ended; null while it runs */
+  endReason: EndReason | null
+  /**
+   * Victory condition 'dominance': the participant holding the city share and how many of
+   * their own turns in a row they ended with it; null when nobody holds it
+   */
+  dominance: { participantId: string; turns: number } | null
   /** Index into `participants` of the participant whose turn it is */
   seat: number
   /** Phase of the participant whose turn it is */
@@ -47,8 +56,11 @@ export interface GameState {
   /** ISO timestamp, only for async matches */
   turnDeadline: string | null
   participants: ParticipantState[]
-  /** Terrain as one character per tile, row-major (codes in ../mapcodec.ts) */
-  map: { width: number; height: number; seed: string; terrain: string }
+  /**
+   * Terrain as one character per tile, row-major (codes in ../mapcodec.ts); the world shape
+   * decides the dominance share (missing in older states: continent)
+   */
+  map: { width: number; height: number; seed: string; terrain: string; worldShape?: WorldShape }
   cities: CityState[]
   units: UnitState[]
   events: EventState[]
@@ -86,6 +98,8 @@ export interface ParticipantState {
   placement: number | null
   /** Set when the human player surrendered; an AI ("Normal") plays the faction since then */
   surrender: SurrenderInfo | null
+  /** Round in which this AI capitulated (its cities became neutral), null otherwise */
+  capitulatedRound: number | null
   /**
    * What the participant knew at the end of their last turn: known cities with the owner seen
    * last and the ids of visible foreign units. The turn report compares against it; null before
@@ -180,6 +194,8 @@ export function normalizeState(state: GameState): GameState {
   s.rules ??= defaultRules(s.mode)
   s.winnerId ??= null
   s.endedAt ??= null
+  s.endReason ??= null
+  s.dominance ??= null
   for (const p of s.participants) {
     const ps = p as Partial<ParticipantState> & ParticipantState
     ps.aiPersonalityId ??= null
@@ -189,6 +205,7 @@ export function normalizeState(state: GameState): GameState {
     ps.eliminatedSeq ??= null
     ps.placement ??= null
     ps.surrender ??= null
+    ps.capitulatedRound ??= null
     ps.seenAtTurnEnd ??= null
   }
   for (const c of s.cities) {

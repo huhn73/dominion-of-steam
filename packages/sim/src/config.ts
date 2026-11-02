@@ -6,7 +6,7 @@ import { aiPersonality } from '@dos/shared/setup/data'
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'normal', 'hard']
 const LEVELS: readonly Level[] = ['low', 'normal', 'high']
-const VICTORY: readonly VictoryCondition[] = ['elimination', 'capitals', 'roundLimit']
+const VICTORY: readonly VictoryCondition[] = ['elimination', 'capitals', 'roundLimit', 'dominance']
 
 /** Fields of the AI profile a config may override or sweep */
 export const PROFILE_KEYS = [
@@ -76,7 +76,7 @@ export interface SimConfig {
   seeds: number | string[]
   /** Play every seed once per seat order so that no label keeps the first seat */
   rotateSeats: boolean
-  /** Also the hard cap for 'elimination' and 'capitals' */
+  /** Also the hard cap for 'elimination', 'capitals' and 'dominance' */
   roundLimit: number
   victoryCondition: VictoryCondition
   workers?: number

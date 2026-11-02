@@ -14,7 +14,7 @@ export type { MapSizeId, MapSizeOption } from '../game/mapSizes'
 import type { MapSizeId, MapSizeOption } from '../game/mapSizes'
 import type { WorldShape } from '../game/worldShapes'
 
-export type VictoryConditionId = 'elimination' | 'capitals' | 'roundLimit'
+export type VictoryConditionId = 'elimination' | 'capitals' | 'roundLimit' | 'dominance'
 
 export interface Player {
   id: string

@@ -66,7 +66,8 @@ export interface RoundSnapshot {
   byLabel: Record<string, { cities: number; land: number; sea: number; air: number; score: number }>
 }
 
-export type VictoryType = 'elimination' | 'capitals' | 'roundLimit' | 'aborted'
+export type VictoryType =
+  'elimination' | 'capitulation' | 'capitals' | 'dominance' | 'roundLimit' | 'aborted'
 
 export interface GameResult {
   jobId: string

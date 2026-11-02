@@ -1,0 +1,56 @@
+{
+  "name": "inseln-vorherrschaft",
+  "matchups": [
+    {
+      "id": "hard-vs-normal",
+      "participants": [
+        {
+          "label": "hard",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "normal",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "aurelia-vs-eisenbund",
+      "participants": [
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        },
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium",
+      "worldShape": "islands",
+      "landShare": 35
+    },
+    {
+      "size": "medium",
+      "worldShape": "archipelago",
+      "landShare": 30
+    },
+    {
+      "size": "medium",
+      "worldShape": "continent",
+      "landShare": 35
+    }
+  ],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 150,
+  "victoryCondition": "dominance"
+}

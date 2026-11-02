@@ -152,6 +152,7 @@ describe('Siegbedingungen', () => {
       winnerId: 'p1',
       endedAt: NOW.toISOString(),
       placements: { p1: 1, p2: 2, p3: 3 },
+      reason: 'elimination',
     })
   })
 

@@ -228,6 +228,21 @@ Kanonenboot als Standard-Geleit (Blitzkorvette nur als Sondereinheit), „leicht
 
 **Befunde:** Der Doppelauftrag-Fehler verdeckte, dass eine Obergrenze von einem Frachter auf Inseln zu wenig ist; mit sauberer Zählung entscheidet die Frachterzahl die Inselduelle (Sweep: +16 bis +34 Punkte). Aurelia ist ohne Korvetten-Geleit ausgeglichen, Eisenbund gegen Nordmark auf dem Kontinent mit 63 % am Rand. Inselpartien enden weiter fast immer nach Punkten (Folgefrage Siegbedingung, Roadmap).
 
+## Nachmessung Enden (2. November 2026, Spec `2026-11-02-1952-enden-inselwelten`)
+
+Neue Siegbedingung Vorherrschaft (Mehrheit der Städte fünf eigene Runden lang: 60 % auf dem Kontinent, 50 % auf Inseln und Archipel) und Kapitulation der KI (Hauptstadt verloren, weniger als ein Viertel der Städte des Führenden, der mindestens 6 hat, ab Runde 20). Bericht `2026-11-02-2017-inseln-vorherrschaft.md`, je Matchup und Weltform 60 Partien auf „Mittel“ (Inseln 35 %, Archipel 30 %, Kontinent 35 % Land), Rundendeckel 150. Die Simulation trennt Karten jetzt nach Größe, Weltform und Landanteil (vorher fielen Inseln und Kontinent gleicher Größe in eine Karten-ID).
+
+| Matchup | Weltform | Ende vor Runde 150 | davon Vorherrschaft / Kapitulation | Ø Ende | Siege |
+|---|---|---|---|---|---|
+| schwer gegen normal | Kontinent | **86 %** | 35 / 15 (+2 Ausschaltung) | R91 | schwer 35, normal 17 |
+| schwer gegen normal | Inseln | **71 %** | 36 / 7 | R97 | schwer 39, normal 4 |
+| schwer gegen normal | Archipel | **60 %** | 25 / 11 | R115 | schwer 32, normal 4 |
+| Aurelia gegen Eisenbund | Kontinent | **91 %** | 38 / 17 | R98 | 26 : 29 |
+| Aurelia gegen Eisenbund | Inseln | **53 %** | 27 / 5 | R96 | 17 : 15 |
+| Aurelia gegen Eisenbund | Archipel | 21 % | 12 / 1 | R111 | 9 : 4 |
+
+**Befunde:** Mit einheitlich 60 % endeten Inselpartien nur zu 25–43 % vor dem Deckel, Archipel zu 6–30 % (erste Messung, verworfen); erst die Schwelle von 50 % für Inselwelten bringt Inseln über das Ziel von 50 %. Kapitulationen kommen spät (Mittel R75–108, frühestens R34), „schwer“ gewinnt die entschiedenen Partien deutlich (Inseln 39:4, Kontinent 35:17). Offen bleibt der Archipel im ausgeglichenen Fraktionsduell (21 %): Die KI erobert neutrale Inseln zu zögerlich, um die Mehrheit zu erreichen; Folge-Spec in der Roadmap.
+
 ## Was die Simulation noch nicht misst
 
 - Spielspaß und Druck auf einen Menschen: KI gegen KI misst nur relative Stärke. Nächster Schritt sind Sparringsgegner mit festem Verhalten (passiv, reiner Expandierer, Rusher), gegen die jede Stufe eine Zielquote hat.

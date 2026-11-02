@@ -40,8 +40,14 @@ export function seedList(config: SimConfig): string[] {
   )
 }
 
-export const mapId = (m: MapConfig) =>
-  typeof m.size === 'string' ? m.size : `${m.size.width}x${m.size.height}`
+/**
+ * Map id in job ids and results: the size, plus world shape and land share, so maps of the same
+ * size in one config (islands next to continent) stay apart
+ */
+export const mapId = (m: MapConfig) => {
+  const size = typeof m.size === 'string' ? m.size : `${m.size.width}x${m.size.height}`
+  return `${size}-${m.worldShape}-${m.landShare}`
+}
 
 export function mapSettings(m: MapConfig, seed: string): MapSettings {
   const { width, height } = typeof m.size === 'string' ? MAP_SIZES[m.size] : m.size
