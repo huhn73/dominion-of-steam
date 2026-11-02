@@ -23,8 +23,8 @@ SOFTWARE.
 ---
 
 Ausnahme: Die Illustrationen, Wappen, Porträts und Audiodateien unter
-public/art/ und public/audio/ sowie die Screenshots unter product-plan/ sind
-von dieser Lizenz ausgenommen. Alle Rechte an diesen Inhalten vorbehalten.
+public/art/ und public/audio/, das Titelbild unter docs/bilder/ sowie die
+Screenshots unter product-plan/ sind von dieser Lizenz ausgenommen. Alle Rechte an diesen Inhalten vorbehalten.
 Die Soundeffekte unter public/audio/sfx/ wurden aus CC0-Aufnahmen
 geschnitten und gemischt; Quellen und Urheber stehen in
 public/audio/credits.json, der Lizenztext in public/audio/CC0-1.0.txt.

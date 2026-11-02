@@ -1,6 +1,6 @@
 import type { AccountService } from './accounts'
 
-/** Password of all dev accounts (README) */
+/** Password of all dev accounts (docs/ENTWICKLUNG.md) */
 export const DEV_PASSWORD = 'dampfmaschine'
 
 /**
