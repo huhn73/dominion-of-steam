@@ -63,7 +63,7 @@ Was das Repo heute schon mitbringt und wiederverwendet wird:
   VAPID_SUBJECT=mailto:noreply@huhn73.de
   ```
   `NODE_ENV=production` und `STATIC_DIR` kommen aus dem Image. `DEV_TOOLS` bleibt ungesetzt.
-- `deploy/backup-uploads.sh`: `tar` des Upload-Volumes nach `/opt/dominion/backups/`, per Host-Cron täglich. Zweite Ebene: `deploy/offsite-backup.sh` kopiert DB-Dumps und Upload-Archiv per `rsync` oder `rclone` an einen Ort außerhalb des Servers (z. B. netcup Storage Space, Hetzner Storage Box oder dein Heimnetz über den DynDNS-Eintrag). Dazu vor größeren Updates ein manueller Snapshot im netcup SCP, in der README beschrieben.
+- `deploy/backup-uploads.sh`: `tar` des Upload-Volumes nach `/opt/dominion/backups/`, per Host-Cron täglich. Zweite Ebene: `deploy/offsite-backup.sh` kopiert DB-Dumps und Upload-Archiv per `rsync` oder `rclone` an einen Ort außerhalb des Servers (z. B. netcup Storage Space, Hetzner Storage Box). Dazu vor größeren Updates ein manueller Snapshot im netcup SCP, in der README beschrieben.
 
 ### 2d GitHub Actions `.github/workflows/deploy.yml`
 
@@ -89,7 +89,7 @@ GHCR-Paket auf **öffentlich** stellen (Repo ist MIT), dann braucht der Server k
 ## Task 3: Einrichtung außerhalb des Repos (Handarbeit des Nutzers, in `deploy/README.md` beschrieben)
 
 1. **netcup:** VPS Lite 1 G12.5s mit IPv4 und IPv6 bestellen, im SCP Ubuntu 24.04 (minimal) als Image installieren. netcup liefert zunächst ein Root-Passwort: als Erstes SSH-Key hinterlegen, Nutzer `deploy` mit sudo und Docker-Gruppe anlegen, danach in `sshd_config` `PasswordAuthentication no` und `PermitRootLogin no`. Es gibt keine vorgeschaltete Firewall, deshalb `ufw` mit nur 22/80/443 eingehend **vor** dem Start der Container (Docker öffnet Ports sonst an ufw vorbei; in der Compose-Datei haben nur Caddy-Ports ein Host-Mapping, Postgres und App keines). Dann `apt update && apt upgrade`, Docker per `get.docker.com`, `unattended-upgrades`, `fail2ban` für sshd, `/opt/dominion/` anlegen, `docker-compose.yml`, `Caddyfile`, `.env` (aus `.env.example`) dorthin kopieren. Nach fertiger Einrichtung einen Snapshot im SCP anlegen.
-2. **Cloudflare DNS:** A-Record `dominion` → Server-IPv4, Proxy-Status **DNS only**; optional AAAA für IPv6. Der bestehende DynDNS-Eintrag für die Hauptdomain bleibt unberührt.
+2. **Cloudflare DNS:** A-Record `dominion` → Server-IPv4, Proxy-Status **DNS only**; optional AAAA für IPv6.
 3. **Brevo:** Konto anlegen, Absender-Domain `huhn73.de` hinzufügen. Brevo zeigt die DNS-Einträge: Brevo-Code-TXT, DKIM (zwei CNAME oder TXT `mail._domainkey`), SPF `v=spf1 include:spf.brevo.com ~all` (bestehendes SPF ggf. erweitern), DMARC `v=DMARC1; p=none; rua=mailto:…`. Dann unter „SMTP & API“ einen SMTP-Schlüssel erzeugen; Login ist die Brevo-Konto-E-Mail. In `.env` als `SMTP_URL` eintragen, Sonderzeichen URL-kodiert.
 4. **GitHub:** Deploy-Schlüssel erzeugen (`ssh-keygen -t ed25519`), Public Key in `~deploy/.ssh/authorized_keys` auf dem Server, Private Key als Secret `DEPLOY_SSH_KEY`, dazu `DEPLOY_HOST` und `DEPLOY_USER`. Nach dem ersten Workflow-Lauf das GHCR-Paket auf öffentlich stellen.
 5. **Erststart:** `docker compose up -d` auf dem Server, `docker compose logs -f app` bis „Server listening“, Caddy-Log auf Zertifikatsausstellung prüfen.
