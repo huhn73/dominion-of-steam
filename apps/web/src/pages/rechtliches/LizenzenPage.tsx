@@ -76,8 +76,8 @@ export function LizenzenPage() {
         <p>
           Das Spiel nutzt Open-Source-Bibliotheken wie React, Fastify und Tailwind CSS. Die
           vollständige Liste mit Versionen und Lizenzen steht in den{' '}
-          <code className="font-['IBM_Plex_Mono'] text-xs">package.json</code>-Dateien des
-          Repositories.
+          <code className="font-['IBM_Plex_Mono'] text-xs">package.json</code>-Dateien des{' '}
+          <ExternalLink href={ANBIETER.repo}>Repositories</ExternalLink>.
         </p>
       </Section>
     </LegalPage>

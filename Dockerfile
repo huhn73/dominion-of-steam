@@ -15,11 +15,11 @@ COPY . .
 ARG DEV_TOOLS=false
 ENV VITE_DEV_TOOLS=$DEV_TOOLS
 # Anbieterdaten für Impressum und Datenschutz (nicht im Repository); ohne Werte erscheinen Platzhalter
-ARG VITE_ANBIETER_NAME=
-ARG VITE_ANBIETER_STRASSE=
-ARG VITE_ANBIETER_ORT=
-ARG VITE_ANBIETER_LAND=
-ARG VITE_ANBIETER_EMAIL=
+ARG VITE_ANBIETER_NAME
+ARG VITE_ANBIETER_STRASSE
+ARG VITE_ANBIETER_ORT
+ARG VITE_ANBIETER_LAND
+ARG VITE_ANBIETER_EMAIL
 RUN pnpm --filter @dos/web build
 
 ENV NODE_ENV=production \
@@ -28,6 +28,6 @@ ENV NODE_ENV=production \
     PORT=3000
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD wget -qO- http://localhost:3000/api/health || exit 1
+  CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
 WORKDIR /app/apps/server
 CMD ["pnpm", "start"]
