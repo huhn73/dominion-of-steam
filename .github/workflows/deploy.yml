@@ -114,8 +114,9 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_stop: true
+          # script_stop gibt es in ssh-action v1 nicht mehr: set -e bricht beim ersten Fehler ab
           script: |
+            set -e
             cd /opt/dominion
             docker compose pull app
             docker compose up -d --remove-orphans
