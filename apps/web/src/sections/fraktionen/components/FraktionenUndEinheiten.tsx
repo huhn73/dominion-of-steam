@@ -4,7 +4,7 @@ import type { FraktionenUndEinheitenProps, UnitDomain } from '../types'
 import { FactionEmblem } from './FactionEmblem'
 import { FACTION_HEX } from './theme'
 import { UnitRow } from './UnitRow'
-import { useImageLoaded } from './useImageLoaded'
+import { unitImageCandidates, unitThumbUrl, useImageLoaded, useVariantCycle } from './useImageLoaded'
 
 type DomainFilter = 'all' | UnitDomain
 /** 'all', 'general' or a faction id (its special units) */
@@ -40,6 +40,16 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
       (origin === 'all' || (origin === 'general' ? u.factionId === null : u.factionId === origin)),
   )
   const isFiltered = domain !== 'all' || origin !== 'all'
+  // General units cross-fade through the factions' looks, all rows in step
+  const cycleFaction = factions[useVariantCycle(factions.length)]
+  const variantsOf = (u: (typeof unitTypes)[number]) =>
+    factions
+      .filter((f) => u.variantIllustrationUrls[f.id])
+      .map((f) => ({
+        factionId: f.id,
+        url: unitThumbUrl(u.variantIllustrationUrls[f.id]!),
+        color: FACTION_HEX[f.color].base,
+      }))
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
@@ -192,16 +202,21 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
           </div>
         ) : (
           <ul className="grid gap-2 xl:grid-cols-2">
-            {filtered.map((u) => (
-              <li key={u.id}>
-                <UnitRow
-                  unit={u}
-                  owner={u.factionId ? factionById.get(u.factionId) : undefined}
-                  imageUrls={[u.illustrationUrl]}
-                  onSelect={() => onSelectUnitType?.(u.id)}
-                />
-              </li>
-            ))}
+            {filtered.map((u) => {
+              const variants = variantsOf(u)
+              return (
+                <li key={u.id}>
+                  <UnitRow
+                    unit={u}
+                    owner={u.factionId ? factionById.get(u.factionId) : undefined}
+                    imageUrls={unitImageCandidates(u.illustrationUrl)}
+                    variants={variants.length > 0 ? variants : undefined}
+                    activeVariant={Math.max(0, variants.findIndex((v) => v.factionId === cycleFaction?.id))}
+                    onSelect={() => onSelectUnitType?.(u.id)}
+                  />
+                </li>
+              )
+            })}
           </ul>
         )}
         {isFiltered && filtered.length > 0 && (

@@ -4,7 +4,7 @@ import { FactionEmblem } from './FactionEmblem'
 import { DOMAIN_LABEL, FACTION_HEX, bonusEffect } from './theme'
 import { UnitIcon } from './unitIcons'
 import { UnitRow } from './UnitRow'
-import { useImageLoaded } from './useImageLoaded'
+import { unitImageCandidates, useFirstLoadedImage, useImageLoaded } from './useImageLoaded'
 
 const STAT_LABEL = {
   movement: 'Bewegung',
@@ -22,6 +22,7 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
   const paragraphs = faction.history.split(/\n\s*\n/)
   const { bonus } = faction
   const hasHero = useImageLoaded(faction.heroImageUrl)
+  const specialImage = useFirstLoadedImage(unitImageCandidates(special?.illustrationUrl))
 
   return (
     <div>
@@ -154,12 +155,25 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
                   backgroundSize: '22px 22px',
                 }}
               />
-              <span
-                className="relative flex size-24 shrink-0 items-center justify-center rounded-full border-4 transition-transform group-hover:rotate-12"
-                style={{ borderColor: c.base, color: c.base }}
-              >
-                <UnitIcon unitTypeId={special.id} domain={special.domain} className="size-11" strokeWidth={1.8} />
-              </span>
+              {specialImage ? (
+                <span
+                  className="relative h-36 w-48 shrink-0 overflow-hidden rounded-lg border-4 shadow-lg"
+                  style={{ borderColor: c.base }}
+                >
+                  <img
+                    src={specialImage}
+                    alt=""
+                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </span>
+              ) : (
+                <span
+                  className="relative flex size-24 shrink-0 items-center justify-center rounded-full border-4 transition-transform group-hover:rotate-12"
+                  style={{ borderColor: c.base, color: c.base }}
+                >
+                  <UnitIcon unitTypeId={special.id} domain={special.domain} className="size-11" strokeWidth={1.8} />
+                </span>
+              )}
               <span className="relative min-w-0 flex-1">
                 <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.3em]" style={{ color: c.base }}>
                   Sondereinheit · {DOMAIN_LABEL[special.domain]}
@@ -225,7 +239,7 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
                 <UnitRow
                   unit={u}
                   bonus={bonusEffect(u, faction)}
-                  imageUrls={[u.variantIllustrationUrls[faction.id], u.illustrationUrl]}
+                  imageUrls={[...unitImageCandidates(u.variantIllustrationUrls[faction.id]), ...unitImageCandidates(u.illustrationUrl)]}
                   onSelect={() => onSelectUnitType?.(u.id, faction.id)}
                 />
               </li>

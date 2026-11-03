@@ -1,11 +1,10 @@
 // Renders public/icon.svg into the PNG sizes that index.html and manifest.webmanifest reference,
 // and wraps the 32 px PNG into favicon.ico. Run after replacing the logo: `node scripts/icons.mjs`.
-// Needs a Chromium: Playwright as a dependency or in the npx cache, plus Google Chrome if the
-// Playwright browsers are not installed.
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
+// Needs a Chromium (scripts/chromium.mjs).
+import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
+import { launchChromium } from './chromium.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const pub = path.join(root, 'public')
@@ -15,23 +14,6 @@ const SIZES = [
   ['icon-192.png', 192],
   ['icon-512.png', 512],
 ]
-
-async function loadPlaywright() {
-  try {
-    return await import('playwright')
-  } catch {
-    // not a dependency: look in the npx cache
-  }
-  const cache = path.join(homedir(), '.npm', '_npx')
-  if (existsSync(cache))
-    for (const dir of readdirSync(cache)) {
-      const entry = path.join(cache, dir, 'node_modules', 'playwright', 'index.mjs')
-      if (existsSync(entry)) return import(pathToFileURL(entry).href)
-    }
-  throw new Error(
-    'Playwright nicht gefunden. Einmal `npx -y playwright@1.56.1 --version` ausführen oder `pnpm add -D -w playwright`.',
-  )
-}
 
 /** ICO container with a single PNG entry (every current browser reads PNG-in-ICO) */
 function ico(png, size) {
@@ -51,9 +33,7 @@ function ico(png, size) {
 }
 
 const svg = readFileSync(path.join(pub, 'icon.svg'), 'utf8')
-const { chromium } = await loadPlaywright()
-const chrome = '/usr/bin/google-chrome'
-const browser = await chromium.launch(existsSync(chrome) ? { executablePath: chrome } : {})
+const browser = await launchChromium()
 try {
   const page = await browser.newPage({ deviceScaleFactor: 1 })
   const data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`

@@ -26,7 +26,7 @@ pnpm lint       # Prettier
 - `product-plan/`: Design-Übergabe aus Design OS (Komponenten, Typen, Spezifikationen, Test-Spezifikationen, Screenshots, Art- und Audio-Brief). Einstieg: `product-plan/README.md`
 - `public/art/`: Ablage für Illustrationen laut `product-plan/briefs/art-brief.md`
 - `public/audio/`: Musik, Umgebungsschleifen und Soundeffekte (OGG/Opus) laut `product-plan/briefs/audio-brief.md`; `manifest.json` ordnet IDs den Dateien zu (Effekte mit Varianten als Listen), `credits.json` nennt die CC0-Quellen der Effekte. abgespielt von `apps/web/src/audio/` (siehe „Ton“)
-- `public/`: außerdem Icons (`icon.svg`, PNGs, `favicon.ico`), `manifest.webmanifest` und der Service Worker; `scripts/icons.mjs` rendert die PNGs aus `icon.svg`
+- `public/`: außerdem Icons (`icon.svg`, PNGs, `favicon.ico`), `manifest.webmanifest` und der Service Worker; `scripts/icons.mjs` rendert die PNGs aus `icon.svg`, `scripts/unit-thumbs.mjs` die Vorschaubilder der Einheiten (320×240) nach `public/art/units/thumbs/` (nach neuen oder geänderten Einheitenbildern ausführen; Liste und Fraktionsseite laden diese, die Einheitenansicht das Original)
 - `.claude/commands/agent-os/`: Agent-OS-Befehle für Produktplanung, Standards und Specs
 
 ## Anmeldung
@@ -167,7 +167,7 @@ Musik, Umgebungsgeräusche und Effekte aus `public/audio/` spielt eine eigene kl
 
 Impressum (`/impressum`), Datenschutzerklärung (`/datenschutz`) und Lizenzen (`/lizenzen`) sind ohne Anmeldung erreichbar (`apps/web/src/pages/rechtliches/`). Links stehen unter jeder Anmeldekarte, in der Fußzeile der Menüseiten und im Benutzermenü („Rechtliches“). Die Anbieterdaten (Name, Anschrift, E-Mail) stehen nicht im Repository: `pages/rechtliches/anbieter.ts` liest sie aus `VITE_ANBIETER_*`, beim Deploy aus den Repository-Variablen `ANBIETER_*`, lokal aus `apps/web/.env.local` (siehe [`deploy/README.md`](../deploy/README.md) §5). Ohne Werte erscheinen Platzhalter, im Dev-Modus warnt das Impressum. Die Lizenzseite liest `LICENSE` und `public/audio/credits.json` direkt ein.
 
-Lesezeichen-Icons: `public/icon.svg` ist die Quelle, `node scripts/icons.mjs` rendert daraus `favicon.ico`, `apple-touch-icon.png` und die Manifest-Icons (braucht Playwright im npx-Cache und Google Chrome). `public/manifest.webmanifest` macht das Spiel auf dem Homescreen installierbar. Die Schriften kommen als `@fontsource`-Pakete aus dem Bundle, der Browser lädt nichts von Dritten.
+Lesezeichen-Icons: `public/icon.svg` ist die Quelle, `node scripts/icons.mjs` rendert daraus `favicon.ico`, `apple-touch-icon.png` und die Manifest-Icons (braucht Playwright im npx-Cache und Google Chrome, gemeinsam mit `unit-thumbs.mjs` über `scripts/chromium.mjs`). `public/manifest.webmanifest` macht das Spiel auf dem Homescreen installierbar. Die Schriften kommen als `@fontsource`-Pakete aus dem Bundle, der Browser lädt nichts von Dritten.
 
 ## KI-Simulation
 

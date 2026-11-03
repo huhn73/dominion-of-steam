@@ -1,9 +1,15 @@
-import { screen, within } from '@testing-library/react'
+import { act, render, renderHook, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { COMPENDIUM_FACTIONS, COMPENDIUM_UNIT_TYPES } from '@dos/shared/compendium'
 import { withBonus } from '@dos/shared/game/bonus'
 import { FACTIONS, UNIT_TYPES } from '@dos/shared/game'
 import { bonusEffect } from '../../sections/fraktionen/components/theme'
+import { UnitRow } from '../../sections/fraktionen/components/UnitRow'
+import {
+  VARIANT_CYCLE_MS,
+  useVariantCycle,
+} from '../../sections/fraktionen/components/useImageLoaded'
+import { REDUCE_MOTION_CLASS } from '../../settings/motion'
 import { renderApp } from '../../test/renderApp'
 import { mockApi } from '../../test/mockApi'
 
@@ -137,5 +143,84 @@ describe('Kompendium', () => {
     withData()
     renderApp('/fraktionen/xyz')
     expect(await screen.findByText(/Diese Fraktion gibt es nicht/)).toBeInTheDocument()
+  })
+})
+
+/** jsdom loads no images: every image "loads" right away */
+function stubImages() {
+  vi.stubGlobal(
+    'Image',
+    class {
+      onload: (() => void) | null = null
+      set src(_: string) {
+        queueMicrotask(() => this.onload?.())
+      }
+    },
+  )
+}
+
+describe('Einheitenbilder', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    document.documentElement.classList.remove(REDUCE_MOTION_CLASS)
+  })
+
+  it('wechselt die Ausführung alle sechs Sekunden, bei reduzierten Animationen nicht', () => {
+    vi.useFakeTimers()
+    const { result } = renderHook(() => useVariantCycle(4))
+    expect(result.current).toBe(0)
+    act(() => vi.advanceTimersByTime(VARIANT_CYCLE_MS))
+    expect(result.current).toBe(1)
+    act(() => vi.advanceTimersByTime(3 * VARIANT_CYCLE_MS))
+    expect(result.current).toBe(0)
+
+    document.documentElement.classList.add(REDUCE_MOTION_CLASS)
+    act(() => vi.advanceTimersByTime(2 * VARIANT_CYCLE_MS))
+    expect(result.current).toBe(0)
+  })
+
+  it('blendet in der Zeile zur aktiven Ausführung über, der Rahmen folgt der Fraktion', async () => {
+    stubImages()
+    const unit = COMPENDIUM_UNIT_TYPES.find((u) => u.id === 'grenadiere')!
+    const variants = [
+      { url: '/a.webp', color: 'rgb(245, 158, 11)' },
+      { url: '/b.webp', color: 'rgb(244, 63, 94)' },
+    ]
+    const { rerender } = render(<UnitRow unit={unit} variants={variants} activeVariant={0} />)
+    const frame = await screen.findByTestId('unit-variants')
+    const opaque = () =>
+      [...frame.querySelectorAll('img')]
+        .filter((img) => img.classList.contains('opacity-100'))
+        .map((img) => img.getAttribute('src'))
+    expect(opaque()).toEqual(['/a.webp'])
+    expect(frame).toHaveStyle({ borderColor: 'rgb(245, 158, 11)' })
+
+    rerender(<UnitRow unit={unit} variants={variants} activeVariant={1} />)
+    expect(opaque()).toEqual(['/b.webp'])
+    expect(frame).toHaveStyle({ borderColor: 'rgb(244, 63, 94)' })
+  })
+
+  it('zeigt allgemeinen Einheiten der Liste die Vorschaubilder der Fraktionen', async () => {
+    stubImages()
+    withData()
+    renderApp('/fraktionen')
+    const row = (await screen.findAllByRole('button', { name: /Grenadiere/ }))[0]!
+    const frame = await within(row).findByTestId('unit-variants')
+    expect([...frame.querySelectorAll('img')].map((img) => img.getAttribute('src'))).toEqual(
+      COMPENDIUM_FACTIONS.map((f) => `/art/units/thumbs/${f.id}/grenadiere.webp`),
+    )
+  })
+
+  it('zeigt auf der Fraktionsseite das Bild der Sondereinheit', async () => {
+    stubImages()
+    withData()
+    renderApp('/fraktionen/eisenbund')
+    const card = (await screen.findAllByRole('button', { name: /Dampfkoloss/ }))[0]!
+    await vi.waitFor(() =>
+      expect(card.querySelector('img')).toHaveAttribute(
+        'src',
+        '/art/units/thumbs/dampfkoloss.webp',
+      ),
+    )
   })
 })
