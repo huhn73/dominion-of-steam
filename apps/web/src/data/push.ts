@@ -4,6 +4,9 @@ import type { PushKeyResponse } from '@dos/shared/notifications'
 import { api } from './api'
 
 const SW_URL = '/sw.js'
+/** Shown when the browser answers the request without a decision (prompt blocked or closed) */
+export const PUSH_NO_PROMPT_HINT =
+  'Dein Browser hat keine Abfrage gezeigt. Erlaube Benachrichtigungen über das Symbol links in der Adressleiste.'
 /** "Später" hides the banner for this long (per player and browser) */
 export const PUSH_BANNER_SNOOZE_MS = 7 * 24 * 3600_000
 
@@ -69,11 +72,35 @@ export function usePushPermission() {
     if (permission !== 'granted' || !pushSupported()) return
     subscribePush().catch(() => undefined)
   }, [permission])
-  const enable = useCallback(async () => {
+  // Allowed or blocked later via the address bar (e.g. Edge blocks the prompt of unknown sites
+  // silently): follow the change, with focus as a fallback where the Permissions API is missing
+  useEffect(() => {
     if (!pushSupported()) return
+    const sync = () => setPermission(currentPushPermission())
+    let status: PermissionStatus | undefined
+    let cancelled = false
+    navigator.permissions
+      ?.query({ name: 'notifications' })
+      .then((s) => {
+        if (cancelled) return
+        status = s
+        s.addEventListener('change', sync)
+      })
+      .catch(() => undefined)
+    window.addEventListener('focus', sync)
+    return () => {
+      cancelled = true
+      status?.removeEventListener('change', sync)
+      window.removeEventListener('focus', sync)
+    }
+  }, [])
+  /** Asks the browser; `default` means it showed no prompt or it was closed without a choice */
+  const enable = useCallback(async (): Promise<PushPermission> => {
+    if (!pushSupported()) return 'granted'
     const result = await Notification.requestPermission()
     setPermission(result)
     if (result === 'granted') await subscribePush()
+    return result
   }, [])
   return { permission, enable }
 }

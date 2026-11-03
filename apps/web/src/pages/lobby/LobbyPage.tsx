@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { Lobby } from '../../sections/lobby/components'
 import { ApiRequestError } from '../../data/api'
 import { useLobby, useLobbyActions, useTickingNow } from '../../data/lobby'
-import { usePushBannerDismissed, usePushPermission } from '../../data/push'
+import { PUSH_NO_PROMPT_HINT, usePushBannerDismissed, usePushPermission } from '../../data/push'
 import { useMe } from '../../data/session'
 import { routes } from '../../routes'
 import { PlaceholderPage } from '../PlaceholderPage'
@@ -87,6 +87,7 @@ export function LobbyPage() {
         onEnablePush={() =>
           void push
             .enable()
+            .then((result) => result === 'default' && toast.info(PUSH_NO_PROMPT_HINT))
             .catch((e: unknown) =>
               toast.error(e, 'Push-Benachrichtigungen konnten nicht aktiviert werden.'),
             )

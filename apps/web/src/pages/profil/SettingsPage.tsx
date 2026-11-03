@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import type { Settings } from '@dos/shared/profile'
 import { Einstellungen } from '../../sections/profil/components'
 import { settingsKey, useAccountActions, useSettings, useSettingsActions } from '../../data/profile'
-import { unsubscribePush, usePushPermission } from '../../data/push'
+import { PUSH_NO_PROMPT_HINT, unsubscribePush, usePushPermission } from '../../data/push'
 import { meKey, useLogout, useSignOut } from '../../data/session'
 import { routes } from '../../routes'
 import { Toast, useToast } from '../shared/toast'
@@ -139,6 +139,7 @@ export function SettingsPage() {
         onEnablePush={() =>
           void push
             .enable()
+            .then((result) => result === 'default' && toast.info(PUSH_NO_PROMPT_HINT))
             .catch((e: unknown) =>
               toast.error(e, 'Push-Benachrichtigungen konnten nicht aktiviert werden.'),
             )
