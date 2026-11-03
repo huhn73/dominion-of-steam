@@ -96,6 +96,14 @@ docker compose logs caddy       # "certificate obtained successfully"
 curl -I https://<DOMAIN>/api/health
 ```
 
+Das Volume für die Datenbank-Dumps gehört nach dem ersten Start root, der Backup-Container schreibt aber als `postgres` (UID 999) und startet sonst ständig neu („BACKUP_DIR points to a file or folder with insufficient permissions“). Einmalig:
+
+```bash
+docker run --rm -v dominion_db_backups:/backups alpine chown -R 999:999 /backups
+docker compose restart backup
+docker compose exec backup /backup.sh   # erster Dump zur Probe
+```
+
 Dann im Browser registrieren. Es gibt in Produktion keine Dev-Konten und keine Demo-Partie (`DEV_TOOLS` ist aus).
 
 Die eigene Adresse in `.env` als `ADMIN_EMAILS=…` eintragen (kommagetrennt für mehrere) und `docker compose up -d app` ausführen. Dann erscheint im Benutzermenü „Verwaltung“ mit der Nutzungsübersicht unter `/admin`: Konten, Partien, Verlauf über 7/30/90 Tage, ohne E-Mail-Adressen.

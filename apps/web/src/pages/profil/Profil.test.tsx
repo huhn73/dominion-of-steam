@@ -270,13 +270,14 @@ describe('Einstellungen', () => {
     mockApi({ 'PUT /settings': (body) => ({ json: { ...testSettings(), settings: body } }) })
     renderApp('/einstellungen')
     await userEvent.click(await screen.findByRole('button', { name: /^Darstellung/ }))
+    // Query-Observer werden per setTimeout benachrichtigt, das Schema folgt einen Takt später
     await userEvent.click(screen.getByRole('radio', { name: 'Dunkel' }))
-    expect(document.documentElement).toHaveClass('dark')
+    await waitFor(() => expect(document.documentElement).toHaveClass('dark'))
     expect(localStorage.getItem('dos.theme')).toBe('dark')
     await userEvent.click(screen.getByRole('switch', { name: 'Animationen reduzieren' }))
-    expect(document.documentElement).toHaveClass('dos-reduce-motion')
+    await waitFor(() => expect(document.documentElement).toHaveClass('dos-reduce-motion'))
     await userEvent.click(screen.getByRole('radio', { name: 'Hell' }))
-    expect(document.documentElement).not.toHaveClass('dark')
+    await waitFor(() => expect(document.documentElement).not.toHaveClass('dark'))
   })
 
   it('speichert den Schalter „Rundenbericht zu Zugbeginn“', async () => {
