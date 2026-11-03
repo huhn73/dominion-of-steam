@@ -125,6 +125,11 @@ describe('Icons und Manifest', () => {
     expect(html).toContain('<link rel="apple-touch-icon" href="/apple-touch-icon.png" />')
     expect(html).toContain(`<meta name="theme-color" content="${manifest.theme_color}" />`)
     expect(html).not.toMatch(/googleapis|gstatic/)
+    // Link-Vorschau: absolute Bild-URL auf eine Datei, die es in public/ gibt
+    const ogImage = /<meta property="og:image" content="https:\/\/[^/"]+\/([^"]+)"/.exec(html)
+    expect(ogImage, 'og:image').not.toBeNull()
+    expect(() => readFileSync(path.join(root, 'public', ogImage![1]!))).not.toThrow()
+    expect(html).toContain('<meta name="twitter:card" content="summary_large_image" />')
     expect(read('public/sw.js')).toContain("icon: '/icon-192.png'")
   })
 })
