@@ -30,3 +30,5 @@ TypeScript im Monorepo: React, Vite und Tailwind CSS im Browser, Fastify und Pos
 ## Lizenz
 
 Der Quellcode steht unter der [MIT-Lizenz](LICENSE). Ausgenommen sind Illustrationen, Wappen, Musik und das Titelbild; die Soundeffekte stammen aus CC0-Aufnahmen. Einzelheiten stehen in [LICENSE](LICENSE).
+
+Für die Weiterentwicklung nutzt das Projekt die Befehle von [Agent OS](https://github.com/buildermethods/agent-os) (Builder Methods, MIT-Lizenz). Sie liegen unter `.claude/commands/agent-os/`, zusammen mit ihrem [Lizenztext](.claude/commands/agent-os/LICENSE).

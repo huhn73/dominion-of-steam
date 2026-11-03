@@ -28,3 +28,10 @@ Screenshots unter product-plan/ sind von dieser Lizenz ausgenommen. Alle Rechte 
 Die Soundeffekte unter public/audio/sfx/ wurden aus CC0-Aufnahmen
 geschnitten und gemischt; Quellen und Urheber stehen in
 public/audio/credits.json, der Lizenztext in public/audio/CC0-1.0.txt.
+
+Fremdcode: Die Befehlsdateien unter .claude/commands/agent-os/ stammen
+aus Agent OS (https://github.com/buildermethods/agent-os),
+Copyright (c) 2025 CasJam Media LLC (Builder Methods), und stehen unter
+der MIT-Lizenz. Der Lizenztext liegt in .claude/commands/agent-os/LICENSE.
+Die Specs und Produktdokumente unter agent-os/ wurden mit diesen Befehlen
+für dieses Projekt erstellt und fallen unter die Lizenz oben.
