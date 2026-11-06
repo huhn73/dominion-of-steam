@@ -38,6 +38,7 @@ import { EventLog } from './EventLog'
 import { Rundenbericht, type ReportFooter } from './Rundenbericht'
 import { buildTurnReport, type ReportEntry, type TurnReport } from './report'
 import { MiniMap } from './MiniMap'
+import { TutorialPanel } from './TutorialPanel'
 
 // Typography: Big Shoulders Display (headings), Barlow (UI), IBM Plex Mono (numbers)
 
@@ -92,8 +93,13 @@ export function Spielfeld({
   result = null,
   dominance = null,
   onLeave,
+  tutorial = null,
+  onTutorialNext,
+  onTutorialSkip,
+  onNewMatch,
 }: SpielfeldUndZuegeProps) {
   const youId = match.youId
+  const focusUi = tutorial?.current?.focus?.ui ?? null
   const you = participants.find((p) => p.id === youId)
   // Sound cues go to the page (audio brief: the board itself plays nothing)
   const cueRef = useRef(onCue)
@@ -934,6 +940,7 @@ export function Spielfeld({
         hiddenUnitIds={combatPlay?.hidden}
         fadingUnitIds={combatPlay?.fading}
         draggableUnitAt={draggableUnitAt}
+        highlight={tutorial?.current?.focus?.hex ?? null}
         onTap={handleTap}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
@@ -985,6 +992,7 @@ export function Spielfeld({
 
       {/* Minimap */}
       <div
+        data-tutorial-focus={focusUi === 'minimap' ? '' : undefined}
         className={`${minimapOpen ? 'block' : 'hidden'} absolute right-3 top-16 z-10 w-44 overflow-hidden rounded-lg border-2 border-stone-800 shadow-xl md:right-4 md:top-auto md:block md:w-56 ${
           selectedCity ? 'md:bottom-4 lg:right-[25rem]' : 'md:bottom-4'
         } dark:border-stone-600`}
@@ -1010,6 +1018,24 @@ export function Spielfeld({
             participants={participants}
             result={result}
             onViewMap={() => setResultOpen(false)}
+            onLeave={() => onLeave?.()}
+            tutorial={!!tutorial}
+            onNewMatch={onNewMatch}
+          />
+        </div>
+      )}
+
+      {/* Tutorial: below the event log; hidden while the turn report or the result card is open */}
+      {tutorial?.current && !report && !result && (
+        <div
+          className={`pointer-events-none absolute inset-x-3 top-16 z-20 sm:inset-x-auto sm:left-4 sm:w-[24rem] md:top-20 ${
+            selectedUnit || selectedCity ? 'max-md:hidden' : ''
+          }`}
+        >
+          <TutorialPanel
+            tutorial={tutorial}
+            onNext={() => onTutorialNext?.()}
+            onSkip={() => onTutorialSkip?.()}
             onLeave={() => onLeave?.()}
           />
         </div>
@@ -1323,6 +1349,7 @@ export function Spielfeld({
           type="button"
           onClick={handleEndTurn}
           disabled={!canAct}
+          data-tutorial-focus={focusUi === 'endTurn' ? '' : undefined}
           className="min-h-12 whitespace-nowrap rounded-lg bg-gradient-to-b from-amber-400 to-amber-600 px-5 font-['Big_Shoulders_Display'] text-base font-black uppercase tracking-[0.18em] text-stone-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition hover:from-amber-300 hover:to-amber-500 disabled:from-stone-600 disabled:to-stone-700 disabled:text-stone-400"
         >
           {result ? 'Partie beendet' : 'Zug beenden'}

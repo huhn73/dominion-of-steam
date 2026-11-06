@@ -30,6 +30,8 @@ import { pushRoutes } from './routes/push'
 import { authRoutes } from './routes/auth'
 import { adminRoutes } from './routes/admin'
 import { createAdminService } from './admin/service'
+import { createTutorialService } from './tutorial/service'
+import { tutorialRoutes } from './routes/tutorial'
 import { devRoutes } from './routes/dev'
 import { matchRoutes } from './routes/matches'
 import { requestOrigin, setupRoutes } from './routes/setup'
@@ -116,6 +118,7 @@ export function buildApp({
   })
   const profile = createProfileService(db, { lobby, mail, uploadsDir, log })
   const admin = createAdminService(db)
+  const tutorial = createTutorialService(db)
   app.decorate('accounts', accounts)
   app.decorate('matches', matches)
   app.decorate('setup', setup)
@@ -178,6 +181,7 @@ export function buildApp({
     pushRoutes(scope, db)
     profileRoutes(scope, profile)
     adminRoutes(scope, admin)
+    tutorialRoutes(scope, tutorial)
     if (dev) devRoutes(scope, matches, setup)
   })
   // Uploaded avatars; every upload gets a new file name, so they can be cached for good

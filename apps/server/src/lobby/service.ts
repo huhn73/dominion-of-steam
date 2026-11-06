@@ -38,6 +38,7 @@ import {
 } from '@dos/shared/setup'
 import type { Db } from '../db/client'
 import { invitations, matches, matchSeats, players, reminders } from '../db/schema'
+import { createTutorialService, isTutorialMatchId } from '../tutorial/service'
 import { LOBBY_PATH, remindNotification, turnNotifications } from '../notifications/events'
 import type { Notifier } from '../notifications/service'
 import { lockMatch, MatchWaitingError, saveMatch, type Tx } from '../matches/repository'
@@ -192,6 +193,7 @@ export interface LobbyServiceOptions {
 }
 
 export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {}) {
+  const tutorial = createTutorialService(db)
   const enqueue: Notifier['enqueue'] = async (tx, items, now) => {
     await notifier?.enqueue(tx, items, now)
   }
@@ -221,7 +223,8 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
     const me = you.id
     // Matches with a seat of the player (joined, AI-replaced after surrender, or invited)
     const ownSeats = await db.select().from(matchSeats).where(eq(matchSeats.playerId, me))
-    const ids = [...new Set(ownSeats.map((s) => s.matchId))]
+    // The tutorial has its own card (`tutorial`) and is no match of the lists
+    const ids = [...new Set(ownSeats.map((s) => s.matchId))].filter((id) => !isTutorialMatchId(id))
     const rows = ids.length ? await db.select().from(matches).where(inArray(matches.id, ids)) : []
     const seats = ids.length
       ? await db.select().from(matchSeats).where(inArray(matchSeats.matchId, ids))
@@ -295,6 +298,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
       invitations: await pendingInvitations(me),
       openMatches: await openMatches(me),
       finishedMatches: finished.slice(0, 20),
+      tutorial: await tutorial.status(me),
     }
   }
 

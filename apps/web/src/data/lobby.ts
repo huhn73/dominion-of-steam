@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { JoinResponse, LobbyData, RemindResponse, WaitingRoomData } from '@dos/shared/lobby'
+import type {
+  JoinResponse,
+  LobbyData,
+  RemindResponse,
+  StartTutorialResponse,
+  WaitingRoomData,
+} from '@dos/shared/lobby'
 import { api, ApiRequestError } from './api'
 
 /** Lobby: every 15 s and when the window gets focus again (no WebSocket yet) */
@@ -112,6 +118,10 @@ export function useLobbyActions() {
       (matchId: string) => post<{ dissolved: boolean }>(`/matches/${matchId}/leave`),
       (matchId) => matchId,
     ),
+    startTutorial: after((restart: boolean) =>
+      post<StartTutorialResponse>(`/tutorial${restart ? '?neu=1' : ''}`),
+    ),
+    dismissTutorial: after(() => post('/tutorial/dismiss')),
   }
 }
 

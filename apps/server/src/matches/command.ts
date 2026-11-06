@@ -51,6 +51,8 @@ export function parseCommand(body: unknown): Command | null {
       return isString(body.eventId) ? { type, eventId: body.eventId } : null
     case 'skipReplay':
     case 'endTurn':
+    case 'tutorialNext':
+    case 'tutorialSkip':
       return { type }
     default:
       return null

@@ -34,6 +34,28 @@ export interface PlayerView {
   result: MatchResult | null
   /** Victory condition 'dominance': who holds the city share and for how much longer */
   dominance: Dominance | null
+  /** Only in tutorial matches: the current guided step */
+  tutorial?: TutorialView | null
+}
+
+/** What a tutorial step points at: a tile on the map and/or a control of the board */
+export interface TutorialFocus {
+  hex?: HexCoord
+  ui?: 'endTurn' | 'minimap'
+}
+
+export interface TutorialView {
+  /** Index of the current step (0-based); equals `total` once the tutorial is done */
+  step: number
+  total: number
+  current: {
+    id: string
+    title: string
+    text: string
+    focus: TutorialFocus | null
+    /** Text step: confirmed with „Weiter“ instead of an action */
+    manual: boolean
+  } | null
 }
 
 /** How the match ended for the viewer */
@@ -74,6 +96,8 @@ export type Command =
   | { type: 'markEventRead'; eventId: string }
   | { type: 'skipReplay' }
   | { type: 'endTurn' }
+  | { type: 'tutorialNext' }
+  | { type: 'tutorialSkip' }
 
 export interface CommandResponse {
   view: PlayerView

@@ -22,6 +22,25 @@ export interface LobbyData {
   invitations: Invitation[]
   openMatches: OpenMatch[]
   finishedMatches: FinishedMatch[]
+  /** Guided tutorial match of the player (not listed in `matches`/`finishedMatches`) */
+  tutorial: LobbyTutorial
+}
+
+export interface LobbyTutorial {
+  /** Tutorial match that exists (running or won), null when none was started yet */
+  matchId: string | null
+  status: 'running' | 'finished' | null
+  /** Step reached and number of steps */
+  step: number
+  total: number
+  completed: boolean
+  /** The player declined the offer („Später“); the lobby no longer asks */
+  dismissed: boolean
+}
+
+/** `POST /api/tutorial` */
+export interface StartTutorialResponse {
+  matchId: string
 }
 
 /** `GET /api/matches/:id/room` */

@@ -6,6 +6,7 @@ import type { PlayerView } from '../view'
 import { combatOdds } from './combat'
 import { currentParticipant, type GameState } from './state'
 import { exploredOf, seesUnit, visibleIndices } from './visibility'
+import { tutorialView } from './tutorial'
 import { dominanceView } from './victory'
 
 const CODE_U = 'u'.charCodeAt(0)
@@ -156,5 +157,6 @@ export function projectView(
           }
         : null,
     dominance: dominanceView(state),
+    ...(state.tutorial ? { tutorial: tutorialView(state) } : {}),
   }
 }

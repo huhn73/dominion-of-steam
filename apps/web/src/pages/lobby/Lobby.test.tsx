@@ -414,3 +414,58 @@ describe('Einladungslink', () => {
     )
   })
 })
+
+describe('Lobby: Tutorial', () => {
+  const fresh = {
+    matchId: null,
+    status: null,
+    step: 0,
+    total: 12,
+    completed: false,
+    dismissed: false,
+  } as const
+
+  it('bietet neuen Spielern das Tutorial an und startet es', async () => {
+    const { calls } = mockApi({
+      'GET /lobby': () => ({ json: { ...emptyLobby(), tutorial: fresh } }),
+      'POST /tutorial': () => ({ json: { matchId: 'tutorial-p1' } }),
+    })
+    const { router } = renderApp('/')
+    const offer = await screen.findByRole('dialog', { name: 'Neu hier?' })
+    await userEvent.click(within(offer).getByRole('button', { name: /Tutorial starten/ }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/partie/tutorial-p1'))
+    expect(calls.some((c) => c.method === 'POST' && c.path === '/tutorial')).toBe(true)
+  })
+
+  it('merkt sich „Später“ und zeigt die Karte weiter an', async () => {
+    const { calls } = mockApi({
+      'GET /lobby': () => ({ json: { ...emptyLobby(), tutorial: fresh } }),
+      'POST /tutorial/dismiss': () => ({ json: { ok: true } }),
+    })
+    renderApp('/')
+    const offer = await screen.findByRole('dialog', { name: 'Neu hier?' })
+    await userEvent.click(within(offer).getByRole('button', { name: 'Später' }))
+    expect(screen.queryByRole('dialog', { name: 'Neu hier?' })).toBeNull()
+    expect(calls.some((c) => c.method === 'POST' && c.path === '/tutorial/dismiss')).toBe(true)
+    const card = screen.getByRole('region', { name: 'Tutorial' })
+    expect(within(card).getByRole('button', { name: /Tutorial starten/ })).toBeInTheDocument()
+  })
+
+  it('bietet nichts an, wenn es schon Partien gibt; setzt ein laufendes Tutorial fort', async () => {
+    const { calls } = mockApi({
+      'GET /lobby': () => ({
+        json: lobbyData({
+          tutorial: { ...fresh, matchId: 'tutorial-p1', status: 'running', step: 4 },
+        }),
+      }),
+      'POST /tutorial?neu=1': () => ({ json: { matchId: 'tutorial-p1' } }),
+    })
+    const { router } = renderApp('/')
+    const card = await screen.findByRole('region', { name: 'Tutorial' })
+    expect(screen.queryByRole('dialog', { name: 'Neu hier?' })).toBeNull()
+    expect(card).toHaveTextContent('Weiter bei Schritt 5 von 12.')
+    await userEvent.click(within(card).getByRole('button', { name: /Neu beginnen/ }))
+    await waitFor(() => expect(router.state.location.pathname).toBe('/partie/tutorial-p1'))
+    expect(calls.some((c) => c.path === '/tutorial?neu=1')).toBe(true)
+  })
+})

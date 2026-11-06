@@ -1,4 +1,4 @@
-import { Flag, Home, Map as MapIcon, Trophy } from 'lucide-react'
+import { Flag, Home, Map as MapIcon, Swords, Trophy } from 'lucide-react'
 import { type MatchOutcome, matchOutcome, participantScore } from '@dos/shared/game'
 import { COMPENDIUM_FACTIONS } from '@dos/shared/compendium'
 import type { Match, MatchResult, Participant } from '../types'
@@ -10,6 +10,9 @@ interface PartieabschlussProps {
   result: MatchResult
   onViewMap: () => void
   onLeave: () => void
+  /** Tutorial match: own closing words and „Neue Partie“ */
+  tutorial?: boolean
+  onNewMatch?: () => void
 }
 
 /** Stamp like the lobby's „Beendet“ tab */
@@ -49,7 +52,7 @@ const REASON_LABEL: Record<NonNullable<MatchResult['reason']>, string> = {
 }
 
 /** Result card at the end of a match: outcome stamp and the ranking with the final counts */
-export function Partieabschluss({ match, participants, result, onViewMap, onLeave }: PartieabschlussProps) {
+export function Partieabschluss({ match, participants, result, onViewMap, onLeave, tutorial, onNewMatch }: PartieabschlussProps) {
   const outcome = matchOutcome({ match, participants, result }) ?? 'defeat'
   const style = OUTCOME_STYLE[outcome]
   const Icon = style.icon
@@ -86,6 +89,12 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
         </span>
       </header>
 
+      {tutorial && outcome === 'victory' && (
+        <p className="border-b border-stone-200 px-4 py-3 text-sm dark:border-stone-800">
+          <span className="font-semibold">Tutorial abgeschlossen.</span> Du kennst jetzt Bewegung, Eroberung, Produktion,
+          Frachter, Flugzeuge und Kampf. Bereit für deine erste echte Partie?
+        </p>
+      )}
       <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
         <table className="w-full table-fixed text-sm">
           <colgroup>
@@ -156,9 +165,20 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
         <button type="button" onClick={onViewMap} className={secondary}>
           <MapIcon className="size-4" /> Karte ansehen
         </button>
-        <button type="button" onClick={onLeave} className={primary}>
-          <Home className="size-4" /> Zur Lobby
-        </button>
+        {tutorial && onNewMatch ? (
+          <>
+            <button type="button" onClick={onLeave} className={secondary}>
+              <Home className="size-4" /> Zur Lobby
+            </button>
+            <button type="button" onClick={onNewMatch} className={primary}>
+              <Swords className="size-4" /> Neue Partie
+            </button>
+          </>
+        ) : (
+          <button type="button" onClick={onLeave} className={primary}>
+            <Home className="size-4" /> Zur Lobby
+          </button>
+        )}
       </footer>
     </section>
   )

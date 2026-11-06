@@ -165,6 +165,10 @@ export const players = pgTable(
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }),
     /** Match whose view or commands were requested last (for the presence "inGame") */
     lastSeenMatchId: text('last_seen_match_id'),
+    /** The player won the tutorial match */
+    tutorialCompletedAt: timestamp('tutorial_completed_at', { withTimezone: true }),
+    /** The player declined the tutorial offer in the lobby („Später“) */
+    tutorialDismissedAt: timestamp('tutorial_dismissed_at', { withTimezone: true }),
   },
   (t) => [
     uniqueIndex('players_email_unique').on(t.email),

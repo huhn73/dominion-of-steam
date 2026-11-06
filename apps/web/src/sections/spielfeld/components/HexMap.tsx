@@ -59,6 +59,8 @@ interface HexMapProps {
   /** Units fading out (combat losers) */
   fadingUnitIds?: Set<string>
   draggableUnitAt: (c: HexCoord) => string | null
+  /** Tutorial: tile the current step points at (pulsing ring) */
+  highlight?: HexCoord | null
   onTap: (c: HexCoord) => void
   onDrag: (unitId: string, c: HexCoord) => void
   onDragEnd: (unitId: string, c: HexCoord) => void
@@ -392,6 +394,7 @@ export function HexMap({
   hiddenUnitIds,
   fadingUnitIds,
   draggableUnitAt,
+  highlight = null,
   onTap,
   onDrag,
   onDragEnd,
@@ -623,6 +626,17 @@ export function HexMap({
               </g>
             )
           })}
+
+          {/* Tutorial: the tile the current step is about */}
+          {highlight && (
+            <g
+              transform={`translate(${hexToPixel(highlight).x},${hexToPixel(highlight).y})`}
+              pointerEvents="none"
+              data-testid="tutorial-highlight"
+            >
+              <polygon points={HEX_INNER} className="animate-pulse fill-teal-300/15 stroke-teal-300" strokeWidth={4} />
+            </g>
+          )}
 
           {/* Opponent replay ghost */}
           {ghost && (

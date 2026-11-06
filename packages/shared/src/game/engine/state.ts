@@ -71,6 +71,8 @@ export interface GameState {
   rng: number
   /** Counter for new IDs */
   nextId: number
+  /** Only in tutorial matches: progress of the guided steps (./tutorial.ts) */
+  tutorial?: { step: number }
 }
 
 export interface ParticipantState {

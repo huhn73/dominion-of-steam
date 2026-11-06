@@ -94,6 +94,12 @@ export function LobbyPage() {
         }
         onDismissPushBanner={banner.dismiss}
         onNewMatch={() => void navigate(routes.newMatch)}
+        onStartTutorial={(restart) =>
+          run(actions.startTutorial(restart), ({ matchId }) => void navigate(routes.match(matchId)))
+        }
+        onDismissTutorial={() =>
+          run(actions.dismissTutorial(), 'Du findest das Tutorial jederzeit hier im Lagebericht.')
+        }
       />
     )
 

@@ -8,16 +8,17 @@ import type {
 } from '@dos/shared/admin'
 import type { Db } from '../db/client'
 import { DEMO_MATCH_ID } from '../matches/service'
+import { TUTORIAL_LIKE } from '../tutorial/service'
 
 const RECENT_LIMIT = 20
 const TIME_ZONE = 'Europe/Berlin'
 const DAY_MS = 24 * 3600 * 1000
 
-// Test data stays out of the numbers: dev accounts (devAccounts.ts), the demo match and
-// matches hosted by a dev account
+// Test data stays out of the numbers: dev accounts (devAccounts.ts), the demo match, tutorials
+// and matches hosted by a dev account
 const DEV_EMAIL = '%@dominion.test'
 const realPlayer = sql`p.email NOT LIKE ${DEV_EMAIL}`
-const realMatch = sql`m.id <> ${DEMO_MATCH_ID} AND NOT EXISTS (
+const realMatch = sql`m.id <> ${DEMO_MATCH_ID} AND m.id NOT LIKE ${TUTORIAL_LIKE} AND NOT EXISTS (
   SELECT 1 FROM players hp WHERE hp.id = m.host_id AND hp.email LIKE ${DEV_EMAIL})`
 
 const iso = (v: unknown) => (v == null ? null : new Date(v as string | Date).toISOString())

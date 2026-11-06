@@ -39,3 +39,12 @@ export {
 export { aiProfile, type AiProfile } from './ai'
 export { surrender, endIfNoHumans } from './surrender'
 export { miniMap } from './minimap'
+export {
+  seedTutorial,
+  tutorialView,
+  tutorialMatchId,
+  isTutorialMatchId,
+  TUTORIAL_PREFIX,
+  TUTORIAL_STEPS,
+  TUTORIAL_AI_ID,
+} from './tutorial'

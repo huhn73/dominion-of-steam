@@ -99,6 +99,14 @@ export const waitingMatch: Match = {
 
 export function lobbyData(patch: Partial<LobbyData> = {}): LobbyData {
   return {
+    tutorial: {
+      matchId: null,
+      status: null,
+      step: 0,
+      total: 12,
+      completed: true,
+      dismissed: false,
+    },
     now: NOW,
     you: { id: 'p1', name: 'Björn', avatarUrl: null },
     deadlineWarningHours: 3,

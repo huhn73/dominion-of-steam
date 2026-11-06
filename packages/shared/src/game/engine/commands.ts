@@ -24,6 +24,7 @@ import {
   walk,
 } from './movement'
 import { clone, currentParticipant, factionOf, type GameState, unitType } from './state'
+import { advanceTutorial, nextTutorialStep } from './tutorial'
 import { endTurn } from './turn'
 import { checkVictory } from './victory'
 import { isCoastal, updateKnowledge } from './visibility'
@@ -65,6 +66,19 @@ export function applyCommand(
   cmd: Command,
   now = new Date(),
 ): CommandOutcome {
+  if (cmd.type === 'tutorialNext' || cmd.type === 'tutorialSkip') {
+    if (!input.tutorial) fail('INVALID_ORDER', 'Diese Partie ist kein Tutorial.')
+    const state = clone(input)
+    nextTutorialStep(state, playerId, cmd.type === 'tutorialSkip')
+    return { state }
+  }
+  const outcome = applyRules(input, playerId, cmd, now)
+  // Tutorial: the player's action may fulfil the current step
+  if (outcome.state.tutorial) advanceTutorial(outcome.state, playerId)
+  return outcome
+}
+
+function applyRules(input: GameState, playerId: string, cmd: Command, now: Date): CommandOutcome {
   const state = clone(input)
   if (cmd.type === 'markEventRead') {
     const event = state.events.find((e) => e.id === cmd.eventId && e.participantId === playerId)
@@ -149,6 +163,9 @@ export function applyCommand(
       unit.needsOrders = false
       break
     }
+    case 'tutorialNext':
+    case 'tutorialSkip':
+      break
   }
   updateKnowledge(state)
   return { state }

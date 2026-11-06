@@ -118,6 +118,13 @@ export function MatchPage() {
           onEndTurn={() => send({ type: 'endTurn' })}
           onCue={audio.onCue}
           onLeave={() => navigate(routes.lobby)}
+          onTutorialNext={() => {
+            if (!command.isPending) send({ type: 'tutorialNext' })
+          }}
+          onTutorialSkip={() => {
+            if (!command.isPending) send({ type: 'tutorialSkip' })
+          }}
+          onNewMatch={() => navigate(routes.newMatch)}
         />
       </BoardSettingsLayer>
       {rejected && (

@@ -54,3 +54,17 @@ html.dos-reduce-motion *::after {
 .dos-no-combat-fx .dos-flash {
   display: none;
 }
+
+/* Tutorial: das Bedienelement, um das es im aktuellen Schritt geht, pulsiert */
+@keyframes dos-tutorial-focus {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px rgb(94 234 212 / 0.9);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgb(94 234 212 / 0.25);
+  }
+}
+[data-tutorial-focus] {
+  animation: dos-tutorial-focus 1.6s ease-in-out infinite;
+}

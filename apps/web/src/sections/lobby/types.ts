@@ -3,6 +3,7 @@ import type {
   Faction,
   FinishedMatch,
   Invitation,
+  LobbyTutorial,
   Match,
   OpenMatch,
   Player,
@@ -49,6 +50,12 @@ export interface LobbyProps {
   onDismissPushBanner?: () => void
   /** Called when the player wants to create a new match */
   onNewMatch?: () => void
+  /** Guided tutorial match of the player (card in the lobby, offer for new accounts) */
+  tutorial?: LobbyTutorial
+  /** Start or continue the tutorial; `restart` begins again from the first step */
+  onStartTutorial?: (restart: boolean) => void
+  /** „Später“ on the tutorial offer */
+  onDismissTutorial?: () => void
 }
 
 export interface WarteraumProps {

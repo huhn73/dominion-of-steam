@@ -12,6 +12,7 @@ import type {
   Participant,
   ReplayAction,
   City,
+  TutorialView,
   Unit,
   UnitType,
 } from '@dos/shared/game'
@@ -66,6 +67,14 @@ export interface SpielfeldUndZuegeProps {
   dominance?: Dominance | null
   /** „Zur Lobby“ on the result card */
   onLeave?: () => void
+  /** Tutorial match only: the current guided step (panel, highlighted tile and control) */
+  tutorial?: TutorialView | null
+  /** Tutorial: confirm a text step („Weiter“) */
+  onTutorialNext?: () => void
+  /** Tutorial: skip the current step */
+  onTutorialSkip?: () => void
+  /** Tutorial: „Neue Partie“ on the result card */
+  onNewMatch?: () => void
 
   /** Called when the player selects one of their units */
   onSelectUnit?: (unitId: string) => void

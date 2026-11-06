@@ -23,6 +23,7 @@ import { factionOf, type GameState, participant, random, unitType } from './stat
 import { dominanceShare } from './victory'
 import { isCoastal } from './visibility'
 import { aiPersonality } from '../../setup/data'
+import { TUTORIAL_AI_ID } from './tutorial'
 
 type Difficulty = 'easy' | 'normal' | 'hard'
 
@@ -262,7 +263,8 @@ export function playAITurn(
 ): GameState {
   let state = input
   const me = participant(state, playerId)
-  if (!me) return state
+  // The tutorial's opponent only defends with its garrison: no moves, no production
+  if (!me || me.aiPersonalityId === TUTORIAL_AI_ID) return state
   const profile: AiProfile = {
     ...aiProfile(me.aiDifficulty ?? 'normal', aiPersonality(me.aiPersonalityId)?.style),
     ...options.profile,

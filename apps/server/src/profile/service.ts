@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { and, eq, gt, ne, sql } from 'drizzle-orm'
+import { and, eq, gt, ne, notLike, sql } from 'drizzle-orm'
 import {
   EMAIL_VERIFY_TTL_HOURS,
   normalizeEmail,
@@ -23,6 +23,7 @@ import {
 } from '@dos/shared/profile'
 import type { Db } from '../db/client'
 import { matches, matchSeats, players, sessions } from '../db/schema'
+import { isTutorialMatchId, TUTORIAL_LIKE, tutorialMatchId } from '../tutorial/service'
 import { SESSION_TTL_MS, type Player } from '../auth/accounts'
 import {
   sendEmailChangeConfirmation,
@@ -206,7 +207,13 @@ export function createProfileService(
       })
       .from(matchSeats)
       .innerJoin(matches, eq(matches.id, matchSeats.matchId))
-      .where(and(eq(matchSeats.playerId, me), ne(matches.status, 'waiting')))
+      .where(
+        and(
+          eq(matchSeats.playerId, me),
+          ne(matches.status, 'waiting'),
+          notLike(matches.id, TUTORIAL_LIKE),
+        ),
+      )
     const played: Played[] = []
     for (const r of rows) {
       if (!r.participants || r.status === 'waiting') continue
@@ -506,8 +513,10 @@ export function createProfileService(
       .select({ matchId: matches.id, status: matches.status })
       .from(matches)
       .where(and(eq(matches.hostId, me), eq(matches.status, 'waiting')))
+    // The tutorial goes with the account; nobody would take it over
+    await db.delete(matches).where(eq(matches.id, tutorialMatchId(me)))
     let tookOver = 0
-    for (const s of seats.filter((x) => x.status === 'running'))
+    for (const s of seats.filter((x) => x.status === 'running' && !isTutorialMatchId(x.matchId)))
       if (await lobby.takeOver(s.matchId, me, now)) tookOver++
     const waiting = new Set(
       [...seats, ...hosted].filter((x) => x.status === 'waiting').map((x) => x.matchId),

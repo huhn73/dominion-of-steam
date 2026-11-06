@@ -13,8 +13,9 @@ import {
 } from '@dos/shared/engine'
 import type { Command, CommandResponse } from '@dos/shared/game'
 import type { Db } from '../db/client'
-import { sql } from 'drizzle-orm'
-import { matches, matchSeats } from '../db/schema'
+import { eq, sql } from 'drizzle-orm'
+import { matches, matchSeats, players } from '../db/schema'
+import { isTutorialMatchId } from '../tutorial/service'
 import { turnNotifications } from '../notifications/events'
 import type { Notifier } from '../notifications/service'
 import {
@@ -114,7 +115,14 @@ export function createMatchService(db: Db, { demoMapping, notifier }: MatchServi
         const next = await runAITurns(tx, outcome.state, now)
         const combat = outcome.combat
         await saveMatch(tx, next)
-        await notifyChange(tx, state, next, playerId)
+        if (isTutorialMatchId(matchId)) {
+          // No notifications from the tutorial; winning it is remembered on the account
+          if (state.status === 'running' && next.winnerId === playerId)
+            await tx
+              .update(players)
+              .set({ tutorialCompletedAt: now })
+              .where(eq(players.id, playerId))
+        } else await notifyChange(tx, state, next, playerId)
         return { view: projectView(next, playerId), ...(combat ? { combat } : {}) }
       })
       .finally(() => notifier?.kick())

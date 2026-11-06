@@ -5,6 +5,7 @@ import { MatchCard } from './MatchCard'
 import { MatchDetailsSheet, SurrenderSheet } from './MatchDialogs'
 import { timeAgo } from './format'
 import { Avatar, Chip, FactionEmblem, SectionHeading } from './shared'
+import { TutorialCard, TutorialOffer } from './TutorialCard'
 
 const RESULT_STAMP = {
   victory: { label: 'Sieg', className: 'border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300' },
@@ -33,6 +34,9 @@ export function Lobby({
   onEnablePush,
   onDismissPushBanner,
   onNewMatch,
+  tutorial,
+  onStartTutorial,
+  onDismissTutorial,
 }: LobbyProps) {
   const [tab, setTab] = useState<'open' | 'finished'>('open')
   const [bannerHidden, setBannerHidden] = useState(false)
@@ -60,6 +64,16 @@ export function Lobby({
   })
 
   const showBanner = pushPermission !== 'granted' && !bannerHidden
+  // New accounts without any match are offered the tutorial once („Später“ is remembered)
+  const [offerClosed, setOfferClosed] = useState(false)
+  const offerTutorial =
+    !!tutorial &&
+    !offerClosed &&
+    !tutorial.completed &&
+    !tutorial.dismissed &&
+    tutorial.matchId === null &&
+    matches.length === 0 &&
+    finishedMatches.length === 0
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 font-['Barlow'] text-stone-900 sm:px-6 sm:py-12 dark:text-stone-100">
@@ -126,6 +140,20 @@ export function Lobby({
           <Plus className="size-5" /> Neue Partie
         </button>
       </header>
+
+      {tutorial && onStartTutorial && <TutorialCard tutorial={tutorial} onStart={onStartTutorial} />}
+      {offerTutorial && onStartTutorial && (
+        <TutorialOffer
+          onStart={() => {
+            setOfferClosed(true)
+            onStartTutorial(false)
+          }}
+          onLater={() => {
+            setOfferClosed(true)
+            onDismissTutorial?.()
+          }}
+        />
+      )}
 
       {/* Your turn */}
       <section aria-label="Du bist am Zug" className="mb-12">

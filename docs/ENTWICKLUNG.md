@@ -125,6 +125,27 @@ Stand nach Playtest Runde 1 (`agent-os/specs/2026-10-31-1225-flugzeuge-erkunden/
 - **Zugende:** Der Dialog „Zug beenden?“ warnt zusätzlich vor Flugzeugen, die mit ihrem Treibstoff keine Basis mehr erreichen; „Zu den Einheiten“ springt zum ersten davon.
 - **Zur Basis:** Button im Einheiten-Panel, schickt das Flugzeug zur nächsten erreichbaren Basis (Zug oder Marschbefehl, mit derselben Prüfung).
 
+## Tutorial
+
+Geführte Mini-Partie „Tutorial: Erste Schritte“ (`agent-os/specs/2026-11-06-1453-tutorial-mission/`). Je Spieler gibt es eine Tutorial-Partie mit der Id `tutorial-<playerId>`.
+
+- **Karte und Startlage:** `packages/shared/src/game/engine/tutorial.ts` (`seedTutorial`). Die Karte ist ein ASCII-Raster in `MAP`: 18×10, odd-r, Zeichen wie in den Engine-Tests. Westlich liegt die Heimatinsel mit Kesselhafen, der neutralen Stadt Ruß, Grenadieren, Panzerwagen, einem Doppeldecker und einem Frachter vor der Küste. Im Osten liegt die Insel der Manöverleitung mit der Übungsfeste und einer Garnison. Siegbedingung ist „Hauptstädte“, damit die Eroberung der Übungsfeste sofort entscheidet.
+- **Gegner:** Die Manöverleitung hat die KI-Persönlichkeit `tutorial` (`TUTORIAL_AI_ID`). `playAITurn` beendet ihren Zug sofort; sie zieht nicht, baut nicht und kapituliert nicht.
+- **Schritte:** `TUTORIAL_STEPS` in derselben Datei, jeder Schritt mit Titel, Text, optionalem `focus` (Feld und/oder `endTurn`/`minimap`) und `done(state, me)`.
+  - Schritte ohne `done` sind Textschritte und werden mit dem Command `tutorialNext` bestätigt. `tutorialSkip` überspringt jeden Schritt.
+  - Nach jedem anderen Command prüft `applyCommand` mit `advanceTutorial` den aktuellen Schritt. Der Fortschritt `state.tutorial.step` steigt nur.
+  - `projectView` liefert `view.tutorial`.
+  - Neue Schritte brauchen einen Durchlauf in `engine/__tests__/tutorial.test.ts`; der Test spielt das Tutorial per Commands bis zum Sieg.
+- **Server:** `apps/server/src/tutorial/service.ts`.
+  - `POST /api/tutorial` setzt fort oder legt neu an; `?neu=1` beginnt von vorn.
+  - `POST /api/tutorial/dismiss` speichert „Später“.
+  - Der Sieg setzt `players.tutorial_completed_at`.
+  - Tutorial-Partien fehlen in den Lobby-Listen, im Partieverlauf, in der Bilanz und in der Admin-Übersicht und lösen keine Benachrichtigungen aus. Beim Löschen des Kontos wird die Partie mitgelöscht.
+- **Client:**
+  - Das Panel `TutorialPanel` sitzt unter dem Ereignisprotokoll und ist einklappbar; während Rundenbericht oder Ergebniskarte offen sind, ist es ausgeblendet.
+  - `HexMap` zeigt das Fokusfeld als pulsierenden Ring (`highlight`). Bedienelemente bekommen `data-tutorial-focus`, das Pulsieren steht in `styles/index.css`.
+  - Die Lobby zeigt die Karte `TutorialCard`. Konten ohne Partien bekommen einmal das Angebot „Neu hier?“.
+
 ## Lobby & Mehrspieler ausprobieren
 
 Die Lobby (`/`) zeigt eigene Partien, Einladungen, offene und beendete Partien; sie fragt alle 15 Sekunden neu nach, der Warteraum alle 4 Sekunden. Zwei Konten gleichzeitig: ein normales und ein privates Fenster (oder zwei Browserprofile), z. B. Björn und Lena.
