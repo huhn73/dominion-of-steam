@@ -10,6 +10,8 @@ export interface Me {
   emailVerified: boolean
   /** Sees the usage overview (`ADMIN_EMAILS` on the server) */
   isAdmin: boolean
+  /** Newest version whose news the player has seen (hint „Neuigkeiten“); null shows none */
+  newsSeenVersion: string | null
 }
 
 export type PresenceStatus = 'online' | 'inGame' | 'offline'

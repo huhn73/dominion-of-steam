@@ -22,6 +22,7 @@ import { ResetPasswordPage } from './pages/anmeldung/ResetPasswordPage'
 import { ImpressumPage } from './pages/rechtliches/ImpressumPage'
 import { DatenschutzPage } from './pages/rechtliches/DatenschutzPage'
 import { LizenzenPage } from './pages/rechtliches/LizenzenPage'
+import { NeuigkeitenPage } from './pages/neuigkeiten/NeuigkeitenPage'
 
 export const routeConfig: RouteObject[] = [
   { path: routes.login, element: <LoginPage /> },
@@ -32,6 +33,7 @@ export const routeConfig: RouteObject[] = [
   { path: routes.imprint, element: <ImpressumPage /> },
   { path: routes.privacy, element: <DatenschutzPage /> },
   { path: routes.licenses, element: <LizenzenPage /> },
+  { path: routes.news, element: <NeuigkeitenPage /> },
   {
     // Alle übrigen Seiten nur mit Anmeldung
     element: <RequireAuth />,

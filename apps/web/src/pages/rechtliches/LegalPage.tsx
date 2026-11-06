@@ -10,10 +10,14 @@ import type { LegalPageId } from './LegalLinks'
 export function LegalPage({
   id,
   title,
+  stand = STAND,
   children,
 }: {
-  id: LegalPageId
+  /** Highlighted in the legal links; pages outside them (Neuigkeiten) leave it out */
+  id?: LegalPageId
   title: string
+  /** Date of the text; null hides the line */
+  stand?: string | null
   children: ReactNode
 }) {
   // A fixed way out instead of the history: moving between the legal pages would otherwise
@@ -37,7 +41,7 @@ export function LegalPage({
     >
       <div className="space-y-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
         {children}
-        <p className="text-xs text-stone-500 dark:text-stone-400">Stand: {STAND}</p>
+        {stand && <p className="text-xs text-stone-500 dark:text-stone-400">Stand: {stand}</p>}
       </div>
     </AuthLayout>
   )

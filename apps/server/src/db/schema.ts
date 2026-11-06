@@ -174,6 +174,8 @@ export const players = pgTable(
     tutorialCompletedAt: timestamp('tutorial_completed_at', { withTimezone: true }),
     /** The player declined the tutorial offer in the lobby („Später“) */
     tutorialDismissedAt: timestamp('tutorial_dismissed_at', { withTimezone: true }),
+    /** Newest version whose news („Neuigkeiten“) the player has seen; null shows none */
+    newsSeenVersion: text('news_seen_version'),
   },
   (t) => [
     uniqueIndex('players_email_unique').on(t.email),

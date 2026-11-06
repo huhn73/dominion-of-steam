@@ -64,6 +64,13 @@
       "when": 1793981560228,
       "tag": "0008_ki_am_zug",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793998300574,
+      "tag": "0009_neuigkeiten",
+      "breakpoints": true
     }
   ]
 }

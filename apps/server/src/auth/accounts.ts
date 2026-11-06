@@ -15,6 +15,8 @@ import { hashPassword, verifyPassword } from './password'
 import { presenceOf } from './presence'
 import { consumeToken, hashToken, issueToken, newToken, recentlyIssued } from './tokens'
 import { isAdminEmail } from '../admin/access'
+import { latestNewsVersion } from '@dos/shared/news'
+import { runningVersion } from '../version'
 
 /** Sessions expire after 30 days without use */
 export const SESSION_TTL_MS = 30 * 24 * 3600_000
@@ -40,6 +42,7 @@ export const toMe = (p: Player): Me => ({
   email: p.email,
   emailVerified: p.emailVerifiedAt !== null,
   isAdmin: isAdminEmail(p.email),
+  newsSeenVersion: p.newsSeenVersion,
 })
 
 export const mailUnavailable = () =>
@@ -121,6 +124,8 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
           passwordHash,
           lastSeenAt: input.lastSeenAt ?? null,
           emailVerifiedAt: input.emailVerifiedAt ?? null,
+          // New players start with the current news seen; the hint comes with the next update
+          newsSeenVersion: latestNewsVersion(runningVersion()),
         })
         .returning()
       return player!

@@ -49,6 +49,9 @@ try {
 for (const file of FILES) writeFileSync(path.join(root, file), setVersion(read(file), version))
 console.log(`Version ${current} → ${version}`)
 console.log('Nächste Schritte:')
+console.log(
+  `  Neuigkeiten für ${version} in packages/shared/src/news/index.ts eintragen (Test verlangt es)`,
+)
 console.log(`  git commit -am "Version ${version}"`)
 console.log('  git push origin main:dev')
 console.log(

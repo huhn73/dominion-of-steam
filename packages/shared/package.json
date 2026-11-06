@@ -14,6 +14,7 @@
     "./setup": "./src/setup/index.ts",
     "./setup/*": "./src/setup/*.ts",
     "./lobby": "./src/lobby/index.ts",
+    "./news": "./src/news/index.ts",
     "./notifications": "./src/notifications/index.ts",
     "./lobby/*": "./src/lobby/*.ts",
     "./profile": "./src/profile/index.ts",

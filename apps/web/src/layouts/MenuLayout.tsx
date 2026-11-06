@@ -6,6 +6,7 @@ import { useLobby } from '../data/lobby'
 import { useLobbySounds } from '../audio/useLobbySounds'
 import { MuteButton } from '../settings/MuteButton'
 import { MenuFooter } from '../shell/MenuFooter'
+import { NewsDialog } from '../shell/NewsDialog'
 import { routes } from '../routes'
 
 function isActive(pathname: string, href: string) {
@@ -44,6 +45,7 @@ export function MenuLayout() {
       footer={<MenuFooter />}
     >
       <Outlet />
+      <NewsDialog />
     </AppShell>
   )
 }

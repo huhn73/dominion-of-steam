@@ -12,6 +12,8 @@ export const testUser: Me = {
   email: 'bjoern@dominion.test',
   emailVerified: true,
   isAdmin: false,
+  // Without a seen version the hint „Neuigkeiten“ stays closed in all other tests
+  newsSeenVersion: null,
 }
 
 type Handler = (body: unknown) => { status?: number; json: unknown }

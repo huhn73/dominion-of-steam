@@ -18,4 +18,5 @@ export const routes = {
   imprint: '/impressum',
   privacy: '/datenschutz',
   licenses: '/lizenzen',
+  news: '/neuigkeiten',
 } as const

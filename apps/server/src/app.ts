@@ -1,7 +1,7 @@
 import Fastify from 'fastify'
 import fastifyCookie from '@fastify/cookie'
 import fastifyCompress from '@fastify/compress'
-import { mkdirSync, readFileSync } from 'node:fs'
+import { mkdirSync } from 'node:fs'
 import fastifyMultipart from '@fastify/multipart'
 import fastifyStatic from '@fastify/static'
 import fastifyRateLimit from '@fastify/rate-limit'
@@ -40,12 +40,8 @@ import { createHub } from './realtime/hub'
 import { requestOrigin, setupRoutes } from './routes/setup'
 import { loadSession, SESSION_COOKIE, setSessionCookie } from './session'
 
-/** Version from the root package.json, shown with „-dev“ when the image build set none */
-const packageVersion = (
-  JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8')) as {
-    version: string
-  }
-).version
+import { packageVersion } from './version'
+import { newsRoutes } from './routes/news'
 
 export interface AppOptions {
   db: Db
@@ -203,6 +199,7 @@ export function buildApp({
     profileRoutes(scope, profile)
     adminRoutes(scope, admin)
     tutorialRoutes(scope, tutorial)
+    newsRoutes(scope, db)
     eventRoutes(scope, realtime)
     if (dev) devRoutes(scope, matches, setup)
   })
