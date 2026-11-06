@@ -21,7 +21,7 @@ import {
 import { defenseModifiers } from '@dos/shared/game/rules'
 import { airBases, moveSafety, returnDistance, strandedAircraft, unsafeTiles } from '@dos/shared/game/fuel'
 import { type Ghost, HexMap, type PathMarker } from './HexMap'
-import { centerCamera, clampCamera, fitCamera, scaleBounds, zoomAt } from './camera'
+import { centerCamera, clampCamera, fitCamera, scaleBounds, zoomAt, zoomSpeed } from './camera'
 import { createCameraStore } from './cameraStore'
 import { OUTCOME_STYLE, Partieabschluss } from './Partieabschluss'
 import { matchOutcome } from '@dos/shared/game'
@@ -74,6 +74,7 @@ export function Spielfeld({
   combatAnimationMs = 0,
   showTurnReport = false,
   canWatchReplay = true,
+  controls,
   onSelectUnit,
   onMoveUnit,
   onSetGoto,
@@ -747,7 +748,7 @@ export function Spielfeld({
   }
 
   const draggableUnitAt = (c: HexCoord) => {
-    if (!canAct || mode !== 'normal') return null
+    if (!canAct || mode !== 'normal' || controls?.dragUnits === false) return null
     const own = ownUnitsAt(idx, c, youId)
     return (own.find((u) => u.id === selectedUnitId) ?? own.find((u) => u.needsOrders) ?? own[0])?.id ?? null
   }
@@ -843,8 +844,10 @@ export function Spielfeld({
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // „Nachfrage beim Zugende“ off: units without orders do not ask; stranded aircraft always do
+  const askPending = controls?.confirmEndTurn !== false && pendingOrders.length > 0
   const handleEndTurn = () => {
-    if ((pendingOrders.length > 0 || stranded.length > 0) && !confirmEnd) {
+    if ((askPending || stranded.length > 0) && !confirmEnd) {
       setConfirmEnd(true)
       return
     }
@@ -916,6 +919,7 @@ export function Spielfeld({
       className="relative size-full overflow-hidden bg-[#5f8f8b] font-['Barlow'] text-stone-900 dark:bg-[#0b2226] dark:text-stone-100"
     >
       <HexMap
+        pinchExponent={controls ? zoomSpeed(controls.zoomSensitivity) : 1}
         map={map}
         cities={cities}
         units={units}
@@ -1363,7 +1367,7 @@ export function Spielfeld({
             <h2 id="dos-end-title" className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wider">
               Zug beenden?
             </h2>
-            {pendingOrders.length > 0 && (
+            {askPending && (
               <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
                 {pendingOrders.length} {pendingOrders.length === 1 ? 'Einheit hat' : 'Einheiten haben'} in dieser Runde noch keine Befehle.
               </p>
@@ -1385,7 +1389,7 @@ export function Spielfeld({
                 type="button"
                 onClick={() => {
                   setConfirmEnd(false)
-                  if (pendingOrders.length > 0) nextUnit()
+                  if (askPending) nextUnit()
                   else if (stranded[0]) {
                     selectUnit(stranded[0].unit.id)
                     centerOn(stranded[0].unit)

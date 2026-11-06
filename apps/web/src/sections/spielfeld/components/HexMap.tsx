@@ -59,6 +59,8 @@ interface HexMapProps {
   /** Units fading out (combat losers) */
   fadingUnitIds?: Set<string>
   draggableUnitAt: (c: HexCoord) => string | null
+  /** Pinch zoom follows (finger distance ratio) ** pinchExponent („Zoom-Empfindlichkeit“) */
+  pinchExponent?: number
   /** Tutorial: tile the current step points at (pulsing ring) */
   highlight?: HexCoord | null
   onTap: (c: HexCoord) => void
@@ -394,6 +396,7 @@ export function HexMap({
   hiddenUnitIds,
   fadingUnitIds,
   draggableUnitAt,
+  pinchExponent = 1,
   highlight = null,
   onTap,
   onDrag,
@@ -462,7 +465,7 @@ export function HexMap({
     if (pointers.current.size === 2 && g.pinchDist) {
       const [a, b] = [...pointers.current.values()]
       const dist = Math.hypot(a.x - b.x, a.y - b.y)
-      zoomTo((a.x + b.x) / 2, (a.y + b.y) / 2, g.cam.scale * (dist / g.pinchDist), g.cam)
+      zoomTo((a.x + b.x) / 2, (a.y + b.y) / 2, g.cam.scale * (dist / g.pinchDist) ** pinchExponent, g.cam)
       return
     }
 

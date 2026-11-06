@@ -41,6 +41,13 @@ export type BoardCue =
 // Component Props
 // =============================================================================
 
+/** Settings „Einheiten ziehen“, „Nachfrage beim Zugende“ and „Zoom-Empfindlichkeit“ (0–100) */
+export interface BoardControls {
+  dragUnits: boolean
+  confirmEndTurn: boolean
+  zoomSensitivity: number
+}
+
 export interface SpielfeldUndZuegeProps {
   match: Match
   participants: Participant[]
@@ -59,6 +66,8 @@ export interface SpielfeldUndZuegeProps {
   showTurnReport?: boolean
   /** The report may start the replay; false when „Gegnerzüge automatisch abspielen“ is off */
   canWatchReplay?: boolean
+  /** Control settings from the profile; without them units can be dragged and the board asks */
+  controls?: BoardControls
   /** Sound cues (selection, moves, combat, turn, ambience); the board plays nothing itself */
   onCue?: (cue: BoardCue) => void
   /** Set once the match is finished: shows the result card instead of the waiting banner */

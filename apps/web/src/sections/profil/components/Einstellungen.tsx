@@ -264,7 +264,7 @@ export function Einstellungen({
                     ]}
                   />
                 </SettingRow>
-                <SettingRow title="Nachfrage beim Zugende" description="Fragen, wenn noch Einheiten ohne Befehl sind.">
+                <SettingRow title="Nachfrage beim Zugende" description="Fragen, wenn noch Einheiten ohne Befehl sind. Flugzeuge ohne Rückweg werden immer gemeldet.">
                   <Switch label="Nachfrage beim Zugende" checked={c.confirmEndTurn} onChange={(v) => update('controls', { confirmEndTurn: v })} />
                 </SettingRow>
                 <SettingRow title="Einheiten ziehen" description="Einheiten mit Maus oder Finger auf ein Ziel ziehen. Ohne Ziehen bleibt Antippen.">

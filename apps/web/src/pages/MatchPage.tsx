@@ -96,6 +96,7 @@ export function MatchPage() {
           combatAnimationMs={sequenceMs}
           showTurnReport={settings.display.turnReport}
           canWatchReplay={settings.display.autoplayReplay}
+          controls={settings.controls}
           onMoveUnit={(unitId, target) => send({ type: 'move', unitId, target })}
           onSetGoto={(unitId, target) => send({ type: 'goto', unitId, target })}
           onSetSentry={(unitId) => send({ type: 'sentry', unitId })}

@@ -30,6 +30,12 @@ export function mapPixels(map: MapSize) {
   }
 }
 
+/**
+ * Zoom speed for „Zoom-Empfindlichkeit“ 0–100: 50 is the board's own behaviour (1), 0 half and
+ * 100 double. Mouse wheel: steps per wheel event; pinch: exponent on the finger distance ratio.
+ */
+export const zoomSpeed = (sensitivity: number) => 2 ** ((sensitivity - 50) / 50)
+
 export const MAX_SCALE = 2.4
 /** Smallest zoom when the whole map still would not fit at it */
 export const DEFAULT_MIN_SCALE = 0.45

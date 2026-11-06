@@ -45,7 +45,7 @@ Noch nicht priorisiert. Kandidaten aus den bekannten Lücken von Phase 1:
 
 - **Echtzeit:** WebSockets/SSE statt Polling (Lobby 15 s, Warteraum 4 s, Partie), wie im Tech-Stack vorgesehen
 - ~~**Ton**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1700-ton/`): Web-Audio-Engine mit vier Bussen, Menümusik nach Route, adaptive Spielfeldmusik aus drei Schichten mit Fraktionsthema, Sieg und Niederlage, Geländeambiente nach Kartenausschnitt, Effekte über Spielfeld-Cues und Event-Delegation, Stummschalter in der Kopfzeile, Benachrichtigungstöne aus dem Lobby-Polling
-- **Spielfeld-Einstellungen:** „Einheiten ziehen“ und „Nachfrage beim Zugende“ in den Spielfeld-Komponenten auswerten (bisher nur gespeichert); Zoom-Empfindlichkeit auch für Pinch-Zoom
+- ~~**Spielfeld-Einstellungen**~~ umgesetzt am 6. November 2026 (`agent-os/specs/2026-11-06-1635-spielfeld-einstellungen/`): „Einheiten ziehen“ aus lässt Ziehen die Karte verschieben, „Nachfrage beim Zugende“ aus beendet den Zug ohne Frage nach Einheiten ohne Befehl (Flugzeuge ohne Rückweg werden weiter gemeldet), Zoom-Empfindlichkeit auch für Pinch-Zoom
 - ~~**Konten**~~ umgesetzt am 31. Oktober 2026 (`agent-os/specs/2026-10-31-1530-konten-bestaetigung/`): Passwort vergessen, weiche E-Mail-Bestätigung bei der Registrierung (ohne Bestätigung keine E-Mails), Hinweis-Mails bei E-Mail- und Passwortänderung, Rate-Limiting je IP, Konto löschen nur mit Passwort
 - **Konten, offen:** Moderation von Anzeigenamen (Sperrliste, reservierte Namen)
 - **Avatare:** Zuschnitt und Verkleinerung auf dem Server (bisher unverändert gespeichert), Aufräumen verwaister Dateien

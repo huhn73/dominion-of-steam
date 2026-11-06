@@ -1,11 +1,12 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import type { ControlSettings, DisplaySettings } from '@dos/shared/profile'
+import { zoomSpeed } from '../sections/spielfeld/components/camera'
 
 /**
  * Zoom steps per wheel event for „Zoom-Empfindlichkeit“ 0–100: 50 is the board's own behaviour
  * (one step per event), 0 every second event, 100 two steps per event.
  */
-export const zoomStepsPerWheel = (sensitivity: number) => 2 ** ((sensitivity - 50) / 50)
+export const zoomStepsPerWheel = zoomSpeed
 
 /** Delay between extra zoom steps, so the board has rendered the previous one */
 const EXTRA_STEP_MS = 20
@@ -17,7 +18,8 @@ const EXTRA_STEP_MS = 20
  * - „Rechte Maustaste: Kontextmenü“ lets the browser's context menu through instead of the
  *   board's „Abbrechen“ (Esc still cancels)
  * - „Zoom-Empfindlichkeit“ scales mouse-wheel zooming by dropping or repeating wheel events
- * „Einheiten ziehen“ and „Nachfrage beim Zugende“ need changes inside the board components.
+ * „Einheiten ziehen“, „Nachfrage beim Zugende“ and the pinch zoom are applied by the board itself
+ * (prop `controls`).
  */
 export function BoardSettingsLayer({
   display,

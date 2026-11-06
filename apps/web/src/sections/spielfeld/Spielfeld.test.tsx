@@ -552,6 +552,55 @@ describe('Flugzeuge: Treibstoffschutz und Erkunden', () => {
   })
 })
 
+describe('Spielfeld-Einstellungen', () => {
+  const controls = { dragUnits: true, confirmEndTurn: true, zoomSensitivity: 50 }
+  const u1 = data.units.find((u) => u.id === 'u1')!
+  /** Drag from a unit to a reachable tile (camera at 0/0/1 in jsdom) */
+  function drag(from: HexCoord, to: HexCoord) {
+    const map = screen.getByRole('application', { name: 'Spielkarte' })
+    const a = hexToPixel(from)
+    const b = hexToPixel(to)
+    fireEvent.pointerDown(map, { clientX: a.x, clientY: a.y, pointerId: 1, button: 0 })
+    fireEvent.pointerMove(map, { clientX: b.x, clientY: b.y, pointerId: 1 })
+    fireEvent.pointerUp(map, { clientX: b.x, clientY: b.y, pointerId: 1, button: 0 })
+  }
+  const target = () => {
+    const idx = buildIndex(data.map, data.cities, data.units, data.unitTypes, data.match.youId)
+    const { coord } = [...reachableTiles(u1, idx).values()].find((t) => t.dist === 1)!
+    return { col: coord.col, row: coord.row }
+  }
+
+  it('zieht Einheiten nur, wenn „Einheiten ziehen“ an ist', () => {
+    const onMoveUnit = vi.fn()
+    const { unmount } = renderBoard({ onMoveUnit, controls })
+    drag(u1, target())
+    expect(onMoveUnit).toHaveBeenCalledWith('u1', target())
+    unmount()
+
+    const off = vi.fn()
+    renderBoard({ onMoveUnit: off, controls: { ...controls, dragUnits: false } })
+    drag(u1, target())
+    expect(off).not.toHaveBeenCalled()
+  })
+
+  it('beendet den Zug ohne Nachfrage, wenn sie abgeschaltet ist', async () => {
+    const { onEndTurn } = renderBoard({ controls: { ...controls, confirmEndTurn: false } })
+    await userEvent.click(endTurnButton())
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(onEndTurn).toHaveBeenCalledTimes(1)
+  })
+
+  it('warnt ohne Nachfrage trotzdem vor Flugzeugen ohne Rückweg', async () => {
+    const units = data.units.map((u) => (u.id === 'u8' ? { ...u, fuel: 1 } : u))
+    const { onEndTurn } = renderBoard({ units, controls: { ...controls, confirmEndTurn: false } })
+    await userEvent.click(endTurnButton())
+    const warn = screen.getByRole('alertdialog', { name: 'Zug beenden?' })
+    expect(warn).toHaveTextContent('Ein Flugzeug erreicht mit dem Treibstoff keine Basis mehr')
+    expect(warn).not.toHaveTextContent('noch keine Befehle')
+    expect(onEndTurn).not.toHaveBeenCalled()
+  })
+})
+
 describe('Angriffsmarkierungen', () => {
   it('zeichnet je Feld eine Markierung, auch bei einem feindlichen Stapel, und räumt sie wieder weg', async () => {
     // two enemy grenadiers next to the own tank u1 on one tile
@@ -766,6 +815,27 @@ describe('Kamera', () => {
     // the whole map is centred: no zoom beyond the bounds afterwards either
     fireEvent.keyDown(window, { key: '-' })
     expect(camera().scale).toBeGreaterThanOrEqual(0.45 - 1e-9)
+  })
+
+  it('skaliert den Pinch-Zoom mit der Zoom-Empfindlichkeit', () => {
+    const pinch = () => {
+      const map = screen.getByRole('application', { name: 'Spielkarte' })
+      fireEvent.pointerDown(map, { clientX: 600, clientY: 300, pointerId: 1, pointerType: 'touch' })
+      fireEvent.pointerDown(map, { clientX: 700, clientY: 300, pointerId: 2, pointerType: 'touch' })
+      // finger distance doubles
+      fireEvent.pointerMove(map, { clientX: 800, clientY: 300, pointerId: 2, pointerType: 'touch' })
+      fireEvent.pointerUp(map, { clientX: 800, clientY: 300, pointerId: 2, pointerType: 'touch' })
+      fireEvent.pointerUp(map, { clientX: 600, clientY: 300, pointerId: 1, pointerType: 'touch' })
+    }
+    const { unmount } = renderBoard()
+    const start = camera().scale
+    pinch()
+    expect(camera().scale).toBeCloseTo(start * 2)
+    unmount()
+
+    renderBoard({ controls: { dragUnits: true, confirmEndTurn: true, zoomSensitivity: 0 } })
+    pinch()
+    expect(camera().scale).toBeCloseTo(start * Math.SQRT2)
   })
 
   it('bietet „Karte einpassen“ als Knopf an und ignoriert Tasten in Eingabefeldern', async () => {
