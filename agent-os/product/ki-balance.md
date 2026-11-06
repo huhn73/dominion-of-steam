@@ -304,6 +304,26 @@ Sweeps (Berichte `2026-11-06-1935-sweep-ki5-*` mit 60 Partien je Punkt, `2026-11
 - Zugdauer unverändert (Stufen mit 12 Workern: schwer Ø 26 → 25 ms, p95 118 → 117 ms), Budget nie erschöpft. „Schwer“ auf dem Archipel lag schon vorher bei Ø 100 ms (p95 335 ms).
 - **Entscheidung:** Beide bleiben für normal und schwer eingeschaltet. Sie kosten nichts, verschlechtern keine Quote, und sie richten sich gegen Spielweisen von Menschen. Der eigentliche Hebel für Schwerpunkte wäre das Sammeln vor dem Angriff: Einheiten laufen heute einzeln an eine verteidigte Stadt heran.
 
+## Nachmessung 6 (6. November 2026, Spec `2026-11-06-2027-ki-sammeln`)
+
+Baustein: **Sammeln vor dem Angriff (`musterDistance`).** Eroberungseinheiten warten im Abstand `musterDistance` vor einer verteidigten fremden Stadt, bis mehr als `siegeRatio` × Verteidiger versammelt sind, und rücken dann gemeinsam an. Gewartet wird mit `skip` statt Wache, damit „normal“ die Einheit nächste Runde neu plant. Nicht gewartet wird, wenn auf der Landmasse nicht genug eigene Kampfeinheiten stehen.
+
+Neue Kennzahl: **Verluste vor Städten** (eigene Einheiten, die im Abstand ≤ 2 einer fremden Stadt im Kampf fallen; Stadtangriffe ausgenommen). Nullmessung: „schwer“ 4,7, „normal“ 8,9 je Partie im Duell; Fraktionsduelle 6–9; Inseln 9–12.
+
+Sweeps mit 200 Partien je Punkt (Berichte `2026-11-06-2100-sweep-ki6-*`):
+
+| Subjekt gegen Referenz | aus | 2 | 3 | 4 |
+|---|---|---|---|---|
+| normal gegen normal ohne Sammeln | 50 % | 52 % | 49 % | 49 % |
+| schwer gegen normal | 62 % | 61 % | 62 % | 64 % |
+| Verluste vor Städten, schwer | 5,8 | 5,8 | 5,6 | 5,6 |
+
+**Befunde:**
+- Erster Durchlauf: Das Sammeln löste fast nie aus (weniger als ein Warten je Partie bei „schwer“). Landeinheiten sehen aus dem Sammelabstand nicht in die Stadt, also galt jede feindliche Stadt als unverteidigt. Korrektur: Eine feindliche Stadt außer Sicht zählt mit mindestens einem Verteidiger, eine neutrale mit keinem.
+- Auch danach wartet „schwer“ nur etwa zweimal je Partie, „normal“ sechs- bis achtmal, bei rund 92 Zügen. Quoten, Angriffe, Mehrfachangriffe und Verluste vor Städten bleiben im Rauschen. Die Einheiten laufen meist auf verschiedene Ziele zu (nächste Stadt je Einheit); an einem Sammelpunkt kommen selten genug zusammen.
+- **Entscheidung:** `musterDistance` steht für alle Stufen auf 0 (aus). Code und Tests bleiben als Option für Sweeps. Kontrolle: `stufen` mit Vorgabe 0 reproduziert die Nullmessung exakt (62 / 75 / 90 %).
+- Zwei Blöcke in Folge ohne messbaren Effekt in KI-gegen-KI-Partien: Die Simulation stößt an ihre Grenze. Weitere Verhaltensarbeit sollte sich an echten Partien gegen Menschen ausrichten.
+
 ## Was die Simulation noch nicht misst
 
 - Spielspaß und Druck auf einen Menschen: KI gegen KI misst nur relative Stärke. Nächster Schritt sind Sparringsgegner mit festem Verhalten (passiv, reiner Expandierer, Rusher), gegen die jede Stufe eine Zielquote hat.

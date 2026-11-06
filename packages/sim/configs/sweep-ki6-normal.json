@@ -1,0 +1,29 @@
+{
+  "name": "sweep-ki6-normal",
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 100,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": {
+      "label": "alt",
+      "factionId": "eisenbund",
+      "difficulty": "normal",
+      "profile": {
+        "musterDistance": 0
+      }
+    },
+    "subject": {
+      "label": "normal",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "grid": {
+      "musterDistance": [0, 2, 3, 4]
+    }
+  }
+}

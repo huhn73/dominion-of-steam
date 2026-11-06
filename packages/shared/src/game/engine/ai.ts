@@ -119,6 +119,11 @@ export interface AiProfile {
   memoryRounds: number
   /** Coordinated attacks: several units wear a defender down that none of them would take alone */
   strike: boolean
+  /**
+   * Land units gather this many tiles in front of a defended city until enough are there for a
+   * siege, instead of arriving one by one (0: march straight in)
+   */
+  musterDistance: number
 }
 
 /** Difficulty plus personality style tags (setup master data, e.g. "Aggressiv", "Seekrieg") */
@@ -158,6 +163,8 @@ export function aiProfile(difficulty: Difficulty, style: readonly string[] = [])
     maxBombers: 2,
     memoryRounds: difficulty === 'easy' ? 0 : 5,
     strike: difficulty !== 'easy',
+    // Sweep (normal and hard, 0/2/3/4): no effect on win rates or losses in front of cities, so off
+    musterDistance: 0,
   }
   for (const tag of style) {
     switch (tag) {
@@ -473,6 +480,12 @@ export function playAITurn(
       if (u.order.type === 'patrol' || u.order.type === 'explore') break
       const cmd = planUnit(know(), state, playerId, id, profile)
       if (!cmd) break
+      // Waiting at a muster point: skip, not sentry, so the unit is planned again next turn
+      if (cmd.type === 'skip') {
+        if (u.order.type !== 'none') run({ type: 'cancelOrder', unitId: id })
+        run(cmd)
+        break
+      }
       const key = JSON.stringify(cmd)
       if (key === last) break // a blocked move would repeat forever
       last = key
@@ -483,7 +496,7 @@ export function playAITurn(
       if (!run(cmd)) break
     }
     const after = state.units.find((u) => u.id === id)
-    if (after && after.order.type === 'none' && after.movesLeft > 0)
+    if (after && after.order.type === 'none' && after.movesLeft > 0 && !after.skipped)
       run({ type: 'sentry', unitId: id })
   }
   return remember(state, playerId, profile.memoryRounds)
@@ -1196,6 +1209,11 @@ function planUnit(
       .sort((a, b) => distance(a) - distance(b))
       .slice(0, MAX_CANDIDATES)
     for (const city of cities) {
+      if (profile.musterDistance > 0 && type.domain === 'land' && type.strength > 0) {
+        const muster = musterPoint(k, playerId, unit, city, profile)
+        if (muster === 'wait') return { type: 'skip', unitId }
+        if (muster) return { type: 'goto', unitId, target: muster }
+      }
       const goal = approach(unit, city, idx)
       if (goal) return { type: 'goto', unitId, target: goal }
     }
@@ -1244,6 +1262,64 @@ function planUnit(
     if (findPath(unit, tile, idx))
       return { type: 'goto', unitId, target: { col: tile.col, row: tile.row } }
   }
+  return null
+}
+
+/**
+ * Where a land unit waits before a defended city: null when enough own fighters are gathered
+ * (or could never be, the army on this landmass being too small), 'wait' when the unit is
+ * already within the muster distance, otherwise a free land tile at that distance to march to.
+ * Enough means what `siegePaysOff` asks for: more besiegers than `siegeRatio` × defenders.
+ */
+function musterPoint(
+  k: Knowledge,
+  playerId: string,
+  unit: Unit,
+  city: HexCoord & { ownerId: string | null },
+  profile: AiProfile,
+): HexCoord | 'wait' | null {
+  const { view, idx, ghosts } = k
+  const seen =
+    view.units.filter((u) => u.ownerId !== playerId && !u.carriedBy && sameHex(u, city)).length +
+    ghosts.filter((g) => sameHex(g, city)).length
+  // Land units do not see into a city from the muster point: like a human, assume an enemy
+  // city out of sight holds at least one defender (neutral cities have none)
+  const unseen = city.ownerId !== null && !isVisible(view.map.visibility, view.map, city)
+  const defenders = Math.max(seen, unseen ? 1 : 0)
+  if (!defenders) return null
+  const need = Math.floor(profile.siegeRatio * defenders) + 1
+  const fighters = view.units.filter((u) => {
+    if (u.ownerId !== playerId || u.carriedBy) return false
+    const t = unitType(u.unitTypeId)
+    return t.domain === 'land' && t.strength > 0
+  })
+  const gathered = fighters.filter((u) => hexDistance(u, city) <= profile.musterDistance + 1)
+  if (gathered.length >= need) return null
+  // Garrisons on sentry in own cities do not come
+  const home = massOf(k, unit)
+  const army = fighters.filter(
+    (u) =>
+      massOf(k, u) === home &&
+      !(
+        u.order.type === 'sentry' &&
+        view.cities.some((c) => c.ownerId === playerId && sameHex(c, u))
+      ),
+  )
+  if (army.length < need) return null
+  if (hexDistance(unit, city) <= profile.musterDistance) return 'wait'
+  const spots = tilesNear(view.map, city, profile.musterDistance)
+    .filter((t) => hexDistance(t, city) === profile.musterDistance)
+    .filter((t) => {
+      const tile = idx.tileAt(t)
+      return (
+        !!tile &&
+        !isWater(tile.terrain) &&
+        !view.units.some((u) => u.ownerId !== playerId && sameHex(u, t))
+      )
+    })
+    .sort((a, b) => hexDistance(a, unit) - hexDistance(b, unit))
+    .slice(0, MAX_APPROACHES)
+  for (const spot of spots) if (findPath(unit, spot, idx)) return spot
   return null
 }
 

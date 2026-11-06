@@ -118,6 +118,7 @@ function matchupSection(m: MatchupSummary, title: string): string {
         'sonstige Verluste',
         'Schaden +/−',
         'Mehrfachangriffe',
+        'Verluste vor Städten',
       ],
       m.labels.map((l) => [
         l.label,
@@ -132,6 +133,7 @@ function matchupSection(m: MatchupSummary, title: string): string {
         de(l.combat.otherLosses, 1),
         `${de(l.combat.damageDealt, 1)} / ${de(l.combat.damageTaken, 1)}`,
         `${de(l.combat.focusTargets, 1)} (${de(l.combat.focusWon, 1)} gefallen)`,
+        de(l.combat.lostNearCities, 1),
       ]),
     ),
     '',

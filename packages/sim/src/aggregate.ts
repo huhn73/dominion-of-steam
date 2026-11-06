@@ -42,6 +42,7 @@ export interface LabelSummary {
     damageTaken: number
     focusTargets: number
     focusWon: number
+    lostNearCities: number
   }
   attackWinRate: number | null
   /** Per game */
@@ -215,6 +216,7 @@ function summarizeLabel(
       damageTaken: per((p) => p.combat.damageTaken),
       focusTargets: per((p) => p.combat.focusTargets ?? 0),
       focusWon: per((p) => p.combat.focusWon ?? 0),
+      lostNearCities: per((p) => p.combat.lostNearCities ?? 0),
     },
     attackWinRate: attacks ? sum(rows.map((p) => p.combat.won)) / attacks : null,
     naval: {

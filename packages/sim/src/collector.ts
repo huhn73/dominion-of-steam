@@ -1,4 +1,5 @@
 import { score, unitType, type CommandOutcome, type GameState } from '@dos/shared/engine'
+import { hexDistance } from '@dos/shared/game/hex'
 import type { Command } from '@dos/shared/game/view'
 import type { GameJob } from './jobs'
 
@@ -32,6 +33,8 @@ export interface CombatStats {
   focusTargets: number
   /** …of those, the defender destroyed by the last attack or the city captured */
   focusWon: number
+  /** Own units destroyed in fights within two tiles of a city of others (city attacks excluded) */
+  lostNearCities: number
 }
 
 export interface NavalStats {
@@ -125,6 +128,7 @@ const emptyParticipant = (p: GameJob['participants'][number]): ParticipantResult
     damageTaken: 0,
     focusTargets: 0,
     focusWon: 0,
+    lostNearCities: 0,
   },
   naval: { landings: 0, loadedTurns: 0, loadedIdle: 0, overseasNeutral: 0 },
   production: {},
@@ -219,6 +223,14 @@ export class MetricsCollector {
       if (c.defenderDestroyed || c.captured) me.combat.won++
       if (c.attackerDestroyed && !c.captured) me.combat.lost++
       if (c.attackerDestroyed) me.combat.unitsLost++
+      // Losses in front of cities: the attacker in a fight with a unit, or the defender
+      const nearForeignCity = (at: { col: number; row: number }, owner: string) =>
+        prev.cities.some((x) => x.ownerId !== owner && hexDistance(x, at) <= 2)
+      const attacker = prev.units.find((u) => u.id === c.attackerUnitId)
+      if (c.attackerDestroyed && c.defenderUnitId && attacker && nearForeignCity(attacker, me.id))
+        me.combat.lostNearCities++
+      if (c.defenderDestroyed && defender && foe && nearForeignCity(defender, defender.ownerId))
+        foe.combat.lostNearCities++
       if (c.defenderDestroyed) {
         me.combat.unitsKilled++
         if (foe) foe.combat.unitsLost++
