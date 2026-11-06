@@ -98,7 +98,9 @@ describe.skipIf(!url)('Echtzeit-Signale (Datenbank)', () => {
     const bj = await listen(app, bjoern.me.id)
     const inv = await invitationOf(id, lena.me.id)
     expect((await lena.request('POST', `/api/invitations/${inv.id}/accept`)).statusCode).toBe(200)
-    expect((await lena.request('POST', `/api/matches/${id}/ready`, { ready: true })).statusCode).toBe(200)
+    expect(
+      (await lena.request('POST', `/api/matches/${id}/ready`, { ready: true })).statusCode,
+    ).toBe(200)
     await settle()
     expect(bj.topics()).toEqual([`room:${id}`, 'lobby', `room:${id}`, 'lobby'])
 

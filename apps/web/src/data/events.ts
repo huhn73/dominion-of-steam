@@ -30,7 +30,8 @@ export function useServerEventsConnected() {
 function invalidate(queryClient: QueryClient, topic: string) {
   if (topic === 'lobby') return queryClient.invalidateQueries({ queryKey: ['lobby'] })
   if (topic === 'resync') {
-    for (const key of ['lobby', 'room', 'match']) void queryClient.invalidateQueries({ queryKey: [key] })
+    for (const key of ['lobby', 'room', 'match'])
+      void queryClient.invalidateQueries({ queryKey: [key] })
     return
   }
   const [kind, id] = topic.split(':')

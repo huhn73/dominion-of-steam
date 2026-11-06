@@ -43,7 +43,8 @@ export function useWaitingRoom(matchId: string) {
     queryFn: () => api<WaitingRoomData>(`/matches/${matchId}/room`),
     refetchInterval: (query) =>
       live ||
-      (query.state.error instanceof ApiRequestError && [403, 404].includes(query.state.error.status))
+      (query.state.error instanceof ApiRequestError &&
+        [403, 404].includes(query.state.error.status))
         ? false
         : ROOM_POLL_MS,
     retry: (count, error) =>

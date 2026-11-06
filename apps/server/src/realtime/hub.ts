@@ -63,7 +63,11 @@ export function createHub(db: Db, log: (msg: string, err: unknown) => void) {
     await req?.unlisten().catch(() => {})
   }
 
-  return { subscribe, close, streams: () => [...listeners.values()].reduce((n, s) => n + s.size, 0) }
+  return {
+    subscribe,
+    close,
+    streams: () => [...listeners.values()].reduce((n, s) => n + s.size, 0),
+  }
 }
 
 export type Hub = ReturnType<typeof createHub>

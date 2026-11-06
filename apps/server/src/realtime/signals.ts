@@ -29,7 +29,11 @@ export async function signal(tx: Tx | Db, playerIds: Iterable<string>, topics: S
  * surrendered players still look at the board). `except` skips the player whose own request
  * already returned the new view.
  */
-export async function signalMatch(tx: Tx | Db, state: GameState, { except }: { except?: string } = {}) {
+export async function signalMatch(
+  tx: Tx | Db,
+  state: GameState,
+  { except }: { except?: string } = {},
+) {
   const ids = state.participants.map((p) => p.id)
   await signal(
     tx,
@@ -45,7 +49,10 @@ export async function signalRoom(tx: Tx | Db, matchId: string, extra: string[] =
     .select({ playerId: matchSeats.playerId })
     .from(matchSeats)
     .where(eq(matchSeats.matchId, matchId))
-  const [row] = await tx.select({ hostId: matches.hostId }).from(matches).where(eq(matches.id, matchId))
+  const [row] = await tx
+    .select({ hostId: matches.hostId })
+    .from(matches)
+    .where(eq(matches.id, matchId))
   const ids = seats.flatMap((s) => (s.playerId ? [s.playerId] : []))
   if (row?.hostId) ids.push(row.hostId)
   await signal(tx, [...ids, ...extra], [`room:${matchId}`, 'lobby'])
