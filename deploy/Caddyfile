@@ -13,9 +13,8 @@
 		Cross-Origin-Opener-Policy "same-origin"
 		# Alles kommt vom eigenen Ursprung: Skripte, Schriften, Audio, Bilder, Service Worker, SSE.
 		# Inline-Styles erlaubt (React-Style-Attribute), Inline-Skripte nicht (public/theme-init.js).
-		# Erst als Report-Only: Verstöße erscheinen nur in der Browser-Konsole. Nach der Prüfung den
-		# Namen auf Content-Security-Policy ändern.
-		Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		# Neue Quellen (externe Dienste, Inline-Skripte) erst als Content-Security-Policy-Report-Only testen.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 		-Server
 		-Via
 	}

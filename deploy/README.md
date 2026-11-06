@@ -185,7 +185,7 @@ Die eigene Adresse in `.env` als `ADMIN_EMAILS=…` eintragen (kommagetrennt fü
 - Von außen: `nmap -p 22,80,443,5432,3000 <DOMAIN>` zeigt nur 22, 80 und 443 offen.
 - `ssh -o PreferredAuthentications=none nobody@<DOMAIN>` nennt nur `publickey`.
 - `curl -sI https://<DOMAIN>` zeigt `strict-transport-security`, `x-content-type-options`, `x-frame-options`, `referrer-policy` und die Content-Security-Policy aus dem `Caddyfile`, aber keinen `server`-Header. Die Bewertung bei [Mozilla Observatory](https://developer.mozilla.org/en-US/observatory) und [SSL Labs](https://www.ssllabs.com/ssltest/) sollte mindestens A sein.
-- Content-Security-Policy: Steht sie noch als `…-Report-Only` im `Caddyfile`, das Spiel einmal durchklicken (Anmeldung, Lobby, Partie mit Ton, Push aktivieren) und die Browser-Konsole auf CSP-Meldungen prüfen. Ist sie sauber, den Header in `Content-Security-Policy` umbenennen. Die App braucht dafür keine Inline-Skripte (`public/theme-init.js`).
+- Content-Security-Policy: Vor einer Änderung (neue externe Quelle, Inline-Skript) den Header im `Caddyfile` vorübergehend in `Content-Security-Policy-Report-Only` umbenennen, das Spiel einmal durchklicken (Anmeldung, Lobby, Partie mit Ton, Push aktivieren) und die Browser-Konsole auf CSP-Meldungen prüfen. Die App braucht keine Inline-Skripte (`public/theme-init.js`).
 - Änderungen an `Caddyfile` oder `docker-compose.yml` kommen nicht über den Deploy-Workflow auf den Server. Sie per `scp` nach `/opt/dominion/` kopieren und `docker compose up -d` ausführen; Caddy liest nur die Caddyfile neu mit `docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile`.
 
 ## Backups
