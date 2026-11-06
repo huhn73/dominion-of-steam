@@ -527,6 +527,7 @@ describe.skipIf(!url)('Lobby & Multiplayer (Datenbank)', () => {
     expect((await lena.request('POST', `/api/matches/${id}/surrender`)).json()).toEqual({
       ok: true,
     })
+    await app.aiRunner.idle()
     const [row] = await db.select().from(matches).where(eq(matches.id, id))
     const state = row!.state!
     expect(state.status).toBe('running')

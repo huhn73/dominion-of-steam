@@ -67,6 +67,8 @@ export function createHub(db: Db, log: (msg: string, err: unknown) => void) {
     subscribe,
     close,
     streams: () => [...listeners.values()].reduce((n, s) => n + s.size, 0),
+    /** The player has an open event stream (is in the app right now) */
+    isConnected: (playerId: string) => (listeners.get(playerId)?.size ?? 0) > 0,
   }
 }
 

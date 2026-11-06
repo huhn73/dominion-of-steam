@@ -42,7 +42,7 @@ import { createTutorialService, isTutorialMatchId } from '../tutorial/service'
 import { LOBBY_PATH, remindNotification, turnNotifications } from '../notifications/events'
 import type { Notifier } from '../notifications/service'
 import { lockMatch, MatchWaitingError, saveMatch, type Tx } from '../matches/repository'
-import { runAITurns } from '../matches/service'
+import type { AiRunner } from '../ai/runner'
 import { inviteLink, launchMatch } from '../setup/service'
 import { signal, signalMatch, signalRoom } from '../realtime/signals'
 
@@ -191,9 +191,11 @@ export function freeFaction(seats: SeatRow[]): string {
 
 export interface LobbyServiceOptions {
   notifier?: Notifier
+  /** Plays AI turns in the background (after surrender, or when an AI starts the match) */
+  aiRunner?: AiRunner
 }
 
-export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {}) {
+export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceOptions = {}) {
   const tutorial = createTutorialService(db)
   const enqueue: Notifier['enqueue'] = async (tx, items, now) => {
     await notifier?.enqueue(tx, items, now)
@@ -577,9 +579,8 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
         throw new LobbyError(409, 'SURRENDERED', 'Du hast diese Partie bereits aufgegeben.')
       if (self.status !== 'active')
         throw new LobbyError(409, 'ELIMINATED', 'Du bist in dieser Partie bereits ausgeschieden.')
-      const state = surrenderInEngine(structuredClone(before), me, now)
-      // If it was the player's turn, the AI plays it now
-      const next = await runAITurns(tx, state, now)
+      // If it was the player's turn, the AI plays it in the background after the commit
+      const next = surrenderInEngine(structuredClone(before), me, now)
       await saveMatch(tx, next)
       await tx
         .update(matchSeats)
@@ -588,7 +589,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
       await enqueue(tx, turnNotifications(before, next, { actorId: me }), now)
       await signalMatch(tx, next)
       return { ok: true as const }
-    })
+    }).then((r) => (aiRunner?.schedule(matchId), r))
   }
 
   /**
@@ -811,14 +812,13 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
         .update(matches)
         .set({ setup: { ...row.setup!, fillEmptyWithAI: fill } })
         .where(eq(matches.id, matchId))
-      const started = await launchMatch(tx, matchId, now)
-      const next = await runAITurns(tx, structuredClone(started), now)
-      await saveMatch(tx, next)
+      // If an AI has the first turn, the runner plays it after the commit
+      const next = await launchMatch(tx, matchId, now)
       await enqueue(tx, turnNotifications(null, next, { actorId: me }), now)
       await signalRoom(tx, matchId)
       await signalMatch(tx, next)
       return { matchId }
-    })
+    }).then((r) => (aiRunner?.schedule(matchId), r))
   }
 
   /** Leave the waiting room: the host dissolves the match, everyone else frees the seat */

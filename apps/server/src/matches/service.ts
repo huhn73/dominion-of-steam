@@ -19,6 +19,8 @@ import { isTutorialMatchId } from '../tutorial/service'
 import { turnNotifications } from '../notifications/events'
 import type { Notifier } from '../notifications/service'
 import { signalMatch } from '../realtime/signals'
+import { AI_TURN_BUDGET_MS } from '../ai/play'
+import type { AiRunner } from '../ai/runner'
 import {
   findMatch,
   insertMatch,
@@ -53,13 +55,12 @@ export async function finishTurn(tx: Tx, state: GameState, now: Date) {
   return next
 }
 
-/** Wall-clock limit per AI turn (the AI also has a deterministic work budget below it) */
-export const AI_TURN_BUDGET_MS = 10_000
+export { AI_TURN_BUDGET_MS }
 
 /**
- * Play the turns of all AI participants that are on the move, one after another. Runs inside
- * the row-locked transaction of the human's command, so with several AIs the lock may be held
- * for a multiple of the budget; a background job would be the next step.
+ * Play the turns of all AI participants that are on the move, one after another, inside the
+ * caller's transaction. Only for the tutorial (its opponent is passive) and dev helpers; real
+ * matches hand the AIs to the background runner (`ai/runner.ts`).
  */
 export async function runAITurns(tx: Tx, state: GameState, now: Date) {
   let s = state
@@ -82,9 +83,14 @@ export interface MatchServiceOptions {
   demoMapping?: () => Promise<ParticipantMapping>
   /** Notifications when the turn passes to a human or the match ends */
   notifier?: Notifier
+  /** Plays the AI turns after the command (without it: none, the match waits) */
+  aiRunner?: AiRunner
 }
 
-export function createMatchService(db: Db, { demoMapping, notifier }: MatchServiceOptions = {}) {
+export function createMatchService(
+  db: Db,
+  { demoMapping, notifier, aiRunner }: MatchServiceOptions = {},
+) {
   /** Store the notifications for a state change (inside the transaction) */
   async function notifyChange(tx: Tx, before: GameState, after: GameState, actorId: string) {
     await notifier?.enqueue(tx, turnNotifications(before, after, { actorId }))
@@ -103,6 +109,7 @@ export function createMatchService(db: Db, { demoMapping, notifier }: MatchServi
     cmd: Command,
   ): Promise<CommandResponse> {
     const now = new Date()
+    let aiDue = false
     return db
       .transaction(async (tx) => {
         const state = await lockMatch(tx, matchId)
@@ -113,10 +120,14 @@ export function createMatchService(db: Db, { demoMapping, notifier }: MatchServi
 
         const outcome = applyCommand(state, playerId, cmd, now)
         if (cmd.type === 'endTurn') await recordEndedTurn(tx, state, outcome.state)
-        const next = await runAITurns(tx, outcome.state, now)
+        // The tutorial's opponent is passive and moves at once; elsewhere the AIs move after
+        // the commit in the background, and the players hear about each turn
+        const tutorial = isTutorialMatchId(matchId)
+        const next = tutorial ? await runAITurns(tx, outcome.state, now) : outcome.state
         const combat = outcome.combat
         await saveMatch(tx, next)
-        if (isTutorialMatchId(matchId)) {
+        aiDue = next.status === 'running' && currentParticipant(next).isAI
+        if (tutorial) {
           // No notifications from the tutorial; winning it is remembered on the account
           if (state.status === 'running' && next.winnerId === playerId)
             await tx
@@ -128,6 +139,10 @@ export function createMatchService(db: Db, { demoMapping, notifier }: MatchServi
           await signalMatch(tx, next, { except: playerId })
         }
         return { view: projectView(next, playerId), ...(combat ? { combat } : {}) }
+      })
+      .then((response) => {
+        if (aiDue) aiRunner?.schedule(matchId)
+        return response
       })
       .finally(() => notifier?.kick())
   }

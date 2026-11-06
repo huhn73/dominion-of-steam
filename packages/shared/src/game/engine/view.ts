@@ -134,6 +134,7 @@ export function projectView(
       // Async: deadline per turn; live: only with a time limit per turn
       turnDeadline: state.status === 'running' ? state.turnDeadline : null,
       youId: viewerId,
+      currentId: state.status === 'running' ? currentParticipant(state).id : null,
     },
     participants,
     factions: FACTIONS,

@@ -44,6 +44,8 @@ export const matches = pgTable(
     inviteToken: text('invite_token'),
     endedAt: timestamp('ended_at', { withTimezone: true }),
     version: integer('version').notNull().default(1),
+    /** An AI is on the move: the AI runner still has to play its turn (see `ai/runner.ts`) */
+    aiPending: boolean('ai_pending').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -51,6 +53,9 @@ export const matches = pgTable(
     uniqueIndex('matches_invite_token_unique').on(t.inviteToken),
     index('matches_host_idx').on(t.hostId),
     index('matches_status_idx').on(t.status),
+    index('matches_ai_pending_idx')
+      .on(t.id)
+      .where(sql`${t.aiPending}`),
   ],
 )
 

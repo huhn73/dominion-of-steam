@@ -107,9 +107,16 @@ export function gameHeaderFor(view: PlayerView | undefined): GameHeader {
         : 'Dein Zug',
       isYourTurn: true,
     }
+  // The AIs move in the background: name the one on the move (changes with every signal)
+  const current = view.participants.find((p) => p.id === match.currentId)
   return {
     title,
-    status: match.phase === 'replay' ? 'Gegnerzüge' : 'Warte auf Gegner',
+    status:
+      match.phase === 'replay'
+        ? 'Gegnerzüge'
+        : current?.isAI
+          ? `${current.name} (KI) zieht …`
+          : 'Warte auf Gegner',
     isYourTurn: false,
   }
 }

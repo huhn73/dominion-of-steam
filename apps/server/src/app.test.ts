@@ -184,10 +184,17 @@ describe.skipIf(!url)('Partie-API (Datenbank)', () => {
     })
     expect(start.participants.filter((p) => p.isAI)).toHaveLength(2)
 
+    // The answer comes before the AIs move: they play in the background
     res = await user.request('POST', `/api/matches/${matchId}/commands`, { type: 'endTurn' })
-    const next = res.json<CommandResponse>().view
+    const waiting = res.json<CommandResponse>().view
+    expect(waiting.match).toMatchObject({ round: 1, phase: 'waiting', currentId: 'ai1' })
+    await app.aiRunner.idle()
+
+    res = await user.request('GET', `/api/matches/${matchId}/view`)
+    const next = res.json<PlayerView>()
     expect(next.match.round).toBe(2)
     expect(['replay', 'yourTurn']).toContain(next.match.phase)
+    expect(next.match.currentId).toBe(user.me.id)
 
     const recorded = await db.select().from(turns).where(eq(turns.matchId, matchId))
     expect(recorded.map((t) => t.participantId).sort()).toEqual(['ai1', 'ai2', user.me.id].sort())

@@ -20,6 +20,9 @@ if (devToolsEnabled()) {
 await app.accounts.deleteExpiredSessions()
 const fixed = await app.matches.backfillSeats()
 if (fixed) app.log.info(`Plätze für ${fixed} ältere Partien ergänzt`)
+// AIs that were on the move when the server stopped carry on
+const pending = await app.aiRunner.recover()
+if (pending) app.log.info(`KI-Züge in ${pending} Partien fortgesetzt`)
 // Expired turns, "Frist läuft bald ab" and delayed e-mails
 app.sweeper.start((msg, err) => app.log.error({ err }, msg))
 

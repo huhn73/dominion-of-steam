@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { demoView, mockApi } from '../test/mockApi'
-import { matchKey, useMatchCommand } from './match'
+import { gameHeaderFor, matchKey, useMatchCommand } from './match'
 
 afterEach(() => vi.unstubAllGlobals())
 
@@ -66,5 +66,20 @@ describe('Befehle mit Kampf', () => {
     const { result, queryClient } = setup(0)
     act(() => result.current.mutate({ type: 'attack', unitId: 'u1', target: { unitId: 'e2' } }))
     await waitFor(() => expect(queryClient.getQueryData(matchKey('demo'))).toEqual(after))
+  })
+})
+
+describe('Kopfzeile', () => {
+  const waiting = (currentId: string) => {
+    const view = demoView()
+    return { ...view, match: { ...view.match, phase: 'waiting' as const, currentId } }
+  }
+
+  it('nennt die KI, die gerade im Hintergrund zieht', () => {
+    expect(gameHeaderFor(waiting('p2')).status).toBe('Admiral Kessler (KI) zieht …')
+  })
+
+  it('wartet ohne Namen auf menschliche Mitspieler', () => {
+    expect(gameHeaderFor(waiting('p3')).status).toBe('Warte auf Gegner')
   })
 })

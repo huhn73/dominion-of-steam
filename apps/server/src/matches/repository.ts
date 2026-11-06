@@ -1,5 +1,10 @@
 import { eq, inArray, sql } from 'drizzle-orm'
-import { type GameState, type LogEntry, normalizeState } from '@dos/shared/engine'
+import {
+  currentParticipant,
+  type GameState,
+  type LogEntry,
+  normalizeState,
+} from '@dos/shared/engine'
 import type { Db } from '../db/client'
 import { matches, matchSeats, players, turns } from '../db/schema'
 
@@ -17,6 +22,7 @@ export function columns(state: GameState) {
     seed: state.seed,
     turnDeadline: state.turnDeadline ? new Date(state.turnDeadline) : null,
     endedAt: state.endedAt ? new Date(state.endedAt) : null,
+    aiPending: state.status === 'running' && currentParticipant(state).isAI,
     state,
   }
 }

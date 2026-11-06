@@ -20,6 +20,7 @@ import { createMatchService } from './matches/service'
 import { createSetupService } from './setup/service'
 import { createLobbyService } from './lobby/service'
 import { createSweeper } from './lobby/sweeper'
+import { type AiRunner, createAiRunner } from './ai/runner'
 import { type Mailer, type PushSender, smtpMailer, webPushSender } from './notifications/channels'
 import { createNotifier } from './notifications/service'
 import { lobbyRoutes } from './routes/lobby'
@@ -66,6 +67,8 @@ export interface AppOptions {
   notifications?: { push?: PushSender | null; mail?: Mailer | null; autoDeliver?: boolean }
   /** Folder for uploads (avatars); default `UPLOADS_DIR` or `apps/server/uploads` */
   uploadsDir?: string
+  /** AI turns: worker threads, or inline in this thread (default in tests) */
+  ai?: { inline?: boolean; workers?: number }
 }
 
 /** Dev endpoints are on outside production, or when DEV_TOOLS=true (e.g. in the Docker setup) */
@@ -81,6 +84,7 @@ export function buildApp({
   staticDir,
   notifications = {},
   uploadsDir = defaultUploadsDir(),
+  ai = {},
 }: AppOptions) {
   const app = Fastify({ logger, trustProxy })
   // Views of big maps are ~100 KB of tile strings; compression cuts that by about 90 %
@@ -99,9 +103,20 @@ export function buildApp({
     log: (msg, err) => app.log.error({ err }, msg),
   })
   const log = (msg: string, err: unknown) => app.log.error({ err }, msg)
+  // Signals to the open event streams (Postgres LISTEN, only once a stream is open)
+  const realtime = createHub(db, log)
+  // AI turns in the background, after the command that hands the turn to an AI
+  const aiRunner = createAiRunner(db, {
+    notifier,
+    inline: ai.inline ?? process.env.NODE_ENV === 'test',
+    workers: ai.workers,
+    isConnected: realtime.isConnected,
+    log,
+  })
   const accounts = createAccountService(db, { mail, log })
   const matches = createMatchService(db, {
     notifier,
+    aiRunner,
     // Demo match: Björn and Lena are the dev accounts
     demoMapping: dev
       ? async () => {
@@ -111,8 +126,9 @@ export function buildApp({
       : undefined,
   })
   const setup = createSetupService(db, accounts, notifier)
-  const lobby = createLobbyService(db, { notifier })
+  const lobby = createLobbyService(db, { notifier, aiRunner })
   const sweeper = createSweeper(db, notifier, {
+    aiRunner,
     housekeeping: async (now) => {
       await accounts.deleteExpiredSessions(now)
       await deleteExpiredTokens(db, now)
@@ -128,10 +144,9 @@ export function buildApp({
   app.decorate('notifier', notifier)
   app.decorate('sweeper', sweeper)
   app.decorate('profile', profile)
-  // Signals to the open event streams (Postgres LISTEN, only once a stream is open)
-  const realtime = createHub(db, log)
   app.decorate('realtime', realtime)
-  app.addHook('onClose', () => realtime.close())
+  app.decorate('aiRunner', aiRunner)
+  app.addHook('onClose', () => Promise.all([realtime.close(), aiRunner.close()]))
   // Load the session of API requests early (records activity) and renew the cookie when the
   // session was used again (sliding expiry); routes set or clear the cookie afterwards
   app.addHook('preHandler', async (req, reply) => {
@@ -228,5 +243,6 @@ declare module 'fastify' {
     sweeper: ReturnType<typeof createSweeper>
     profile: ReturnType<typeof createProfileService>
     realtime: ReturnType<typeof createHub>
+    aiRunner: AiRunner
   }
 }

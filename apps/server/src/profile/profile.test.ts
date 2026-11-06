@@ -566,7 +566,9 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     expect(bjoernProfile.history.find((h) => h.id === 'p-alt')!.opponents).toContain(neu.name)
     // Warteräume: eigener aufgelöst, in Björns ist der Platz wieder frei
     expect(await db.select().from(matches).where(eq(matches.id, ownId))).toEqual([])
-    const waitingSeats = await db.select().from(matchSeats).where(eq(matchSeats.matchId, waitingId))
+    const waitingSeats = (
+      await db.select().from(matchSeats).where(eq(matchSeats.matchId, waitingId))
+    ).sort((a, b) => a.seat - b.seat)
     expect(waitingSeats.map((s) => [s.kind, s.playerId])).toEqual([
       ['player', bjoern.me.id],
       ['open', null],

@@ -7,7 +7,8 @@ import { deadlineSoonNotification, turnNotifications } from '../notifications/ev
 import type { Notifier } from '../notifications/service'
 import { signalMatch } from '../realtime/signals'
 import { lockMatch, saveMatch } from '../matches/repository'
-import { finishTurn, runAITurns } from '../matches/service'
+import { finishTurn } from '../matches/service'
+import type { AiRunner } from '../ai/runner'
 
 /** How often the server looks for expired turns and due e-mails */
 export const SWEEP_INTERVAL_MS = 15_000
@@ -17,12 +18,15 @@ export const HOUSEKEEPING_INTERVAL_MS = 3600_000
 export interface SweeperOptions {
   /** Hourly cleanup (expired sessions and tokens) */
   housekeeping?: (now: Date) => Promise<void>
+  /** Plays AI turns in the background; each sweep re-queues matches waiting for an AI */
+  aiRunner?: AiRunner
 }
 
 /**
  * Background work that does not belong to a request:
  * - turns whose deadline has passed end as if the player had pressed "Zug beenden" (then the
  *   AIs move and the next human hears about it),
+ * - matches waiting for an AI go back into the AI runner's queue (after a restart),
  * - "Frist läuft bald ab" once per turn when less than 3 hours are left (async matches),
  * - pending push messages and due e-mails go out.
  */
@@ -48,15 +52,16 @@ export function createSweeper(db: Db, notifier?: Notifier, options: SweeperOptio
         // Re-check under the lock: the player may have ended the turn in the meantime
         if (!state || state.status !== 'running' || !state.turnDeadline) return
         if (Date.parse(state.turnDeadline) > now.getTime()) return
-        let next = state
-        if (!currentParticipant(next).isAI) next = await finishTurn(tx, next, now)
-        next = await runAITurns(tx, next, now)
+        // An AI on the move is the runner's job; only a human's turn ends here
+        if (currentParticipant(state).isAI) return
+        const next = await finishTurn(tx, state, now)
         await saveMatch(tx, next)
         await notifier?.enqueue(tx, turnNotifications(state, next), now)
         await signalMatch(tx, next)
         ended.push(id)
       })
     }
+    for (const id of ended) options.aiRunner?.schedule(id)
     return ended
   }
 
@@ -84,6 +89,7 @@ export function createSweeper(db: Db, notifier?: Notifier, options: SweeperOptio
 
   async function sweep(now = new Date()) {
     const ended = await expireTurns(now)
+    await options.aiRunner?.recover()
     await warnDeadlines(now)
     await notifier?.deliver(now)
     if (options.housekeeping && now.getTime() - lastHousekeeping >= HOUSEKEEPING_INTERVAL_MS) {

@@ -30,6 +30,8 @@ export interface Match {
   /** ISO timestamp: async deadline per turn, or the live time limit per turn (null without one) */
   turnDeadline: string | null
   youId: string
+  /** Participant on the move (null once the match is over); lets „KI zieht …“ name the AI */
+  currentId?: string | null
 }
 
 export type VictoryCondition = 'elimination' | 'capitals' | 'roundLimit' | 'dominance'
