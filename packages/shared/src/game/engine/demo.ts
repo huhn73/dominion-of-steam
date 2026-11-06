@@ -85,6 +85,7 @@ export function seedDemo(
       capitulatedRound: null,
       placement: null,
       seenAtTurnEnd: null,
+      aiMemory: null,
     })),
     map: {
       width: data.map.width,

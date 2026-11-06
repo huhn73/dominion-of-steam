@@ -108,6 +108,23 @@ export interface ParticipantState {
    * the first turn ends.
    */
   seenAtTurnEnd: Sighting | null
+  /**
+   * AI only: foreign units it has seen and lost sight of, newest first. Never sent to clients
+   * (the player view maps participants field by field); null for humans and AIs without memory.
+   */
+  aiMemory: RememberedUnit[] | null
+}
+
+/** A foreign unit where the AI saw it last */
+export interface RememberedUnit {
+  id: string
+  unitTypeId: string
+  ownerId: string
+  col: number
+  row: number
+  hp: number
+  /** Round in which it was seen there */
+  round: number
 }
 
 export interface Sighting {
@@ -209,6 +226,7 @@ export function normalizeState(state: GameState): GameState {
     ps.surrender ??= null
     ps.capitulatedRound ??= null
     ps.seenAtTurnEnd ??= null
+    ps.aiMemory ??= null
   }
   for (const c of s.cities) {
     const cs = c as Partial<CityState> & CityState

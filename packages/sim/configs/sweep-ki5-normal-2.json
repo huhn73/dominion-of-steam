@@ -1,0 +1,31 @@
+{
+  "name": "sweep-ki5-normal-2",
+  "maps": [
+    {
+      "size": "medium"
+    }
+  ],
+  "seeds": 100,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": {
+      "label": "alt",
+      "factionId": "eisenbund",
+      "difficulty": "normal",
+      "profile": {
+        "strike": false,
+        "memoryRounds": 0
+      }
+    },
+    "subject": {
+      "label": "normal",
+      "factionId": "eisenbund",
+      "difficulty": "normal"
+    },
+    "grid": {
+      "strike": [false, true],
+      "memoryRounds": [0, 5]
+    }
+  }
+}

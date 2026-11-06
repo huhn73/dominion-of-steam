@@ -74,6 +74,7 @@ export function createMatch(config: NewMatch, now = new Date()): GameState {
       capitulatedRound: null,
       placement: null,
       seenAtTurnEnd: null,
+      aiMemory: null,
     })),
     map: {
       width: config.map.width,

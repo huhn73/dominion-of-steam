@@ -250,6 +250,7 @@ export function seedTutorial(playerId: string, playerName: string): GameState {
     capitulatedRound: null,
     placement: null,
     seenAtTurnEnd: null,
+    aiMemory: null,
     ...extra,
   })
   const participants = [

@@ -28,6 +28,10 @@ export interface CombatStats {
   otherLosses: number
   damageDealt: number
   damageTaken: number
+  /** Targets (by tile) attacked by two or more own units in one turn */
+  focusTargets: number
+  /** …of those, the defender destroyed by the last attack or the city captured */
+  focusWon: number
 }
 
 export interface NavalStats {
@@ -119,6 +123,8 @@ const emptyParticipant = (p: GameJob['participants'][number]): ParticipantResult
     otherLosses: 0,
     damageDealt: 0,
     damageTaken: 0,
+    focusTargets: 0,
+    focusWon: 0,
   },
   naval: { landings: 0, loadedTurns: 0, loadedIdle: 0, overseasNeutral: 0 },
   production: {},
@@ -151,6 +157,8 @@ export class MetricsCollector {
   private readonly sailed = new Set<string>()
   /** Loaded transport id → tile and cargo at the end of its owner's last turn */
   private readonly lastLoaded = new Map<string, string>()
+  /** Target tile → attacks this turn and whether the last one won */
+  private turnTargets = new Map<string, { attacks: number; won: boolean }>()
 
   constructor(
     state: GameState,
@@ -170,6 +178,7 @@ export class MetricsCollector {
   beginTurn(playerId: string) {
     this.turnPlayer = playerId
     this.turnCommands = 0
+    this.turnTargets = new Map()
   }
 
   /** Bound so it can be handed to `playAITurn` directly */
@@ -195,6 +204,14 @@ export class MetricsCollector {
         : undefined
       const foe = defender ? this.byId.get(defender.ownerId) : undefined
       me.combat.attacks++
+      const at = defender ?? prev.cities.find((x) => x.id === c.targetCityId)
+      if (at) {
+        const key = `${at.col},${at.row}`
+        const t = this.turnTargets.get(key) ?? { attacks: 0, won: false }
+        t.attacks++
+        t.won = c.defenderDestroyed || c.captured || (t.won && !!c.targetCityId)
+        this.turnTargets.set(key, t)
+      }
       if (c.targetCityId) {
         me.combat.cityAttacks++
         if (c.captured) me.combat.cityAttacksWon++
@@ -240,6 +257,12 @@ export class MetricsCollector {
     me.turns.maxMs = Math.max(me.turns.maxMs, ms)
     me.turns.turnMs.push(Math.round(ms * 10) / 10)
     if (this.turnCommands >= AI_COMMAND_BUDGET) me.turns.budgetExhausted++
+    for (const t of this.turnTargets.values()) {
+      if (t.attacks < 2) continue
+      me.combat.focusTargets++
+      if (t.won) me.combat.focusWon++
+    }
+    this.turnTargets = new Map()
     for (const u of this.current.units) {
       if (u.ownerId !== me.id) continue
       const t = unitType(u.unitTypeId)

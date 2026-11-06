@@ -1,0 +1,15 @@
+{
+  "name": "sweep-ki5-hard",
+  "maps": [{ "size": "medium" }],
+  "seeds": 30,
+  "rotateSeats": true,
+  "roundLimit": 100,
+  "sweep": {
+    "reference": { "label": "normal", "factionId": "eisenbund", "difficulty": "normal" },
+    "subject": { "label": "hard", "factionId": "eisenbund", "difficulty": "hard" },
+    "grid": {
+      "strike": [false, true],
+      "memoryRounds": [0, 3, 5, 10]
+    }
+  }
+}

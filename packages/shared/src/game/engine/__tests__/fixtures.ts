@@ -44,6 +44,7 @@ export function participantState(
     capitulatedRound: null,
     placement: null,
     seenAtTurnEnd: null,
+    aiMemory: null,
     ...extra,
   }
 }

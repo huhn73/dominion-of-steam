@@ -13,13 +13,21 @@ import {
   sameHex,
   tilesNear,
 } from '../hex'
-import { expandMap } from '../mapcodec'
+import { expandMap, tileIndex } from '../mapcodec'
 import type { HexCoord, Unit, UnitType } from '../types'
 import type { Command, PlayerView } from '../view'
+import { chainOdds, type ChainStep } from '../rules'
 import { combatOdds } from './combat'
 import { applyCommand, CommandError, type CommandOutcome } from './commands'
 import { knowledge } from './movement'
-import { factionOf, type GameState, participant, random, unitType } from './state'
+import {
+  factionOf,
+  type GameState,
+  participant,
+  random,
+  type RememberedUnit,
+  unitType,
+} from './state'
 import { dominanceShare } from './victory'
 import { isCoastal } from './visibility'
 import { aiPersonality } from '../../setup/data'
@@ -48,6 +56,13 @@ const CITY_WORTH = { neutral: 3, enemy: 6 }
 const DOMINANCE_REACH = { cities: 3, share: 0.5 }
 /** Extra worth of a city of the dominance holder: taking it breaks the countdown */
 const BREAK_WORTH = 4
+/** Remembered foreign units kept in the game state at most (oldest dropped first) */
+const MAX_MEMORY = 200
+/** Targets a turn's coordinated attacks go after at most, and attackers per target */
+const MAX_STRIKES = 6
+const MAX_STRIKERS = 4
+/** A remembered defender in a city out of sight makes it count as this many tiles farther away */
+const GHOST_DEFENDER = 2
 
 /** Parameters of an AI participant: difficulty first, then lightly tweaked by the personality */
 export interface AiProfile {
@@ -100,6 +115,10 @@ export interface AiProfile {
   /** Chance to build a bomber while enemies are in sight and fewer than `maxBombers` exist */
   bomberShare: number
   maxBombers: number
+  /** Rounds a foreign unit out of sight is remembered where it was seen last (0: no memory) */
+  memoryRounds: number
+  /** Coordinated attacks: several units wear a defender down that none of them would take alone */
+  strike: boolean
 }
 
 /** Difficulty plus personality style tags (setup master data, e.g. "Aggressiv", "Seekrieg") */
@@ -137,6 +156,8 @@ export function aiProfile(difficulty: Difficulty, style: readonly string[] = [])
     maxScouts: 2,
     bomberShare: difficulty === 'hard' ? 0.15 : 0,
     maxBombers: 2,
+    memoryRounds: difficulty === 'easy' ? 0 : 5,
+    strike: difficulty !== 'easy',
   }
   for (const tag of style) {
     switch (tag) {
@@ -219,6 +240,8 @@ type Knowledge = ReturnType<typeof knowledge> & {
   masses: Map<string, number>
   /** Who holds the dominance share right now (public, every player sees the countdown) */
   holder: string | null
+  /** Remembered foreign units on tiles out of sight right now */
+  ghosts: RememberedUnit[]
 }
 
 /** Flood fill over the known land tiles; unexplored tiles separate landmasses */
@@ -270,6 +293,7 @@ export function playAITurn(
     ...options.profile,
   }
   dominanceFocus(state, playerId, profile)
+  state = remember(state, playerId, profile.memoryRounds)
   // Work left this turn; path searches draw from it through the index's shared budget
   const work: PathBudget = { maxNodes: MAX_WORK, used: 0 }
   let budget = MAX_WORK
@@ -285,7 +309,12 @@ export function playAITurn(
     if (!cache) {
       const k = knowledge(state, playerId)
       masses ??= landmasses(k.view)
-      cache = { ...k, masses, holder: state.dominance?.participantId ?? null }
+      const memory = participant(state, playerId)?.aiMemory ?? []
+      const seen = new Set(k.view.units.map((u) => u.id))
+      const ghosts = memory.filter(
+        (m) => !seen.has(m.id) && !isVisible(k.view.map.visibility, k.view.map, m),
+      )
+      cache = { ...k, masses, holder: state.dominance?.participantId ?? null, ghosts }
       // Every search on this index counts against the turn's work, capped per search
       cache.idx.pathBudget = {
         get maxNodes() {
@@ -327,8 +356,8 @@ export function playAITurn(
   const threatened = new Set<string>()
   const border = new Set<string>()
   if (profile.defend || profile.fortify) {
-    const { view } = know()
-    const foes = view.units.filter((u) => u.ownerId !== playerId)
+    const { view, ghosts } = know()
+    const foes: HexCoord[] = [...view.units.filter((u) => u.ownerId !== playerId), ...ghosts]
     const others = view.cities.filter((c) => c.ownerId !== null && c.ownerId !== playerId)
     for (const city of view.cities) {
       if (city.ownerId !== playerId) continue
@@ -397,6 +426,28 @@ export function playAITurn(
     }
   }
 
+  // Coordinated attacks first; whoever is left over plans on its own below
+  if (profile.strike) {
+    const busy = new Set([...garrison, ...recalled])
+    for (let n = 0; n < MAX_STRIKES && budget > 0 && !outOfTime(); n++) {
+      const plan = planStrike(know(), state, playerId, profile, busy)
+      if (!plan) break
+      for (let i = 0; i < plan.strikers.length; i++) {
+        const id = plan.strikers[i]!
+        busy.add(id)
+        const k = know()
+        if (!k.view.units.some((u) => u.id === plan.defenderId)) break
+        // Dice decide each fight: go on only while the rest of the chain still pays off
+        const rest = chainFor(k, state, playerId, plan.strikers.slice(i), plan.defenderId)
+        if (!rest || !strikePaysOff(rest, profile)) break
+        const u = state.units.find((x) => x.id === id)
+        if (!u || u.movesLeft <= 0) continue
+        if (u.order.type !== 'none' && !run({ type: 'cancelOrder', unitId: id })) continue
+        run({ type: 'attack', unitId: id, target: { unitId: plan.defenderId } })
+      }
+    }
+  }
+
   for (const id of unitIds) {
     if (budget <= 0) break
     const current = state.units.find((u) => u.id === id)
@@ -435,7 +486,170 @@ export function playAITurn(
     if (after && after.order.type === 'none' && after.movesLeft > 0)
       run({ type: 'sentry', unitId: id })
   }
-  return state
+  return remember(state, playerId, profile.memoryRounds)
+}
+
+interface Chain {
+  killChance: number
+  expectedLoss: number
+  /** Value of the defender, plus its share of the city it stands in */
+  gain: number
+}
+
+const strikePaysOff = (c: Chain, profile: AiProfile) =>
+  c.killChance >= profile.attackThreshold && c.killChance * c.gain >= c.expectedLoss
+
+/** The chain of these attackers, in this order, against one defender in sight */
+function chainFor(
+  k: Knowledge,
+  state: GameState,
+  playerId: string,
+  strikers: readonly string[],
+  defenderId: string,
+): Chain | null {
+  const defender = k.view.units.find((u) => u.id === defenderId)
+  if (!defender) return null
+  const dType = unitType(defender.unitTypeId)
+  const steps: ChainStep[] = []
+  for (const id of strikers) {
+    const u = state.units.find((x) => x.id === id)
+    if (!u || u.movesLeft <= 0) continue
+    const type = unitType(u.unitTypeId)
+    steps.push({
+      hitChance: combatOdds(state, id, { unitId: defenderId }).hitChance,
+      attackerHp: u.hp,
+      attackerDamage: type.damage,
+      defenderDamage: dType.damage,
+      cost: unitCost(type),
+    })
+  }
+  if (!steps.length) return null
+  const city = k.view.cities.find((c) => sameHex(c, defender) && c.ownerId !== playerId)
+  const inside = city
+    ? k.view.units.filter((u) => u.ownerId !== playerId && sameHex(u, city)).length
+    : 0
+  return {
+    ...chainOdds(defender.hp, steps),
+    gain: unitCost(dType) + (city ? CITY_WORTH.enemy / Math.max(1, inside) : 0),
+  }
+}
+
+/**
+ * The most rewarding coordinated attack this turn: a defender in sight that two or more free
+ * units reach, but none of them would attack alone. Attackers go strongest first; in a city the
+ * units that can capture it go last, so one is left to move in. The chain is cut to the fewest
+ * attackers that make it pay off.
+ */
+function planStrike(
+  k: Knowledge,
+  state: GameState,
+  playerId: string,
+  profile: AiProfile,
+  busy: ReadonlySet<string>,
+): { defenderId: string; strikers: string[] } | null {
+  const { view, idx } = k
+  const foes = view.units.filter((u) => u.ownerId !== playerId && !u.carriedBy)
+  if (!foes.length) return null
+  const bases = airBases(view.cities, view.units, UNIT_TYPES, playerId)
+  const byTarget = new Map<string, { id: string; kill: number; capture: boolean }[]>()
+  for (const u of view.units) {
+    if (u.ownerId !== playerId || u.carriedBy || busy.has(u.id) || u.movesLeft <= 0) continue
+    if (u.order.type === 'patrol' || u.order.type === 'explore') continue
+    const type = unitType(u.unitTypeId)
+    // Scout planes (strength 1) keep exploring
+    if (type.strength <= 0 || (type.domain === 'air' && type.strength <= 1)) continue
+    // Only units with an enemy within a move and a strike can reach one at all
+    if (!foes.some((f) => hexDistance(f, u) <= type.movement + 1)) continue
+    for (const t of attackTargets(u, idx, view.units, view.cities, [])) {
+      if (!t.unitId) continue
+      const inCity = view.cities.some((c) => sameHex(c, t.coord) && c.ownerId !== playerId)
+      if (inCity && !profile.siege) continue
+      if (type.domain === 'air' && u.fuel != null) {
+        const left = u.fuel - Math.max(0, hexDistance(u, t.coord) - 1) - 2
+        if (left < returnDistance(t.coord, bases)) continue
+      }
+      const list = byTarget.get(t.unitId) ?? []
+      list.push({
+        id: u.id,
+        kill: combatOdds(state, u.id, { unitId: t.unitId }).killChance,
+        capture: type.canCaptureCities && inCity,
+      })
+      byTarget.set(t.unitId, list)
+    }
+  }
+  let best: { defenderId: string; strikers: string[]; net: number } | null = null
+  const candidates = [...byTarget.entries()]
+    .filter(([, list]) => list.length >= 2)
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, MAX_STRIKES)
+  for (const [defenderId, list] of candidates) {
+    // A unit that takes it alone is left to the single-unit planning
+    if (list.some((s) => s.kill >= profile.attackThreshold)) continue
+    const order = [...list]
+      .sort((a, b) => Number(a.capture) - Number(b.capture) || b.kill - a.kill)
+      .slice(0, MAX_STRIKERS)
+      .map((s) => s.id)
+    for (let n = 2; n <= order.length; n++) {
+      const strikers = order.slice(0, n)
+      const chain = chainFor(k, state, playerId, strikers, defenderId)
+      if (!chain || !strikePaysOff(chain, profile)) continue
+      const net = chain.killChance * chain.gain - chain.expectedLoss
+      if (!best || net > best.net) best = { defenderId, strikers, net }
+      break
+    }
+  }
+  return best && { defenderId: best.defenderId, strikers: best.strikers }
+}
+
+const isVisible = (visibility: string, map: { width: number; height: number }, c: HexCoord) =>
+  visibility.charCodeAt(tileIndex(map, c)) === 118 /* 'v' */
+
+/**
+ * Update what the AI remembers of foreign units: everything in sight now, plus earlier sightings
+ * that are not older than `rounds`, whose tile is out of sight and whose owner is still in the
+ * game. Only what the AI has seen itself goes in, so it knows no more than a human would.
+ */
+function remember(state: GameState, playerId: string, rounds: number): GameState {
+  const me = participant(state, playerId)
+  if (!me) return state
+  let memory: RememberedUnit[] | null = null
+  if (rounds > 0) {
+    const { view } = knowledge(state, playerId)
+    const playing = new Set(
+      state.participants
+        .filter((p) => p.status === 'active' && p.capitulatedRound == null)
+        .map((p) => p.id),
+    )
+    const seen = view.units.filter(
+      (u) => u.ownerId !== playerId && !u.carriedBy && playing.has(u.ownerId),
+    )
+    const seenIds = new Set(view.units.map((u) => u.id))
+    const fresh = seen.map((u) => ({
+      id: u.id,
+      unitTypeId: u.unitTypeId,
+      ownerId: u.ownerId,
+      col: u.col,
+      row: u.row,
+      hp: u.hp,
+      round: state.round,
+    }))
+    const kept = (me.aiMemory ?? []).filter(
+      (m) =>
+        !seenIds.has(m.id) &&
+        m.ownerId !== playerId &&
+        playing.has(m.ownerId) &&
+        state.round - m.round < rounds &&
+        !isVisible(view.map.visibility, view.map, m),
+    )
+    memory = [...fresh, ...kept].slice(0, MAX_MEMORY)
+  }
+  if (memory === null && me.aiMemory === null) return state
+  return {
+    ...state,
+    participants: state.participants.map((p) =>
+      p.id === playerId ? { ...p, aiMemory: memory } : p,
+    ),
+  }
 }
 
 /**
@@ -603,7 +817,7 @@ function cityAttackPaysOff(
  * around the city than defenders in it, so a siege does not feed units in one by one.
  */
 function siegePaysOff(
-  { view }: Knowledge,
+  { view, ghosts }: Knowledge,
   playerId: string,
   type: UnitType,
   defenderId: string,
@@ -611,7 +825,10 @@ function siegePaysOff(
   odds: { killChance: number; deathChance: number },
   ratio: number,
 ): boolean {
-  const defenders = view.units.filter((u) => u.ownerId !== playerId && sameHex(u, city))
+  // Remembered defenders count while the city tile is out of sight
+  const defenders = [...view.units, ...ghosts].filter(
+    (u) => u.ownerId !== playerId && sameHex(u, city),
+  )
   const besiegers = view.units.filter(
     (u) =>
       u.ownerId === playerId &&
@@ -666,10 +883,10 @@ function transportTargets(k: Knowledge, playerId: string, unit: Unit, profile: A
   return foreign
     .filter((c) => !piers.has(massOf(k, c)))
     .map((city) => {
-      const defenders = view.units.filter(
+      const defenders = [...view.units, ...k.ghosts].filter(
         (u) =>
           u.ownerId !== playerId &&
-          !u.carriedBy &&
+          !('carriedBy' in u && u.carriedBy) &&
           unitType(u.unitTypeId).domain === 'land' &&
           hexDistance(u, city) <= 1,
       ).length
@@ -966,11 +1183,14 @@ function planUnit(
 
   // 2. Expand: march towards the nearest city that is not ours
   if (type.canCaptureCities) {
-    const { holder } = k
+    const { holder, ghosts } = k
+    const guarded = new Map<string, number>()
+    for (const g of ghosts) guarded.set(hexKey(g), (guarded.get(hexKey(g)) ?? 0) + 1)
     const distance = (c: (typeof view.cities)[number]) =>
       hexDistance(c, unit) -
       (c.ownerId === null ? profile.neutralBias : 0) -
-      (holder && holder !== playerId && c.ownerId === holder ? BREAK_WORTH : 0)
+      (holder && holder !== playerId && c.ownerId === holder ? BREAK_WORTH : 0) +
+      GHOST_DEFENDER * (guarded.get(hexKey(c)) ?? 0)
     const cities = view.cities
       .filter((c) => c.ownerId !== playerId)
       .sort((a, b) => distance(a) - distance(b))
@@ -1002,12 +1222,11 @@ function planUnit(
   }
 
   // 2b. Hunt: without a city to take, close in on the nearest enemy unit in sight
+  // Without one in sight, head for where an enemy was seen last
   if (type.strength > 0 && type.domain === 'land') {
-    const enemies = view.units
-      .filter(
-        (u) =>
-          u.ownerId !== playerId && !u.carriedBy && !isWater(idx.tileAt(u)?.terrain ?? 'deepSea'),
-      )
+    const onLand = (c: HexCoord) => !isWater(idx.tileAt(c)?.terrain ?? 'deepSea')
+    const visible = view.units.filter((u) => u.ownerId !== playerId && !u.carriedBy && onLand(u))
+    const enemies = (visible.length ? visible : k.ghosts.filter(onLand))
       .sort((a, b) => hexDistance(a, unit) - hexDistance(b, unit))
       .slice(0, MAX_CANDIDATES)
     for (const enemy of enemies) {

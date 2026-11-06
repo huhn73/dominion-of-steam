@@ -37,6 +37,8 @@ export const PROFILE_KEYS = [
   'maxScouts',
   'bomberShare',
   'maxBombers',
+  'memoryRounds',
+  'strike',
 ] as const satisfies readonly (keyof AiProfile)[]
 export type ProfileKey = (typeof PROFILE_KEYS)[number]
 export type ProfileOverride = Partial<Pick<AiProfile, ProfileKey>>
@@ -116,6 +118,7 @@ function parseProfileValue(key: ProfileKey, value: unknown, path: string) {
     case 'repair':
     case 'transports':
     case 'dominanceDrive':
+    case 'strike':
       if (typeof value !== 'boolean') fail(path, 'muss true oder false sein')
       return value
     case 'maxShips':
@@ -125,6 +128,7 @@ function parseProfileValue(key: ProfileKey, value: unknown, path: string) {
     case 'scoutShips':
     case 'maxScouts':
     case 'maxBombers':
+    case 'memoryRounds':
       if (!isInt(value) || value < 0) fail(path, 'muss eine ganze Zahl ≥ 0 sein')
       return value
     case 'neutralBias':

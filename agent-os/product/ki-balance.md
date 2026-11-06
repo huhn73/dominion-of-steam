@@ -272,6 +272,38 @@ Die Simulation zählt jetzt Landungen und beladen wartende Frachter und zeigt di
   - `fraktionen`: 38–62 %, Eisenbund gegen Aurelia 62:38 (vorher 56:44, Intervall 52–71 %)
   - Ø KI-Zug 29–90 ms, Budget nie erschöpft
 
+## Nachmessung 5 (6. November 2026, Spec `2026-11-06-1851-ki-verhalten-5`)
+
+Änderungen an der KI (normal und schwer, „leicht“ ohne):
+- **Schwerpunkt (`strike`):** Vor der Einzelplanung sucht die KI Verteidiger in Sicht, die zwei oder mehr freie Einheiten in diesem Zug erreichen, die aber keine allein angreifen würde. Die Kette wird über die Verteilung der Rest-Trefferpunkte bewertet (`chainOdds` in `rules.ts`), auf die wenigsten Angreifer gekürzt, die sich lohnen, und nach jedem Kampf neu bewertet. Eroberer gehen zuletzt.
+- **Gedächtnis (`memoryRounds` 5):** Fremde Einheiten, die aus der Sicht verschwinden, bleiben bis zu 5 Runden an ihrem letzten Ort gespeichert (`ParticipantState.aiMemory`, geht nicht an Clients). Sie zählen für Stadtbedrohung und Grenze, Verfolgung, Verteidiger an Frachterzielen, Belagerung und die Wahl des Marschziels (ein erinnerter Verteidiger macht eine Stadt 2 Felder „weiter“).
+
+Neue Kennzahl im Bericht: **Mehrfachangriffe** (Ziele, die in einem Zug von zwei oder mehr eigenen Einheiten angegriffen wurden, und davon gefallen).
+
+| Serie | Matchup | vorher | nachher |
+|---|---|---|---|
+| `stufen` | schwer gegen normal | 62 % | 62 % |
+| `stufen` | normal gegen leicht | 76 % | 75 % |
+| `stufen` | schwer gegen leicht | 90 % | 90 % |
+| `fraktionen` | Spanne der Duelle | 38–62 % | 37–63 % |
+| `inseln-vorherrschaft` | schwer gegen normal | 82 %, entschieden 93–95 % | 82 %, entschieden 93–98 % |
+| `inseln-vorherrschaft` | Aurelia gegen Eisenbund, Archipel entschieden | 48 % | 62 % (60 Partien, Rauschen) |
+| `archipel` | schwer gegen normal | 82 % | 82 % |
+
+Sweeps (Berichte `2026-11-06-1935-sweep-ki5-*` mit 60 Partien je Punkt, `2026-11-06-1945-sweep-ki5-*-2` mit 200):
+
+| Subjekt gegen Referenz | ohne beides | nur Gedächtnis | nur Schwerpunkt | beides |
+|---|---|---|---|---|
+| normal gegen normal alt | 50 % | 52 % | 51 % | 52 % |
+| schwer gegen normal | 61 % | 63 % | 64 % | 63 % |
+
+**Befunde:**
+- Beide Bausteine bewegen KI-gegen-KI-Quoten nicht messbar; alle Unterschiede liegen im 95-%-Intervall von ±7 Punkten.
+- Der Schwerpunkt löst selten aus: In 20 Partien „schwer gegen normal“ 100 Ketten mit 111 Angriffen, das sind 5 % aller Angriffe. Mehrfachangriffe steigen bei „normal“ von 5,5 auf 5,8 je Partie. Die Einzelplanung greift schon nacheinander dasselbe Ziel an (der zweite Angreifer sieht den angeschlagenen Verteidiger), Panzerwagen nehmen ihre Ziele meist allein, und die Belagerung mit Übermacht deckt Städte ab.
+- Das Gedächtnis wirkt vor allem gegen Einheiten, die sich in den Nebel zurückziehen. KI-Gegner tun das kaum, Menschen schon; die Simulation kann diesen Fall nicht messen.
+- Zugdauer unverändert (Stufen mit 12 Workern: schwer Ø 26 → 25 ms, p95 118 → 117 ms), Budget nie erschöpft. „Schwer“ auf dem Archipel lag schon vorher bei Ø 100 ms (p95 335 ms).
+- **Entscheidung:** Beide bleiben für normal und schwer eingeschaltet. Sie kosten nichts, verschlechtern keine Quote, und sie richten sich gegen Spielweisen von Menschen. Der eigentliche Hebel für Schwerpunkte wäre das Sammeln vor dem Angriff: Einheiten laufen heute einzeln an eine verteidigte Stadt heran.
+
 ## Was die Simulation noch nicht misst
 
 - Spielspaß und Druck auf einen Menschen: KI gegen KI misst nur relative Stärke. Nächster Schritt sind Sparringsgegner mit festem Verhalten (passiv, reiner Expandierer, Rusher), gegen die jede Stufe eine Zielquote hat.

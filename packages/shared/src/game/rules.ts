@@ -125,6 +125,83 @@ export function exchangeOdds(
   return { hitChance: p, killChance, deathChance, expectedDamageTaken }
 }
 
+/**
+ * The same fight as `exchangeOdds`, from the hit chance per round, with the defender's hit
+ * points left over: `survivors` maps hit points to the chance that the attacker falls and the
+ * defender keeps exactly that many.
+ */
+export function exchangeOutcomes(
+  hitChance: number,
+  attackerHp: number,
+  attackerDamage: number,
+  defenderHp: number,
+  defenderDamage: number,
+): { killChance: number; survivors: Map<number, number> } {
+  const p = hitChance
+  const k = hitsNeeded(defenderHp, attackerDamage)
+  const m = hitsNeeded(attackerHp, defenderDamage)
+  let killChance = 0
+  let binom = 1 // C(k - 1 + j, j)
+  const pk = p ** k
+  for (let j = 0; j < m; j++) {
+    if (j > 0) binom = (binom * (k - 1 + j)) / j
+    killChance += binom * pk * (1 - p) ** j
+  }
+  killChance = Math.min(1, killChance)
+  // The attacker falls with its m-th loss after i < k own hits: C(m - 1 + i, i) (1-p)^m p^i
+  const survivors = new Map<number, number>()
+  const qm = (1 - p) ** m
+  binom = 1 // C(m - 1 + i, i)
+  for (let i = 0; i < k; i++) {
+    if (i > 0) binom = (binom * (m - 1 + i)) / i
+    const prob = binom * qm * p ** i
+    if (prob > 0) survivors.set(defenderHp - i * attackerDamage, prob)
+  }
+  return { killChance, survivors }
+}
+
+/** One attacker of a chain: hit chance per round against the target and what it is worth */
+export interface ChainStep {
+  hitChance: number
+  attackerHp: number
+  attackerDamage: number
+  defenderDamage: number
+  /** Value lost when this attacker falls */
+  cost: number
+}
+
+/**
+ * Several attackers one after the other against the same defender: each one fights until it or
+ * the defender falls, the next one meets the defender with the hit points left. Returns the
+ * chance that the chain destroys the defender and the expected value of the attackers lost.
+ * Attackers after a win do not fight, so they cost nothing.
+ */
+export function chainOdds(
+  defenderHp: number,
+  steps: readonly ChainStep[],
+): { killChance: number; expectedLoss: number } {
+  let alive = new Map<number, number>([[defenderHp, 1]])
+  let killChance = 0
+  let expectedLoss = 0
+  for (const step of steps) {
+    const next = new Map<number, number>()
+    for (const [hp, prob] of alive) {
+      const o = exchangeOutcomes(
+        step.hitChance,
+        step.attackerHp,
+        step.attackerDamage,
+        hp,
+        step.defenderDamage,
+      )
+      killChance += prob * o.killChance
+      expectedLoss += prob * (1 - o.killChance) * step.cost
+      for (const [left, q] of o.survivors) next.set(left, (next.get(left) ?? 0) + prob * q)
+    }
+    alive = next
+  }
+  return { killChance: Math.min(1, killChance), expectedLoss }
+}
+
 /** A city without defenders: one roll, the attacker is spent either way */
 export function cityAttackOdds(hitChance: number, attackerHp: number): CombatOdds {
   return { hitChance, killChance: hitChance, deathChance: 1, expectedDamageTaken: attackerHp }
