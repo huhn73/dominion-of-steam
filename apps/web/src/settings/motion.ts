@@ -5,7 +5,7 @@ export const REDUCE_MOTION_CLASS = 'dos-reduce-motion'
 export function applyReduceMotion(reduce: boolean) {
   document.documentElement.classList.toggle(REDUCE_MOTION_CLASS, reduce)
   try {
-    // Read by the inline script in index.html before the first paint
+    // Read by public/theme-init.js before the first paint
     if (reduce) localStorage.setItem(REDUCE_MOTION_STORAGE_KEY, '1')
     else localStorage.removeItem(REDUCE_MOTION_STORAGE_KEY)
   } catch {

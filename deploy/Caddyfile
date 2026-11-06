@@ -1,5 +1,24 @@
 # Reverse-Proxy mit automatischem Let's Encrypt-Zertifikat (Domain aus .env)
 {$DOMAIN} {
 	encode zstd gzip
+
+	# Sicherheits-Header für alle Antworten (Prüfen: deploy/README.md, „Prüfen“)
+	header {
+		# Nur noch https, ein Jahr; ohne includeSubDomains, weil die übrigen Subdomains nicht hier liegen
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		# Alles kommt vom eigenen Ursprung: Skripte, Schriften, Audio, Bilder, Service Worker, SSE.
+		# Inline-Styles erlaubt (React-Style-Attribute), Inline-Skripte nicht (public/theme-init.js).
+		# Erst als Report-Only: Verstöße erscheinen nur in der Browser-Konsole. Nach der Prüfung den
+		# Namen auf Content-Security-Policy ändern.
+		Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		-Server
+		-Via
+	}
+
 	reverse_proxy app:3000
 }

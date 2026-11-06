@@ -1,9 +1,21 @@
 # Dominion of Steam in Produktion: Caddy (https) → App → Postgres, dazu tägliche Dumps.
 # Liegt auf dem Server unter /opt/dominion/ zusammen mit Caddyfile und .env (siehe README.md).
+
+# Für alle Dienste: keine zusätzlichen Rechte über setuid, Logs rotieren statt die Platte zu füllen
+x-defaults: &defaults
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: '3'
+
 services:
   caddy:
     image: caddy:2-alpine
-    restart: unless-stopped
+    <<: *defaults
     ports:
       - '80:80'
       - '443:443'
@@ -19,7 +31,7 @@ services:
 
   db:
     image: postgres:17-alpine
-    restart: unless-stopped
+    <<: *defaults
     environment:
       POSTGRES_USER: dos
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -35,7 +47,7 @@ services:
 
   app:
     image: ghcr.io/huhn73/dominion-of-steam:${APP_TAG:-latest}
-    restart: unless-stopped
+    <<: *defaults
     env_file: .env
     environment:
       DATABASE_URL: postgres://dos:${POSTGRES_PASSWORD}@db:5432/dos
@@ -49,7 +61,7 @@ services:
   # Täglicher pg_dump nach /backups (Volume db_backups), Aufbewahrung 7 Tage / 4 Wochen / 6 Monate
   backup:
     image: prodrigestivill/postgres-backup-local:17
-    restart: unless-stopped
+    <<: *defaults
     user: postgres:postgres
     environment:
       POSTGRES_HOST: db

@@ -21,9 +21,77 @@ Dateien in diesem Ordner:
 
 ## 1. Server
 
-Ein kleiner VPS reicht (2 vCPU x86, 4 GB RAM, Ubuntu 24.04), mit IPv4. Vor Docker den Zugang absichern: eigener Benutzer mit SSH-Key, Passwort- und Root-Login aus, Firewall nur für 22, 80 und 443 (tcp, 443 auch udp), automatische Sicherheitsupdates, fail2ban.
+Ein kleiner VPS reicht (2 vCPU x86, 4 GB RAM, Debian 13 oder Ubuntu 24.04), mit IPv4. Vor Docker den Zugang absichern: eigener Benutzer mit SSH-Key, Passwort- und Root-Login aus, Firewall nur für 22, 80 und 443 (tcp, 443 auch udp), automatische Sicherheitsupdates, fail2ban. Als root, nachdem der Key-Login des eigenen Benutzers funktioniert (zweite Sitzung offen lassen):
 
-Docker veröffentlicht Ports an der Firewall (ufw) vorbei. In `docker-compose.yml` hat deshalb nur Caddy ein Port-Mapping; Postgres und App sind nur im Compose-Netz erreichbar.
+```bash
+apt install -y ufw fail2ban unattended-upgrades
+
+# SSH: nur Schlüssel, kein root
+cat > /etc/ssh/sshd_config.d/10-hardening.conf <<'EOF'
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+MaxAuthTries 3
+X11Forwarding no
+AllowAgentForwarding no
+AllowTcpForwarding no
+AllowUsers dominion
+LogLevel VERBOSE
+EOF
+sshd -t && systemctl reload ssh
+
+# Firewall
+ufw default deny incoming && ufw default allow outgoing
+ufw allow 22/tcp && ufw allow 80/tcp && ufw allow 443/tcp && ufw allow 443/udp
+ufw enable
+
+# fail2ban für SSH (auf Debian 13 über das Journal); die Sperrzeit steigt bei Wiederholung,
+# Wiederholungstäter (recidive) bleiben eine Woche gesperrt
+cat > /etc/fail2ban/jail.d/sshd.local <<'EOF'
+[DEFAULT]
+bantime = 1h
+bantime.increment = true
+bantime.maxtime = 1w
+
+[sshd]
+enabled = true
+backend = systemd
+maxretry = 5
+
+[recidive]
+enabled = true
+logpath = /var/log/fail2ban.log
+bantime = 1w
+findtime = 1d
+maxretry = 5
+EOF
+systemctl restart fail2ban
+
+# Sicherheitsupdates täglich, auch für Docker aus dessen eigenem Repository
+dpkg-reconfigure -f noninteractive unattended-upgrades
+cat > /etc/apt/apt.conf.d/52unattended-upgrades-docker <<'EOF'
+Unattended-Upgrade::Origins-Pattern {
+        "origin=Docker,label=Docker CE,codename=${distro_codename}";
+};
+EOF
+apt install -y needrestart apt-listchanges
+
+# Kernel: keine ICMP-Redirects senden, verdächtige Pakete protokollieren
+cat > /etc/sysctl.d/90-hardening.conf <<'EOF'
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+net.ipv4.conf.all.log_martians = 1
+net.ipv4.conf.default.log_martians = 1
+kernel.kptr_restrict = 1
+EOF
+sysctl --system
+```
+
+Ein Docker-Update über unattended-upgrades startet die Container kurz neu (`restart: unless-stopped`).
+
+Docker veröffentlicht Ports an der Firewall (ufw) vorbei. In `docker-compose.yml` hat deshalb nur Caddy ein Port-Mapping; Postgres und App sind nur im Compose-Netz erreichbar. Alle Dienste laufen mit `no-new-privileges` und rotierten Logs (je 3 × 10 MB).
+
+Die Gruppe `docker` ist gleichwertig zu root. Der Deploy-Key aus GitHub Actions meldet sich als dieser Benutzer an. Wer das trennen will, legt einen eigenen Deploy-Benutzer ohne `sudo` an, der nur in `docker` ist, und nimmt den Benutzer der täglichen Arbeit aus `docker` heraus.
 
 Docker installieren (`curl -fsSL https://get.docker.com | sudo sh`), den Benutzer in die Gruppe `docker` aufnehmen, dann den Anwendungsordner anlegen:
 
@@ -115,6 +183,10 @@ Die eigene Adresse in `.env` als `ADMIN_EMAILS=…` eintragen (kommagetrennt fü
 - E-Mail-Adresse im Profil ändern: Die Bestätigungsmail kommt vom `MAIL_FROM`-Absender, in den Kopfzeilen `spf=pass` und `dkim=pass`.
 - Push im Lobby-Banner aktivieren, Einladung von einem zweiten Konto: Benachrichtigung kommt an.
 - Von außen: `nmap -p 22,80,443,5432,3000 <DOMAIN>` zeigt nur 22, 80 und 443 offen.
+- `ssh -o PreferredAuthentications=none nobody@<DOMAIN>` nennt nur `publickey`.
+- `curl -sI https://<DOMAIN>` zeigt `strict-transport-security`, `x-content-type-options`, `x-frame-options`, `referrer-policy` und die Content-Security-Policy aus dem `Caddyfile`, aber keinen `server`-Header. Die Bewertung bei [Mozilla Observatory](https://developer.mozilla.org/en-US/observatory) und [SSL Labs](https://www.ssllabs.com/ssltest/) sollte mindestens A sein.
+- Content-Security-Policy: Steht sie noch als `…-Report-Only` im `Caddyfile`, das Spiel einmal durchklicken (Anmeldung, Lobby, Partie mit Ton, Push aktivieren) und die Browser-Konsole auf CSP-Meldungen prüfen. Ist sie sauber, den Header in `Content-Security-Policy` umbenennen. Die App braucht dafür keine Inline-Skripte (`public/theme-init.js`).
+- Änderungen an `Caddyfile` oder `docker-compose.yml` kommen nicht über den Deploy-Workflow auf den Server. Sie per `scp` nach `/opt/dominion/` kopieren und `docker compose up -d` ausführen; Caddy liest nur die Caddyfile neu mit `docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile`.
 
 ## Backups
 

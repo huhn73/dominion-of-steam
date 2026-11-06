@@ -29,18 +29,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <script>
-      // Farbschema und Animationen vor dem ersten Rendern setzen, damit nichts aufblitzt (siehe src/theme/theme.ts)
-      try {
-        var t = localStorage.getItem('dos.theme')
-        var dark =
-          t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.classList.toggle('dark', dark)
-        // „Animationen reduzieren“ (src/settings/motion.ts)
-        if (localStorage.getItem('dos.reduceMotion') === '1')
-          document.documentElement.classList.add('dos-reduce-motion')
-      } catch (e) {}
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

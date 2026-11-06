@@ -125,6 +125,10 @@ describe('Icons und Manifest', () => {
     expect(html).toContain('<link rel="apple-touch-icon" href="/apple-touch-icon.png" />')
     expect(html).toContain(`<meta name="theme-color" content="${manifest.theme_color}" />`)
     expect(html).not.toMatch(/googleapis|gstatic/)
+    // Keine Inline-Skripte, sonst greift die Content-Security-Policy (deploy/Caddyfile) nicht
+    expect(html).not.toMatch(/<script(?![^>]*\bsrc=)[^>]*>/)
+    expect(html).toContain('<script src="/theme-init.js"></script>')
+    expect(() => readFileSync(path.join(root, 'public', 'theme-init.js'))).not.toThrow()
     // Link-Vorschau: absolute Bild-URL auf eine Datei, die es in public/ gibt
     const ogImage = /<meta property="og:image" content="https:\/\/[^/"]+\/([^"]+)"/.exec(html)
     expect(ogImage, 'og:image').not.toBeNull()
