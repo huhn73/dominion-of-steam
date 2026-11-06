@@ -3,20 +3,23 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type Command, type CommandResponse, matchOutcome, type PlayerView } from '@dos/shared/game'
 import type { GameHeader } from '../shell'
 import { api, ApiRequestError } from './api'
+import { useServerEventsConnected } from './events'
 
-const POLL_WHILE_WAITING_MS = 5000
+/** Without event stream: poll while others are on the move */
+export const POLL_WHILE_WAITING_MS = 5000
 
 const OUTCOME_LABEL = { victory: 'Sieg', defeat: 'Niederlage', surrendered: 'Aufgegeben' } as const
 
 export const matchKey = (matchId: string) => ['match', matchId] as const
 
 export function useMatchView(matchId: string) {
+  const live = useServerEventsConnected()
   return useQuery({
     queryKey: matchKey(matchId),
     queryFn: () => api<PlayerView>(`/matches/${matchId}/view`),
-    // Ohne WebSockets wird beim Warten auf andere regelmäßig nachgefragt
+    // With the event stream the server reports turns; without it poll while waiting
     refetchInterval: (query) =>
-      query.state.data?.match.phase === 'waiting' && !query.state.data.result
+      !live && query.state.data?.match.phase === 'waiting' && !query.state.data.result
         ? POLL_WHILE_WAITING_MS
         : false,
     retry: (count, error) =>

@@ -19,7 +19,7 @@
 ## Backend
 
 - Node.js mit TypeScript und Fastify
-- WebSockets für Live-Partien und Statusaktualisierungen
+- Server-Sent Events für Live-Partien und Statusaktualisierungen (statt WebSockets: nur der Weg Server → Client ist nötig, Befehle laufen weiter per POST); Signale über Postgres LISTEN/NOTIFY, Polling als Rückfall
 - Der Server prüft und führt jede Spielaktion aus und setzt den Kriegsnebel durch (es werden nur sichtbare oder bekannte Daten ausgeliefert).
 - Benachrichtigungen per Web-Push und E-Mail
 - Eigene Anmeldung mit E-Mail und Passwort (scrypt), Sitzungen als httpOnly-Cookie (`@fastify/cookie`), in der Datenbank nur der Hash des Tokens

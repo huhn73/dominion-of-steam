@@ -44,6 +44,7 @@ import type { Notifier } from '../notifications/service'
 import { lockMatch, MatchWaitingError, saveMatch, type Tx } from '../matches/repository'
 import { runAITurns } from '../matches/service'
 import { inviteLink, launchMatch } from '../setup/service'
+import { signal, signalMatch, signalRoom } from '../realtime/signals'
 
 /** German message for the client with HTTP status and code */
 export class LobbyError extends Error {
@@ -585,6 +586,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
         .set({ kind: 'ai', aiDifficulty: 'normal' })
         .where(and(eq(matchSeats.matchId, matchId), eq(matchSeats.participantId, me)))
       await enqueue(tx, turnNotifications(before, next, { actorId: me }), now)
+      await signalMatch(tx, next)
       return { ok: true as const }
     })
   }
@@ -669,6 +671,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
     return transaction(async (tx) => {
       const { row, seats } = await lockInvitation(tx, invitationId, me)
       if (!(await acceptSeat(tx, seats, me, now))) throw invitationInvalid()
+      await signalRoom(tx, row.id)
       return { matchId: row.id }
     })
   }
@@ -687,6 +690,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
           .update(matchSeats)
           .set({ kind: 'empty', playerId: null })
           .where(and(eq(matchSeats.matchId, row.id), eq(matchSeats.seat, seat.seat)))
+      await signalRoom(tx, row.id)
       return { ok: true as const }
     })
   }
@@ -697,10 +701,12 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
       const { row, seats } = await lockWaiting(tx, matchId)
       if (row.status !== 'waiting') throw alreadyStarted()
       if (seats.some((s) => s.kind === 'player' && s.playerId === me)) return { matchId }
-      if (await acceptSeat(tx, seats, me, now)) return { matchId }
-      const seat = seats.find((s) => s.kind === 'open')
-      if (!seat) throw matchFull()
-      await takeSeat(tx, seats, seat, me, now)
+      if (!(await acceptSeat(tx, seats, me, now))) {
+        const seat = seats.find((s) => s.kind === 'open')
+        if (!seat) throw matchFull()
+        await takeSeat(tx, seats, seat, me, now)
+      }
+      await signalRoom(tx, matchId)
       return { matchId }
     })
   }
@@ -727,10 +733,12 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
           'INVITE_EXPIRED',
           'Die Partie hat bereits begonnen. Der Einladungslink gilt nicht mehr.',
         )
-      if (await acceptSeat(tx, seats, me, now)) return { matchId: row.id }
-      const seat = LINK_KINDS.map((k) => seats.find((s) => s.kind === k)).find(Boolean)
-      if (!seat) throw matchFull()
-      await takeSeat(tx, seats, seat, me, now)
+      if (!(await acceptSeat(tx, seats, me, now))) {
+        const seat = LINK_KINDS.map((k) => seats.find((s) => s.kind === k)).find(Boolean)
+        if (!seat) throw matchFull()
+        await takeSeat(tx, seats, seat, me, now)
+      }
+      await signalRoom(tx, row.id)
       return { matchId: row.id }
     })
   }
@@ -755,6 +763,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
         .update(matchSeats)
         .set({ ready })
         .where(and(eq(matchSeats.matchId, matchId), eq(matchSeats.seat, seat.seat)))
+      await signalRoom(tx, matchId)
       return { ok: true as const }
     })
   }
@@ -806,6 +815,8 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
       const next = await runAITurns(tx, structuredClone(started), now)
       await saveMatch(tx, next)
       await enqueue(tx, turnNotifications(null, next, { actorId: me }), now)
+      await signalRoom(tx, matchId)
+      await signalMatch(tx, next)
       return { matchId }
     })
   }
@@ -821,6 +832,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
             : [],
         )
         await tx.delete(matches).where(eq(matches.id, matchId))
+        await signal(tx, others, [`room:${matchId}`, 'lobby'])
         await enqueue(
           tx,
           others.map((playerId) => ({
@@ -859,6 +871,7 @@ export function createLobbyService(db: Db, { notifier }: LobbyServiceOptions = {
           })
           .where(and(eq(matchSeats.matchId, matchId), eq(matchSeats.seat, seat.seat)))
       }
+      await signalRoom(tx, matchId, [me.id])
       return { dissolved: false }
     })
   }

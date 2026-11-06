@@ -8,20 +8,24 @@ import type {
   WaitingRoomData,
 } from '@dos/shared/lobby'
 import { api, ApiRequestError } from './api'
+import { useServerEventsConnected } from './events'
 
-/** Lobby: every 15 s and when the window gets focus again (no WebSocket yet) */
+/** Lobby without event stream: every 15 s and when the window gets focus again */
 export const LOBBY_POLL_MS = 15_000
-/** Waiting room: joins and ready states of the others */
+/** Lobby with event stream: only as a safety net (deadlines, missed signals) */
+export const LOBBY_POLL_CONNECTED_MS = 120_000
+/** Waiting room without event stream: joins and ready states of the others */
 export const ROOM_POLL_MS = 4_000
 
 export const lobbyKey = ['lobby'] as const
 export const roomKey = (matchId: string) => ['room', matchId] as const
 
 export function useLobby() {
+  const live = useServerEventsConnected()
   return useQuery({
     queryKey: lobbyKey,
     queryFn: () => api<LobbyData>('/lobby'),
-    refetchInterval: LOBBY_POLL_MS,
+    refetchInterval: live ? LOBBY_POLL_CONNECTED_MS : LOBBY_POLL_MS,
     refetchOnWindowFocus: true,
   })
 }
@@ -33,11 +37,13 @@ export function useYourTurnCount(): number {
 }
 
 export function useWaitingRoom(matchId: string) {
+  const live = useServerEventsConnected()
   return useQuery({
     queryKey: roomKey(matchId),
     queryFn: () => api<WaitingRoomData>(`/matches/${matchId}/room`),
     refetchInterval: (query) =>
-      query.state.error instanceof ApiRequestError && [403, 404].includes(query.state.error.status)
+      live ||
+      (query.state.error instanceof ApiRequestError && [403, 404].includes(query.state.error.status))
         ? false
         : ROOM_POLL_MS,
     retry: (count, error) =>

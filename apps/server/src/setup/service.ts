@@ -36,6 +36,7 @@ import {
 } from '../db/schema'
 import { columns, type Tx, writeRunningSeats } from '../matches/repository'
 import type { Notifier } from '../notifications/service'
+import { signal } from '../realtime/signals'
 
 /** German message for the client, sent as 422 (or `status`) with `code` */
 export class SetupError extends Error {
@@ -442,6 +443,7 @@ export function createSetupService(db: Db, accounts: AccountService, notifier?: 
           )
         }
         if (start) await launchMatch(tx, id, now)
+        await signal(tx, invited, ['lobby'])
         return { matchId: id, started: start }
       })
       .finally(() => notifier?.kick())

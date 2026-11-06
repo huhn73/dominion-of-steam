@@ -5,6 +5,7 @@ import type { Db } from '../db/client'
 import { matches } from '../db/schema'
 import { deadlineSoonNotification, turnNotifications } from '../notifications/events'
 import type { Notifier } from '../notifications/service'
+import { signalMatch } from '../realtime/signals'
 import { lockMatch, saveMatch } from '../matches/repository'
 import { finishTurn, runAITurns } from '../matches/service'
 
@@ -52,6 +53,7 @@ export function createSweeper(db: Db, notifier?: Notifier, options: SweeperOptio
         next = await runAITurns(tx, next, now)
         await saveMatch(tx, next)
         await notifier?.enqueue(tx, turnNotifications(state, next), now)
+        await signalMatch(tx, next)
         ended.push(id)
       })
     }

@@ -17,7 +17,8 @@
     "./notifications": "./src/notifications/index.ts",
     "./lobby/*": "./src/lobby/*.ts",
     "./profile": "./src/profile/index.ts",
-    "./profile/*": "./src/profile/*.ts"
+    "./profile/*": "./src/profile/*.ts",
+    "./realtime": "./src/realtime/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p .",

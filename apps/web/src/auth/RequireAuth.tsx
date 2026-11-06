@@ -4,6 +4,7 @@ import { useMe } from '../data/session'
 import { routes } from '../routes'
 import { ApplyPlayerSettings } from '../settings/ApplyPlayerSettings'
 import { SignedInAudio } from '../audio/AudioProvider'
+import { ServerEvents } from '../data/events'
 
 /** Route guard: without a logged-in player go to the login page and come back afterwards */
 export function RequireAuth() {
@@ -21,6 +22,7 @@ export function RequireAuth() {
       <>
         <ApplyPlayerSettings />
         <SignedInAudio />
+        <ServerEvents key={me.id} />
         <Outlet />
       </>
     )

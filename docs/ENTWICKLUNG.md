@@ -148,7 +148,7 @@ Geführte Mini-Partie „Tutorial: Erste Schritte“ (`agent-os/specs/2026-11-06
 
 ## Lobby & Mehrspieler ausprobieren
 
-Die Lobby (`/`) zeigt eigene Partien, Einladungen, offene und beendete Partien; sie fragt alle 15 Sekunden neu nach, der Warteraum alle 4 Sekunden. Zwei Konten gleichzeitig: ein normales und ein privates Fenster (oder zwei Browserprofile), z. B. Björn und Lena.
+Die Lobby (`/`) zeigt eigene Partien, Einladungen, offene und beendete Partien. Änderungen meldet der Server per Server-Sent Events (`GET /api/events`, `apps/server/src/realtime/`): Die Schreibstellen rufen in ihrer Transaktion `signal`/`signalMatch`/`signalRoom` auf (`pg_notify`, zugestellt erst beim Commit), der Hub hört per LISTEN mit und schickt den offenen Streams nur Themen (`lobby`, `match:<id>`, `room:<id>`); der Client (`apps/web/src/data/events.ts`) macht daraufhin die passenden Abfragen ungültig. Ist der Stream getrennt, fragen Lobby (15 s), Warteraum (4 s) und Partie (5 s beim Warten) wie früher regelmäßig nach; mit Stream nur die Lobby alle 2 Minuten. Zwei Konten gleichzeitig: ein normales und ein privates Fenster (oder zwei Browserprofile), z. B. Björn und Lena.
 
 1. Björn legt unter „Neue Partie“ eine Partie an und lädt im Schritt „Mitspieler“ Lena Hartmann ein (oder teilt den Einladungslink `/einladung/<code>`; wer ihn öffnet, besetzt einen freien Platz).
 2. Lena nimmt die Einladung in ihrer Lobby an, landet im Warteraum und meldet sich bereit.

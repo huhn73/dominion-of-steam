@@ -34,6 +34,8 @@ import { createTutorialService } from './tutorial/service'
 import { tutorialRoutes } from './routes/tutorial'
 import { devRoutes } from './routes/dev'
 import { matchRoutes } from './routes/matches'
+import { eventRoutes } from './routes/events'
+import { createHub } from './realtime/hub'
 import { requestOrigin, setupRoutes } from './routes/setup'
 import { loadSession, SESSION_COOKIE, setSessionCookie } from './session'
 
@@ -126,6 +128,10 @@ export function buildApp({
   app.decorate('notifier', notifier)
   app.decorate('sweeper', sweeper)
   app.decorate('profile', profile)
+  // Signals to the open event streams (Postgres LISTEN, only once a stream is open)
+  const realtime = createHub(db, log)
+  app.decorate('realtime', realtime)
+  app.addHook('onClose', () => realtime.close())
   // Load the session of API requests early (records activity) and renew the cookie when the
   // session was used again (sliding expiry); routes set or clear the cookie afterwards
   app.addHook('preHandler', async (req, reply) => {
@@ -182,6 +188,7 @@ export function buildApp({
     profileRoutes(scope, profile)
     adminRoutes(scope, admin)
     tutorialRoutes(scope, tutorial)
+    eventRoutes(scope, realtime)
     if (dev) devRoutes(scope, matches, setup)
   })
   // Uploaded avatars; every upload gets a new file name, so they can be cached for good
@@ -220,5 +227,6 @@ declare module 'fastify' {
     notifier: ReturnType<typeof createNotifier>
     sweeper: ReturnType<typeof createSweeper>
     profile: ReturnType<typeof createProfileService>
+    realtime: ReturnType<typeof createHub>
   }
 }

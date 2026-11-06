@@ -18,6 +18,7 @@ import { matches, matchSeats, players } from '../db/schema'
 import { isTutorialMatchId } from '../tutorial/service'
 import { turnNotifications } from '../notifications/events'
 import type { Notifier } from '../notifications/service'
+import { signalMatch } from '../realtime/signals'
 import {
   findMatch,
   insertMatch,
@@ -122,7 +123,10 @@ export function createMatchService(db: Db, { demoMapping, notifier }: MatchServi
               .update(players)
               .set({ tutorialCompletedAt: now })
               .where(eq(players.id, playerId))
-        } else await notifyChange(tx, state, next, playerId)
+        } else {
+          await notifyChange(tx, state, next, playerId)
+          await signalMatch(tx, next, { except: playerId })
+        }
         return { view: projectView(next, playerId), ...(combat ? { combat } : {}) }
       })
       .finally(() => notifier?.kick())
@@ -143,6 +147,7 @@ export function createMatchService(db: Db, { demoMapping, notifier }: MatchServi
         }
         await saveMatch(tx, next)
         await notifyChange(tx, state, next, playerId)
+        await signalMatch(tx, next, { except: playerId })
         return projectView(next, playerId)
       })
       .finally(() => notifier?.kick())
