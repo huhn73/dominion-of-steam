@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { versionOf } from '@dos/shared/news'
+import { serverPath } from './paths'
 
 /** Version from the root package.json, shown with „-dev“ when the image build set none */
 export const packageVersion = (
-  JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8')) as {
+  JSON.parse(readFileSync(serverPath('..', '..', 'package.json'), 'utf8')) as {
     version: string
   }
 ).version

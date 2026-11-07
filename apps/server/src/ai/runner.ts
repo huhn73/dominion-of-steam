@@ -58,9 +58,12 @@ export function createAiRunner(db: Db, opts: AiRunnerOptions = {}) {
   let closed = false
 
   function spawn() {
-    const worker = new Worker(new URL('./worker.ts', import.meta.url), {
-      execArgv: ['--import', import.meta.resolve('tsx')],
-    })
+    // From source the worker runs through tsx; in the bundle (dist/index.js) it is dist/worker.js
+    const worker = import.meta.url.endsWith('.ts')
+      ? new Worker(new URL('./worker.ts', import.meta.url), {
+          execArgv: ['--import', import.meta.resolve('tsx')],
+        })
+      : new Worker(new URL('./worker.js', import.meta.url))
     worker.unref()
     allWorkers.add(worker)
     worker.once('exit', () => allWorkers.delete(worker))

@@ -2,7 +2,6 @@ import { LocalizedError } from '../locale'
 import { randomBytes } from 'node:crypto'
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { and, desc, eq, gt, ne, or, sql } from 'drizzle-orm'
 import {
   EMAIL_VERIFY_TTL_HOURS,
@@ -24,6 +23,7 @@ import {
   validateDisplayName,
 } from '@dos/shared/profile'
 import type { Db } from '../db/client'
+import { serverPath } from '../paths'
 import {
   friendRequests,
   friendships,
@@ -51,8 +51,7 @@ import type { Mailer } from '../notifications/channels'
 export class ProfileError extends LocalizedError {}
 
 /** Default folder for uploads (avatars): `apps/server/uploads`; Docker sets `UPLOADS_DIR` */
-export const defaultUploadsDir = () =>
-  process.env.UPLOADS_DIR ?? fileURLToPath(new URL('../../uploads', import.meta.url))
+export const defaultUploadsDir = () => process.env.UPLOADS_DIR ?? serverPath('uploads')
 
 /** Public path of uploaded avatars (served from `<uploadsDir>/avatars`) */
 export const AVATAR_PATH = '/uploads/avatars/'

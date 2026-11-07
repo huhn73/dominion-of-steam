@@ -220,6 +220,10 @@ docker compose start app
 
 Uploads: `docker run --rm -v dominion_uploads:/data -v /opt/dominion/backups:/backup alpine tar xzf /backup/uploads-<datum>.tar.gz -C /data`.
 
+## Aufbau des Images
+
+Das `Dockerfile` baut in drei Stufen: `build` installiert alle Abhängigkeiten, baut die Web-App mit Vite und bündelt den Server mit esbuild (`apps/server/build.mjs`, `@dos/shared` steckt im Bündel); `deps` installiert nur die Produktions-Abhängigkeiten des Servers; `runtime` enthält davon nur `node_modules`, `apps/server/dist` (Server und KI-Worker), die Migrationen in `apps/server/drizzle`, die gebaute Web-App und die `package.json` für die Version. Kein pnpm, kein TypeScript, keine Test- und Build-Werkzeuge; gestartet wird mit `node dist/index.js`. Lokal lässt sich das Bündel mit `pnpm --filter @dos/server build` und `pnpm --filter @dos/server start:prod` prüfen, Pfade zu Migrationen und Uploads löst `apps/server/src/paths.ts` für Quelle und Bündel gleich auf.
+
 ## Versionen und Releases
 
 Die Version steht in `package.json` (alle Pakete tragen dieselbe) und wird mit einem Skript gesetzt:

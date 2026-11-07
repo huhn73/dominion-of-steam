@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "tsx watch --env-file=.env src/index.ts",
     "start": "tsx src/index.ts",
+    "build": "node build.mjs",
+    "start:prod": "node --enable-source-maps dist/index.js",
     "typecheck": "tsc -p .",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
@@ -31,6 +33,7 @@
     "@types/nodemailer": "^8.0.2",
     "@types/web-push": "^3.6.4",
     "drizzle-kit": "^0.31.11",
+    "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
