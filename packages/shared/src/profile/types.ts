@@ -51,8 +51,15 @@ export interface HistoryEntry {
   playerCount: number
   rounds: number
   factionId: string
-  /** Names of the other participants, AI marked with "(KI)" */
-  opponents: string[]
+  /** The other participants; humans with their player id (for the public profile) */
+  opponents: Opponent[]
+}
+
+export interface Opponent {
+  /** Player id of a human (also after a surrender); null for AI */
+  id: string | null
+  name: string
+  isAI: boolean
 }
 
 export interface ChannelToggle {

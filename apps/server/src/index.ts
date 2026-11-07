@@ -1,4 +1,5 @@
 import { buildApp, devToolsEnabled } from './app'
+import { backfillResults } from './profile/results'
 import { createDb, runMigrations } from './db/client'
 
 const port = Number(process.env.PORT ?? 3000)
@@ -18,6 +19,8 @@ if (devToolsEnabled()) {
   if (deleted) app.log.info(`${deleted} alte Solo-Partien ohne Konto gelöscht`)
 }
 await app.accounts.deleteExpiredSessions()
+const results = await backfillResults(db)
+if (results.length) app.log.info(`Ergebnisse nachgetragen für ${results.length} Spieler`)
 const fixed = await app.matches.backfillSeats()
 if (fixed) app.log.info(`Plätze für ${fixed} ältere Partien ergänzt`)
 // AIs that were on the move when the server stopped carry on

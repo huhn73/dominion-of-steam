@@ -200,6 +200,43 @@ export const sessions = pgTable(
   (t) => [index('sessions_player_idx').on(t.playerId)],
 )
 
+/**
+ * One row per player and finished or surrendered match (not the tutorial): the profile reads
+ * statistics, history and badges from here instead of the game states. Written with the state
+ * (`saveMatch` → `recordResults`), older matches are added at server start.
+ */
+export const playerResults = pgTable(
+  'player_results',
+  {
+    playerId: text('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    matchId: text('match_id')
+      .notNull()
+      .references(() => matches.id, { onDelete: 'cascade' }),
+    matchName: text('match_name').notNull(),
+    endedAt: timestamp('ended_at', { withTimezone: true }).notNull(),
+    result: text('result').$type<'victory' | 'defeat' | 'surrendered'>().notNull(),
+    placement: integer('placement').notNull(),
+    playerCount: integer('player_count').notNull(),
+    rounds: integer('rounds').notNull(),
+    factionId: text('faction_id').notNull(),
+    citiesCaptured: integer('cities_captured').notNull(),
+    unitsBuilt: integer('units_built').notNull(),
+    victoryCondition: text('victory_condition'),
+    endReason: text('end_reason'),
+    /** Won against at least one AI on „schwer“ */
+    beatHardAi: boolean('beat_hard_ai').notNull().default(false),
+    opponents: jsonb('opponents')
+      .$type<{ id: string | null; name: string; isAI: boolean }[]>()
+      .notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.playerId, t.matchId] }),
+    index('player_results_history').on(t.playerId, t.endedAt, t.matchId),
+  ],
+)
+
 /** Friendships, stored in both directions */
 export const friendships = pgTable(
   'friendships',

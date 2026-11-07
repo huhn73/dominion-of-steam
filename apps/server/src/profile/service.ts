@@ -3,19 +3,19 @@ import { randomBytes } from 'node:crypto'
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { and, eq, gt, ne, notLike, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, ne, sql } from 'drizzle-orm'
 import {
   EMAIL_VERIFY_TTL_HOURS,
   normalizeEmail,
   validateEmail,
   validatePassword,
 } from '@dos/shared/account'
-import type { ParticipantState } from '@dos/shared/engine'
 import {
   HISTORY_PAGE_MAX,
   HISTORY_PAGE_SIZE,
   type FactionStat,
   type HistoryEntry,
+  type MatchResult,
   type ProfileData,
   type Settings,
   type SettingsData,
@@ -23,9 +23,9 @@ import {
   validateDisplayName,
 } from '@dos/shared/profile'
 import type { Db } from '../db/client'
-import { matches, matchSeats, players, sessions } from '../db/schema'
+import { matches, matchSeats, playerResults, players, sessions } from '../db/schema'
 import { AvatarImageError, renderAvatar, type AvatarCrop } from './avatarImage'
-import { isTutorialMatchId, TUTORIAL_LIKE, tutorialMatchId } from '../tutorial/service'
+import { isTutorialMatchId, tutorialMatchId } from '../tutorial/service'
 import { SESSION_TTL_MS, type Player } from '../auth/accounts'
 import {
   sendEmailChangeConfirmation,
@@ -82,71 +82,13 @@ export function sniffImage(buf: Buffer): { type: string; ext: string } | null {
 // Bilanz und Verlauf
 // =============================================================================
 
-/** One finished (or surrendered) match from the player's point of view */
-interface Played {
-  entry: HistoryEntry
-  citiesCaptured: number
-  unitsBuilt: number
-}
-
-interface MatchSummary {
-  id: string
-  name: string
-  status: 'running' | 'finished'
-  round: number
-  endedAt: string | null
-  winnerId: string | null
-  participants: ParticipantState[]
-}
-
-/** Opponent names as the history shows them: AI with "(KI)", surrendered players by name */
-const opponentName = (q: ParticipantState) =>
-  q.surrender ? q.surrender.name : q.isAI ? `${q.name} (KI)` : q.name
-
-/** The match from the player's view; null while the player still plays it */
-export function playedMatch(m: MatchSummary, me: string): Played | null {
-  const p = m.participants.find((x) => x.id === me)
-  if (!p) return null
-  const opponents = m.participants.filter((q) => q !== p).map(opponentName)
-  const base = {
-    id: m.id,
-    name: m.name,
-    playerCount: m.participants.length,
-    factionId: p.factionId,
-    opponents,
-  }
-  if (p.surrender)
-    return {
-      entry: {
-        ...base,
-        endedAt: p.surrender.at,
-        result: 'surrendered',
-        placement: p.surrender.placement,
-        rounds: p.surrender.round,
-      },
-      citiesCaptured: p.surrender.citiesCaptured ?? p.citiesCaptured ?? 0,
-      unitsBuilt: p.surrender.unitsBuilt ?? p.unitsBuilt ?? 0,
-    }
-  if (m.status !== 'finished') return null
-  return {
-    entry: {
-      ...base,
-      endedAt: m.endedAt ?? new Date(0).toISOString(),
-      result: m.winnerId === me ? 'victory' : 'defeat',
-      placement: p.placement ?? m.participants.length,
-      rounds: m.round,
-    },
-    citiesCaptured: p.citiesCaptured ?? 0,
-    unitsBuilt: p.unitsBuilt ?? 0,
-  }
-}
-
-/** Newest first; same end time: by id, so the cursor is unambiguous */
-const newestFirst = (a: HistoryEntry, b: HistoryEntry) =>
-  b.endedAt.localeCompare(a.endedAt) || b.id.localeCompare(a.id)
-
 const encodeCursor = (e: HistoryEntry) =>
   Buffer.from(JSON.stringify([e.endedAt, e.id])).toString('base64url')
+
+export interface HistoryFilter {
+  result?: MatchResult | null
+  factionId?: string | null
+}
 
 function decodeCursor(cursor: string): [string, string] | null {
   try {
@@ -182,82 +124,79 @@ export function createProfileService(
   }
 
   /**
-   * All matches the player finished or surrendered. Only the parts of the stored state needed
-   * here are read (not the map), straight from the jsonb column.
+   * Profile of `playerId` from the stored results: statistics over all matches, one page of the
+   * history (newest first, optionally filtered by result and faction).
    */
-  async function playedMatches(me: string): Promise<Played[]> {
-    const rows = await db
-      .select({
-        id: matches.id,
-        name: matches.name,
-        status: matches.status,
-        round: matches.round,
-        participants: sql<ParticipantState[]>`${matches.state}->'participants'`,
-        winnerId: sql<string | null>`${matches.state}->>'winnerId'`,
-        endedAt: sql<string | null>`${matches.state}->>'endedAt'`,
-        participantId: matchSeats.participantId,
-      })
-      .from(matchSeats)
-      .innerJoin(matches, eq(matches.id, matchSeats.matchId))
-      .where(
-        and(
-          eq(matchSeats.playerId, me),
-          ne(matches.status, 'waiting'),
-          notLike(matches.id, TUTORIAL_LIKE),
-        ),
-      )
-    const played: Played[] = []
-    for (const r of rows) {
-      if (!r.participants || r.status === 'waiting') continue
-      const p = playedMatch(
-        {
-          id: r.id,
-          name: r.name,
-          status: r.status,
-          round: r.round,
-          endedAt: r.endedAt,
-          winnerId: r.winnerId,
-          participants: r.participants,
-        },
-        r.participantId ?? me,
-      )
-      if (p) played.push(p)
-    }
-    return played
-  }
-
   async function getProfile(
-    me: string,
-    { limit = HISTORY_PAGE_SIZE, cursor }: { limit?: number; cursor?: string | null } = {},
+    playerId: string,
+    {
+      limit = HISTORY_PAGE_SIZE,
+      cursor,
+      result,
+      factionId,
+    }: { limit?: number; cursor?: string | null } & HistoryFilter = {},
   ): Promise<ProfileData> {
-    const player = await loadPlayer(me)
-    const played = await playedMatches(me)
-    const history = played.map((p) => p.entry).sort(newestFirst)
+    const player = await loadPlayer(playerId)
+    const mine = eq(playerResults.playerId, playerId)
 
+    const [totals] = await db
+      .select({
+        gamesPlayed: sql<number>`count(*)::int`,
+        wins: sql<number>`count(*) filter (where ${playerResults.result} = 'victory')::int`,
+        citiesCaptured: sql<number>`coalesce(sum(${playerResults.citiesCaptured}), 0)::int`,
+        unitsBuilt: sql<number>`coalesce(sum(${playerResults.unitsBuilt}), 0)::int`,
+        longestGameRounds: sql<number>`coalesce(max(${playerResults.rounds}), 0)::int`,
+      })
+      .from(playerResults)
+      .where(mine)
+    const perFaction = await db
+      .select({
+        factionId: playerResults.factionId,
+        gamesPlayed: sql<number>`count(*)::int`,
+        wins: sql<number>`count(*) filter (where ${playerResults.result} = 'victory')::int`,
+      })
+      .from(playerResults)
+      .where(mine)
+      .groupBy(playerResults.factionId)
     const factionStats: FactionStat[] = LOBBY_FACTIONS.map((f) => {
-      const games = history.filter((e) => e.factionId === f.id)
-      return {
-        factionId: f.id,
-        gamesPlayed: games.length,
-        wins: games.filter((e) => e.result === 'victory').length,
-      }
+      const s = perFaction.find((x) => x.factionId === f.id)
+      return { factionId: f.id, gamesPlayed: s?.gamesPlayed ?? 0, wins: s?.wins ?? 0 }
     })
     // Most played faction; a tie goes to more wins, then to the order of the compendium
     const favorite = [...factionStats]
       .filter((s) => s.gamesPlayed > 0)
       .sort((a, b) => b.gamesPlayed - a.gamesPlayed || b.wins - a.wins)[0]
 
-    let start = 0
+    const conditions = [mine]
+    if (result) conditions.push(eq(playerResults.result, result))
+    if (factionId) conditions.push(eq(playerResults.factionId, factionId))
     if (cursor) {
       const after = decodeCursor(cursor)
       if (!after) throw new ProfileError(422, 'INVALID_CURSOR', { key: 'errors.invalidCursor' })
       const [endedAt, id] = after
-      start = history.findIndex((e) => newestFirst(e, { endedAt, id } as HistoryEntry) > 0)
-      if (start < 0) start = history.length
+      conditions.push(
+        sql`(${playerResults.endedAt}, ${playerResults.matchId}) < (${endedAt}::timestamptz, ${id}::text)`,
+      )
     }
     const size = Math.min(Math.max(1, Math.floor(limit) || HISTORY_PAGE_SIZE), HISTORY_PAGE_MAX)
-    const page = history.slice(start, start + size)
-    const hasMore = start + size < history.length
+    const rows = await db
+      .select()
+      .from(playerResults)
+      .where(and(...conditions))
+      .orderBy(desc(playerResults.endedAt), desc(playerResults.matchId))
+      .limit(size + 1)
+    const hasMore = rows.length > size
+    const page: HistoryEntry[] = rows.slice(0, size).map((r) => ({
+      id: r.matchId,
+      name: r.matchName,
+      endedAt: r.endedAt.toISOString(),
+      result: r.result,
+      placement: r.placement,
+      playerCount: r.playerCount,
+      rounds: r.rounds,
+      factionId: r.factionId,
+      opponents: r.opponents,
+    }))
 
     return {
       profile: {
@@ -267,13 +206,7 @@ export function createProfileService(
         memberSince: player.createdAt.toISOString(),
         favoriteFactionId: favorite?.factionId ?? null,
       },
-      stats: {
-        gamesPlayed: history.length,
-        wins: history.filter((e) => e.result === 'victory').length,
-        citiesCaptured: played.reduce((n, p) => n + p.citiesCaptured, 0),
-        unitsBuilt: played.reduce((n, p) => n + p.unitsBuilt, 0),
-        longestGameRounds: history.reduce((n, e) => Math.max(n, e.rounds), 0),
-      },
+      stats: totals!,
       factionStats,
       history: page,
       hasMoreHistory: hasMore,

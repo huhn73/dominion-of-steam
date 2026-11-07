@@ -53,7 +53,7 @@ const entry = (id: string, patch: Partial<HistoryEntry> = {}): HistoryEntry => (
   playerCount: 2,
   rounds: 48,
   factionId: 'eisenbund',
-  opponents: ['Admiral Kessler (KI)'],
+  opponents: [{ id: null, name: 'Admiral Kessler', isAI: true }],
   ...patch,
 })
 
@@ -76,7 +76,10 @@ function profileData(patch: Partial<ProfileData> = {}): ProfileData {
     history: [
       entry('h1', {
         name: 'Rußige Pfade',
-        opponents: ['Lena Hartmann', 'Zechenmeister Brandt (KI)'],
+        opponents: [
+          { id: 'p2', name: 'Lena Hartmann', isAI: false },
+          { id: null, name: 'Zechenmeister Brandt', isAI: true },
+        ],
         playerCount: 3,
       }),
       entry('h2', {

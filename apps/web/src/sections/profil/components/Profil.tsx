@@ -311,7 +311,9 @@ export function Profil({
                           date: formatDate(locale, h.endedAt),
                         })}
                       </p>
-                      <p className="truncate text-xs text-stone-500">{t('profile.opponents', { names: h.opponents.join(', ') })}</p>
+                      <p className="truncate text-xs text-stone-500">{t('profile.opponents', {
+                          names: h.opponents.map((o) => (o.isAI ? t('lobby.card.aiName', { name: o.name }) : o.name)).join(', '),
+                        })}</p>
                     </div>
                     <span className={`shrink-0 rotate-[-6deg] rounded border-[3px] border-double px-2 py-1 font-['Big_Shoulders_Display'] text-sm font-black uppercase tracking-[0.2em] ${stamp.className}`}>
                       {t(stamp.label)}

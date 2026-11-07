@@ -1,4 +1,5 @@
 import { mkdtemp, readdir, rm, utimes, writeFile } from 'node:fs/promises'
+import { backfillResults } from './results'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import sharp from 'sharp'
@@ -18,7 +19,15 @@ import type { MatchDraft, SetupData } from '@dos/shared/setup'
 import { buildApp } from '../app'
 import { ensureDevAccounts } from '../auth/devAccounts'
 import { createDb, runMigrations } from '../db/client'
-import { accountTokens, matches, matchSeats, notifications, players, sessions } from '../db/schema'
+import {
+  accountTokens,
+  matches,
+  matchSeats,
+  notifications,
+  playerResults,
+  players,
+  sessions,
+} from '../db/schema'
 import { insertMatch } from '../matches/repository'
 import type { MailMessage } from '../notifications/channels'
 import { SESSION_COOKIE } from '../session'
@@ -285,7 +294,10 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
       endedAt: '2026-10-14T10:00:00.000Z',
       playerCount: 3,
       factionId: 'eisenbund',
-      opponents: [B.name, 'Admiral Kessler (KI)'],
+      opponents: [
+        { id: B.id, name: B.name, isAI: false },
+        { id: null, name: 'Admiral Kessler', isAI: true },
+      ],
     })
 
     // Seiten zu je 2 Einträgen
@@ -300,7 +312,37 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     // Der Gegner sieht den Aufgebenden mit seinem Namen; die laufende Partie zählt bei ihm nicht
     const other = await profileOf(b)
     expect(other.history.map((h) => [h.id, h.result])).toEqual([['p-sieg', 'defeat']])
-    expect(other.history[0]!.opponents).toEqual([A.name, 'Admiral Kessler (KI)'])
+    expect(other.history[0]!.opponents).toEqual([
+      { id: A.id, name: A.name, isAI: false },
+      { id: null, name: 'Admiral Kessler', isAI: true },
+    ])
+  })
+
+  it('filtert den Verlauf auf dem Server, auch über mehrere Seiten, und trägt alte Partien nach', async () => {
+    const a = await newPlayer('Filter')
+    const A = { id: a.me.id, name: a.name }
+    for (let i = 0; i < 5; i++)
+      await playedMatch(`f-${i}`, [{ ...A, factionId: i % 2 ? 'aurelia' : 'eisenbund' }], {
+        endedAt: `2026-10-0${i + 1}T10:00:00Z`,
+        winner: i < 3 ? A.id : 'ai1',
+      })
+    const wins = await profileOf(a, '?result=victory&limit=2')
+    expect(wins.history.map((h) => h.id)).toEqual(['f-2', 'f-1'])
+    const more = await profileOf(a, `?result=victory&limit=2&cursor=${wins.nextCursor}`)
+    expect(more.history.map((h) => h.id)).toEqual(['f-0'])
+    expect(more.hasMoreHistory).toBe(false)
+    expect((await profileOf(a, '?faction=aurelia')).history.map((h) => h.id)).toEqual([
+      'f-3',
+      'f-1',
+    ])
+    // Bilanz zählt immer alle Partien
+    expect(wins.stats).toMatchObject({ gamesPlayed: 5, wins: 3 })
+
+    // Ohne gespeicherte Ergebnisse (vor der Vorberechnung) trägt der Serverstart sie nach
+    await db.delete(playerResults).where(eq(playerResults.playerId, A.id))
+    expect((await profileOf(a)).stats.gamesPlayed).toBe(0)
+    expect(await backfillResults(db)).toContain(A.id)
+    expect((await profileOf(a)).stats.gamesPlayed).toBe(5)
   })
 
   it('Anzeigename: 3–24 Zeichen, eindeutig ohne Groß-/Kleinschreibung, danach in /api/me', async () => {
@@ -671,7 +713,9 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     })
     // Beendete Partie: Name bleibt im Spielstand, Björns Verlauf zeigt ihn weiter
     const bjoernProfile = await profileOf(bjoern)
-    expect(bjoernProfile.history.find((h) => h.id === 'p-alt')!.opponents).toContain(neu.name)
+    expect(
+      bjoernProfile.history.find((h) => h.id === 'p-alt')!.opponents.map((o) => o.name),
+    ).toContain(neu.name)
     // Warteräume: eigener aufgelöst, in Björns ist der Platz wieder frei
     expect(await db.select().from(matches).where(eq(matches.id, ownId))).toEqual([])
     const waitingSeats = (

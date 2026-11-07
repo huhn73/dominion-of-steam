@@ -6,6 +6,7 @@ import {
   normalizeState,
 } from '@dos/shared/engine'
 import type { Db } from '../db/client'
+import { recordResults } from '../profile/results'
 import { matches, matchSeats, players, turns } from '../db/schema'
 
 export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0]
@@ -74,11 +75,21 @@ export async function writeRunningSeats(db: Db | Tx, state: GameState) {
   )
 }
 
+/** Players who got a new result with the last saves (badges are checked for them) */
+export type ResultListener = (tx: Tx, playerIds: string[]) => Promise<void>
+let onResults: ResultListener | null = null
+export const setResultListener = (listener: ResultListener | null) => (onResults = listener)
+
+/** Save a running or finished match; results of finished or surrendered players are stored too */
 export async function saveMatch(tx: Tx, state: GameState) {
   await tx
     .update(matches)
     .set({ ...columns(state), version: sql`${matches.version} + 1`, updatedAt: new Date() })
     .where(eq(matches.id, state.id))
+  if (state.status === 'finished' || state.participants.some((p) => p.surrender)) {
+    const added = await recordResults(tx, state)
+    if (added.length && onResults) await onResults(tx, added)
+  }
 }
 
 /** Insert or replace a running match (demo); its seats follow the participants */
@@ -92,6 +103,7 @@ export async function insertMatch(db: Db, state: GameState) {
     })
   await db.delete(turns).where(eq(turns.matchId, state.id))
   await writeRunningSeats(db, state)
+  await recordResults(db, state)
 }
 
 export async function recordTurn(

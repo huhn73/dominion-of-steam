@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { API_PREFIX } from '@dos/shared'
-import { AVATAR_MAX_BYTES, validateSettings } from '@dos/shared/profile'
+import { AVATAR_MAX_BYTES, type MatchResult, validateSettings } from '@dos/shared/profile'
 import { AccountError, toMe } from '../auth/accounts'
 import { LobbyError } from '../lobby/service'
 import { ProfileError, type ProfileService } from '../profile/service'
@@ -36,6 +36,19 @@ const AVATAR_TOO_LARGE = {
   params: { mb: AVATAR_MAX_BYTES / 1024 / 1024 },
 } as const
 
+const RESULTS = new Set(['victory', 'defeat', 'surrendered'])
+
+/** Paging and filters of the history: `limit`, `cursor`, `result`, `faction` */
+export function historyQuery(query: unknown) {
+  const q = (query ?? {}) as Record<string, string | undefined>
+  return {
+    limit: q.limit ? Number(q.limit) : undefined,
+    cursor: q.cursor || null,
+    result: q.result && RESULTS.has(q.result) ? (q.result as MatchResult) : null,
+    factionId: q.faction || null,
+  }
+}
+
 /** Profile, settings and account management of the logged-in player */
 export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
   const session = async (req: FastifyRequest) => (await loadSession(req))!
@@ -60,12 +73,8 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
     `${API_PREFIX}/profile`,
     auth,
     run(async (req, reply) => {
-      const q = req.query as { limit?: string; cursor?: string }
       reply.header('Cache-Control', 'no-store')
-      return profile.getProfile((await session(req)).player.id, {
-        limit: q.limit ? Number(q.limit) : undefined,
-        cursor: q.cursor || null,
-      })
+      return profile.getProfile((await session(req)).player.id, historyQuery(req.query))
     }),
   )
 
