@@ -53,9 +53,7 @@ export function LobbyPage() {
     content = (
       <PlaceholderPage title={t('lobby.title')}>
         <p role="alert">
-          {error instanceof ApiRequestError
-            ? error.message
-            : t('lobby.loadFailed')}
+          {error instanceof ApiRequestError ? error.message : t('lobby.loadFailed')}
         </p>
         <button
           type="button"
@@ -78,30 +76,26 @@ export function LobbyPage() {
         onRemind={(id, participantId) =>
           run(actions.remind(id, participantId), t('lobby.reminderSent'))
         }
-        onSurrender={(id) =>
-          run(actions.surrender(id), t('shell.surrendered'))
-        }
+        onSurrender={(id) => run(actions.surrender(id), t('shell.surrendered'))}
         // Der Dialog öffnet sich in der Komponente; frische Daten schaden nicht
         onShowDetails={() => void refetch()}
         onAcceptInvitation={(id) => run(actions.acceptInvitation(id), toRoom)}
-        onDeclineInvitation={(id) => run(actions.declineInvitation(id), t('lobby.invitationDeclined'))}
+        onDeclineInvitation={(id) =>
+          run(actions.declineInvitation(id), t('lobby.invitationDeclined'))
+        }
         onJoinOpenMatch={(id) => run(actions.joinOpenMatch(id), toRoom)}
         onEnablePush={() =>
           void push
             .enable()
             .then((result) => result === 'default' && toast.info(t(PUSH_NO_PROMPT_HINT)))
-            .catch((e: unknown) =>
-              toast.error(e, t('lobby.pushFailed')),
-            )
+            .catch((e: unknown) => toast.error(e, t('lobby.pushFailed')))
         }
         onDismissPushBanner={banner.dismiss}
         onNewMatch={() => void navigate(routes.newMatch)}
         onStartTutorial={(restart) =>
           run(actions.startTutorial(restart), ({ matchId }) => void navigate(routes.match(matchId)))
         }
-        onDismissTutorial={() =>
-          run(actions.dismissTutorial(), t('lobby.tutorialLater'))
-        }
+        onDismissTutorial={() => run(actions.dismissTutorial(), t('lobby.tutorialLater'))}
       />
     )
 

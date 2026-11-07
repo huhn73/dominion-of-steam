@@ -45,9 +45,7 @@ export function InvitePage() {
   return (
     <PlaceholderPage title={t(TITLES[code] ?? 'lobby.invite.title')}>
       <p role="alert">
-        {error instanceof ApiRequestError
-          ? error.message
-          : t('lobby.invite.failed')}
+        {error instanceof ApiRequestError ? error.message : t('lobby.invite.failed')}
       </p>
       <p className="mt-4">
         <Link

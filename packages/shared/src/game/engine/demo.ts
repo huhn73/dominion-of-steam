@@ -2,12 +2,7 @@ import { bitsFromKeys, emptyBits } from '../bits'
 import { encodeTerrain } from '../mapcodec'
 import demoData from '../demo-data.json'
 import type { City, GameEvent, Match, Participant, ReplayAction, Tile, Unit } from '../types'
-import {
-  asText,
-  defaultRules,
-  type GameState,
-  msg,
-} from './state'
+import { asText, defaultRules, type GameState, msg } from './state'
 import { updateKnowledge } from './visibility'
 
 interface DemoData {

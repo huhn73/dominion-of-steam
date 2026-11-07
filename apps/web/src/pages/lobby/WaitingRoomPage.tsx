@@ -41,7 +41,9 @@ export function WaitingRoomPage() {
   if (isPending || started)
     return (
       <PlaceholderPage title={t('lobby.room.title')}>
-        <p className="animate-pulse">{started ? t('lobby.room.starting') : t('lobby.room.loading')}</p>
+        <p className="animate-pulse">
+          {started ? t('lobby.room.starting') : t('lobby.room.loading')}
+        </p>
       </PlaceholderPage>
     )
   if (error || !data) {

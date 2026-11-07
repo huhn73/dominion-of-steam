@@ -159,19 +159,14 @@ export function participantsFor(
     let personality = seat.kind === 'ai' ? aiPersonality(seat.aiPersonalityId) : undefined
     let difficulty = seat.kind === 'ai' ? (seat.aiDifficulty ?? 'normal') : 'normal'
     if (!personality) {
-      if (!fill)
-        throw new SetupError(
-          'SEATS_OPEN',
-          { key: 'errors.seatsOpen' },
-          409,
-        )
+      if (!fill) throw new SetupError('SEATS_OPEN', { key: 'errors.seatsOpen' }, 409)
       personality =
         pickPersonality(usedPersonalities, usedFactions, rules.allowDuplicateFactions) ?? undefined
       if (!personality)
-        throw new SetupError(
-          'NO_AI_AVAILABLE',
-          { key: 'errors.noAiForSeat', params: { seat: seat.seat + 1 } },
-        )
+        throw new SetupError('NO_AI_AVAILABLE', {
+          key: 'errors.noAiForSeat',
+          params: { seat: seat.seat + 1 },
+        })
       difficulty = 'normal'
     }
     usedPersonalities.add(personality.id)
@@ -339,10 +334,7 @@ export function createSetupService(db: Db, accounts: AccountService, notifier?: 
     // Same seed and settings give the same world; check early that all capitals fit
     const world = generateWorld(engineMap(draft.map), draft.seats.length)
     if (world.capitals.length < draft.seats.length)
-      throw new SetupError(
-        'MAP_TOO_SMALL',
-        { key: 'errors.mapTooSmall' },
-      )
+      throw new SetupError('MAP_TOO_SMALL', { key: 'errors.mapTooSmall' })
     const start = !waitsForHuman(draft)
 
     return db
@@ -361,11 +353,7 @@ export function createSetupService(db: Db, accounts: AccountService, notifier?: 
             )
             .for('update')
           if (!res)
-            throw new SetupError(
-              'RESERVATION_EXPIRED',
-              { key: 'errors.reservationUsed' },
-              409,
-            )
+            throw new SetupError('RESERVATION_EXPIRED', { key: 'errors.reservationUsed' }, 409)
           id = res.id
           token = res.inviteToken
           await tx.delete(setupReservations).where(eq(setupReservations.id, res.id))

@@ -3,14 +3,7 @@ import {
   CAPITULATION_LEADER_CITIES,
   CAPITULATION_MIN_ROUND,
 } from '../rules'
-import {
-  addEvent,
-  type GameState,
-  msg,
-  nextSeq,
-  participant,
-  type ParticipantState,
-} from './state'
+import { addEvent, type GameState, msg, nextSeq, participant, type ParticipantState } from './state'
 import { finishMatch, leaderByScore, ownCityOf } from './victory'
 
 /**
@@ -98,12 +91,6 @@ export function capitulate(state: GameState, participantId: string) {
   for (const q of state.participants) {
     if (q.status !== 'active') continue
     const at = ownCityOf(state, q) ?? { col: 0, row: 0 }
-    addEvent(
-      state,
-      q.id,
-      'capitulation',
-      at,
-      msg('events.capitulation', { name: p.name }),
-    )
+    addEvent(state, q.id, 'capitulation', at, msg('events.capitulation', { name: p.name }))
   }
 }

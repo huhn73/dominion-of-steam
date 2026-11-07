@@ -1,13 +1,7 @@
 import type { Message } from '../../i18n'
 import type { Dominance, EndReason } from '../types'
 import { DOMINANCE_SHARE, DOMINANCE_TURNS } from '../rules'
-import {
-  addEvent,
-  type GameState,
-  msg,
-  nextSeq,
-  type ParticipantState,
-} from './state'
+import { addEvent, type GameState, msg, nextSeq, type ParticipantState } from './state'
 
 /** Points for the round limit: 3 per city plus 1 per unit (same formula as `participantScore`) */
 export function score(state: GameState, participantId: string) {

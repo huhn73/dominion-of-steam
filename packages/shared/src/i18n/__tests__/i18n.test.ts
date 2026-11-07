@@ -43,6 +43,40 @@ describe('dictionaries', () => {
     const names = (s: unknown) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort()
     for (const [key, text] of de) expect(names(en.get(key)), key).toEqual(names(text))
   })
+  it('English differs from German except for words both languages share', () => {
+    const SAME = new Set([
+      'Dominion of Steam',
+      'Deutsch',
+      'English',
+      'Live',
+      'Async',
+      'Name',
+      'Status',
+      'Tutorial',
+      'Neutral',
+      'Normal',
+      'Land',
+      'Lobby',
+      'Online',
+      'Offline',
+      'Zoom',
+      'Push',
+      'System',
+      'Version {version}',
+    ])
+    // Texts without words (placeholders, numbers, signs) may be equal
+    const wordless = (s: string) => !/[A-Za-zÄÖÜäöüß]/.test(s.replace(/\{\w+\}/g, ''))
+    for (const [key, text] of de)
+      if (
+        en.get(key) === text &&
+        !wordless(String(text)) &&
+        !SAME.has(String(text)) &&
+        // Names from the compendium are checked there (Aurelia stays Aurelia)
+        !/^(units|factions)\./.test(key)
+      )
+        expect.fail(`${key} is not translated: ${String(text)}`)
+  })
+
   it('has the same type for both languages', () => {
     const check: Dictionary = dictionary('en')
     expect(check).toBeDefined()

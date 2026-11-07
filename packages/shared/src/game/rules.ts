@@ -60,7 +60,9 @@ export function canAttack(
 }
 
 /** Short description of the targets a unit type may attack, for the compendium */
-export function attackTargetsDescription(type: Pick<UnitType, 'id' | 'domain' | 'strength'>): MessageKey {
+export function attackTargetsDescription(
+  type: Pick<UnitType, 'id' | 'domain' | 'strength'>,
+): MessageKey {
   if (type.strength <= 0) return 'game.targets.none'
   switch (type.domain) {
     case 'air':

@@ -145,7 +145,13 @@ export function startTurn(state: GameState, now = new Date()) {
       needsOrders: true,
     })
     p.unitsBuilt += 1
-    addEvent(state, p.id, 'unitBuilt', city, msg('events.built', { city: city.name, unit: unitName(type.id) }))
+    addEvent(
+      state,
+      p.id,
+      'unitBuilt',
+      city,
+      msg('events.built', { city: city.name, unit: unitName(type.id) }),
+    )
     city.production = {
       unitTypeId: type.id,
       progress: 0,

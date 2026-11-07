@@ -105,8 +105,7 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
       }
       if (data.length === 0)
         return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.imageMissing' })
-      if (crop === null)
-        return sendError(reply, 422, 'INVALID_CROP', { key: 'errors.invalidCrop' })
+      if (crop === null) return sendError(reply, 422, 'INVALID_CROP', { key: 'errors.invalidCrop' })
       return toMe(await profile.setAvatar(player.id, data, crop))
     }),
   )

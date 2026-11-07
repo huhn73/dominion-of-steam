@@ -135,7 +135,7 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
         {/* Units */}
         <section aria-labelledby="units-heading" className="lg:col-span-2">
           <h2 id="units-heading" className="mb-4 border-b-4 border-double border-stone-300 pb-3 font-['Big_Shoulders_Display'] text-3xl font-black uppercase tracking-wide dark:border-stone-700">
-            Einheiten
+            {t('compendium.units')}
           </h2>
 
           {special ? (

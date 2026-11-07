@@ -50,7 +50,9 @@ export function GameMenu({
         <div className="py-1">
           <button type="button" role="menuitem" disabled className={itemClass}>
             <Info className="size-4" /> {t('shell.matchDetails')}
-            <span className="ml-auto font-['IBM_Plex_Mono'] text-[10px] uppercase">{t('shell.comingSoon')}</span>
+            <span className="ml-auto font-['IBM_Plex_Mono'] text-[10px] uppercase">
+              {t('shell.comingSoon')}
+            </span>
           </button>
           <button
             type="button"

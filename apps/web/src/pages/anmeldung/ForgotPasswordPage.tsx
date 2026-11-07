@@ -57,9 +57,7 @@ export function ForgotPasswordPage() {
         </p>
       ) : (
         <form noValidate onSubmit={submit} className="space-y-5">
-          <p className="text-sm text-stone-600 dark:text-stone-400">
-            {t('auth.forgot.intro')}
-          </p>
+          <p className="text-sm text-stone-600 dark:text-stone-400">{t('auth.forgot.intro')}</p>
           <FormError message={serverError} />
           <Field
             id="email"
@@ -75,7 +73,11 @@ export function ForgotPasswordPage() {
             }}
             error={fieldError}
           />
-          <SubmitButton busy={busy} label={t('auth.forgot.submit')} busyLabel={t('auth.forgot.busy')} />
+          <SubmitButton
+            busy={busy}
+            label={t('auth.forgot.submit')}
+            busyLabel={t('auth.forgot.busy')}
+          />
         </form>
       )}
     </AuthLayout>

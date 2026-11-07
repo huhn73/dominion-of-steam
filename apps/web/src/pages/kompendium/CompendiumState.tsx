@@ -18,11 +18,7 @@ export function CompendiumError({ error, onRetry }: { error: unknown; onRetry: (
   const t = useT()
   return (
     <PlaceholderPage title={t('compendium.unavailable')}>
-      <p>
-        {error instanceof ApiRequestError
-          ? error.message
-          : t('compendium.loadFailed')}
-      </p>
+      <p>{error instanceof ApiRequestError ? error.message : t('compendium.loadFailed')}</p>
       <button
         type="button"
         onClick={onRetry}

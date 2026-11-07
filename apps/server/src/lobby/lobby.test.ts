@@ -419,7 +419,13 @@ describe.skipIf(!url)('Lobby & Multiplayer (Datenbank)', () => {
         victoryCondition: { key: 'setup.victory.elimination.label' },
         allowDuplicateFactions: false,
       },
-      map: { sizeLabel: { key: 'setup.size.small' }, width: 20, height: 20, landShare: 50, seed: 'NORD-4242' },
+      map: {
+        sizeLabel: { key: 'setup.size.small' },
+        width: 20,
+        height: 20,
+        landShare: 50,
+        seed: 'NORD-4242',
+      },
     })
     expect(Date.parse(mine.turnDeadline!)).toBeGreaterThan(Date.now() + 23 * HOUR)
     expect(mine.participants.map((p) => [p.name, p.isYou, p.isAI, p.status])).toEqual([

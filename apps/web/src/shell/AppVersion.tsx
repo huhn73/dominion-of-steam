@@ -43,7 +43,11 @@ export function AppVersion({ version = appVersion() }: { version?: Version }) {
       {text}
     </a>
   ) : (
-    <span title={details(locale, version)} aria-label={`Version ${version.label}`} className={className}>
+    <span
+      title={details(locale, version)}
+      aria-label={`Version ${version.label}`}
+      className={className}
+    >
       {text}
     </span>
   )

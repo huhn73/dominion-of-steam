@@ -58,10 +58,8 @@ const isUniqueViolation = (err: unknown, constraint: string) => {
 }
 
 const nameTaken = () => new ProfileError(409, 'NAME_TAKEN', { key: 'errors.nameTaken' })
-const emailTaken = () =>
-  new ProfileError(409, 'EMAIL_TAKEN', { key: 'errors.emailTaken' })
-const wrongPassword = () =>
-  new ProfileError(403, 'WRONG_PASSWORD', { key: 'errors.wrongPassword' })
+const emailTaken = () => new ProfileError(409, 'EMAIL_TAKEN', { key: 'errors.emailTaken' })
+const wrongPassword = () => new ProfileError(403, 'WRONG_PASSWORD', { key: 'errors.wrongPassword' })
 
 /** Image type by its first bytes (the declared type of an upload is not trusted) */
 export function sniffImage(buf: Buffer): { type: string; ext: string } | null {
@@ -315,11 +313,7 @@ export function createProfileService(
   }
 
   const unsupportedImage = () =>
-    new ProfileError(
-      415,
-      'UNSUPPORTED_IMAGE',
-      { key: 'errors.imageFormat' },
-    )
+    new ProfileError(415, 'UNSUPPORTED_IMAGE', { key: 'errors.imageFormat' })
 
   /** Write a rendered avatar under a new name (cache busting) and return its public URL */
   async function storeAvatar(me: string, webp: Buffer) {
@@ -480,12 +474,7 @@ export function createProfileService(
       .from(players)
       .where(eq(players.email, email))
     if (taken) throw emailTaken()
-    if (!mail)
-      throw new ProfileError(
-        503,
-        'MAIL_UNAVAILABLE',
-        { key: 'errors.mailUnavailable' },
-      )
+    if (!mail) throw new ProfileError(503, 'MAIL_UNAVAILABLE', { key: 'errors.mailUnavailable' })
     const token = await issueToken(db, {
       playerId: me,
       purpose: 'change_email',
@@ -541,17 +530,13 @@ export function createProfileService(
     const player = await loadPlayer(me)
     const invalid = validatePassword(input.newPassword)
     if (invalid)
-      throw new ProfileError(
-        422,
-        'INVALID_INPUT',
-        {
-          ...invalid,
-          key:
-            invalid.key === 'account.passwordShort'
-              ? 'account.newPasswordShort'
-              : 'account.newPasswordLong',
-        },
-      )
+      throw new ProfileError(422, 'INVALID_INPUT', {
+        ...invalid,
+        key:
+          invalid.key === 'account.passwordShort'
+            ? 'account.newPasswordShort'
+            : 'account.newPasswordLong',
+      })
     await checkPassword(player, input.currentPassword)
     const passwordHash = await hashPassword(input.newPassword)
     await db.update(players).set({ passwordHash }).where(eq(players.id, me))

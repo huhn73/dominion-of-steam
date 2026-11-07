@@ -30,8 +30,7 @@ export function LizenzenPageEn() {
       <Section title="Sound effects">
         <p>
           Edited and mixed from CC0 recordings; the submarine ping was generated procedurally for
-          the project. The effects are based on these recordings, which their authors released
-          under{' '}
+          the project. The effects are based on these recordings, which their authors released under{' '}
           <ExternalLink href="https://creativecommons.org/publicdomain/zero/1.0/">
             CC0 1.0
           </ExternalLink>{' '}

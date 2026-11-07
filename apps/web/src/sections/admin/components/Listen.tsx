@@ -6,7 +6,12 @@ import { useLocale, useT } from '../../../i18n'
 
 const when = (locale: Locale, iso: string | null) =>
   iso
-    ? formatDate(locale, iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+    ? formatDate(locale, iso, {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     : '–'
 
 const th =
@@ -60,7 +65,13 @@ export function KontenListe({ players }: { players: AdminPlayerRow[] }) {
   return (
     <Tabelle
       caption={t('admin.recentPlayers')}
-      head={[t('admin.col.name'), t('admin.col.registered'), t('admin.col.lastSeen'), t('admin.col.verified'), t('admin.col.matches')]}
+      head={[
+        t('admin.col.name'),
+        t('admin.col.registered'),
+        t('admin.col.lastSeen'),
+        t('admin.col.verified'),
+        t('admin.col.matches'),
+      ]}
       empty={t('admin.noPlayers')}
     >
       {players.map((p) => (
@@ -74,7 +85,11 @@ export function KontenListe({ players }: { players: AdminPlayerRow[] }) {
           <td className={`${td} ${mono}`}>{formatDate(locale, p.createdAt)}</td>
           <td className={`${td} ${mono}`}>{when(locale, p.lastSeenAt)}</td>
           <td className={td}>
-            {p.emailVerified ? t('admin.yes') : <span className="text-stone-500">{t('admin.no')}</span>}
+            {p.emailVerified ? (
+              t('admin.yes')
+            ) : (
+              <span className="text-stone-500">{t('admin.no')}</span>
+            )}
           </td>
           <td className={`${td} ${mono}`}>{p.matches}</td>
         </tr>
@@ -89,7 +104,14 @@ export function PartienListe({ matches }: { matches: AdminMatchRow[] }) {
   return (
     <Tabelle
       caption={t('admin.recentMatches')}
-      head={[t('admin.col.match'), t('admin.col.mode'), t('admin.col.status'), t('admin.col.round'), t('admin.col.humansAi'), t('admin.col.updated')]}
+      head={[
+        t('admin.col.match'),
+        t('admin.col.mode'),
+        t('admin.col.status'),
+        t('admin.col.round'),
+        t('admin.col.humansAi'),
+        t('admin.col.updated'),
+      ]}
       empty={t('admin.noMatches')}
     >
       {matches.map((m) => (

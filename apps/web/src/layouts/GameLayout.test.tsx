@@ -11,7 +11,9 @@ describe('Spiel-Modus', () => {
     mockApi({ 'GET /matches/demo/view': () => ({ json: demoView('yourTurn') }) })
     renderApp('/partie/demo')
     expect(await screen.findByText('Die Kohleinseln · Runde 14')).toBeInTheDocument()
-    const status = screen.getByText(`Dein Zug · Frist ${formatDeadline('de', '2026-11-01T18:00:00Z')}`)
+    const status = screen.getByText(
+      `Dein Zug · Frist ${formatDeadline('de', '2026-11-01T18:00:00Z')}`,
+    )
     expect(status.parentElement?.querySelector('.animate-pulse')).not.toBeNull()
     expect(screen.queryByRole('navigation', { name: 'Hauptnavigation' })).not.toBeInTheDocument()
   })

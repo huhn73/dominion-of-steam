@@ -57,20 +57,20 @@ export function DatenschutzPageEn() {
           possible.
         </p>
         <p>
-          For operation, the operator sees aggregated usage figures (number of accounts and
-          matches) as well as display names and the registration and activity times of accounts,
-          without e-mail addresses, in an internal overview. No further data is collected for this.
+          For operation, the operator sees aggregated usage figures (number of accounts and matches)
+          as well as display names and the registration and activity times of accounts, without
+          e-mail addresses, in an internal overview. No further data is collected for this.
         </p>
       </Section>
 
       <Section title="Cookie">
         <p>
           After login, the game sets a single cookie named{' '}
-          <code className="font-['IBM_Plex_Mono'] text-xs">dos_session</code>. It keeps the
-          session, is limited to 30 days from the last use and is strictly necessary for operation
-          (§ 25(2) no. 2 TDDDG). There are no analytics, advertising or third-party cookies and
-          therefore no cookie banner either. Display options such as the colour scheme and the
-          language are additionally kept in your browser’s storage.
+          <code className="font-['IBM_Plex_Mono'] text-xs">dos_session</code>. It keeps the session,
+          is limited to 30 days from the last use and is strictly necessary for operation (§ 25(2)
+          no. 2 TDDDG). There are no analytics, advertising or third-party cookies and therefore no
+          cookie banner either. Display options such as the colour scheme and the language are
+          additionally kept in your browser’s storage.
         </p>
       </Section>
 
@@ -85,11 +85,11 @@ export function DatenschutzPageEn() {
 
       <Section title="Push notifications">
         <p>
-          On request, the game sends notifications to your browser (web push). This only happens
-          if you switch it on in the settings and the browser asks. The push address of your
-          browser is stored for this; the message runs through the push service of the browser
-          vendor (for example Mozilla, Google or Apple). You can switch the feature off at any time
-          in the settings or in the browser.
+          On request, the game sends notifications to your browser (web push). This only happens if
+          you switch it on in the settings and the browser asks. The push address of your browser is
+          stored for this; the message runs through the push service of the browser vendor (for
+          example Mozilla, Google or Apple). You can switch the feature off at any time in the
+          settings or in the browser.
         </p>
       </Section>
 
@@ -125,8 +125,8 @@ export function DatenschutzPageEn() {
           You have the right of access (Art. 15 GDPR), rectification (Art. 16), erasure (Art. 17),
           restriction of processing (Art. 18), data portability (Art. 20) and objection (Art. 21).
           To exercise them, contact the e-mail address given above. You can also lodge a complaint
-          with a data protection supervisory authority, for example the state authority
-          responsible for your place of residence.
+          with a data protection supervisory authority, for example the state authority responsible
+          for your place of residence.
         </p>
       </Section>
     </LegalPage>

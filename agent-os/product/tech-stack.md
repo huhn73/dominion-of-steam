@@ -10,6 +10,14 @@
 - Design-Tokens und Farben (amber, teal, stone) aus `product-plan/design-system/`
 - UI-Komponenten aus der Design-Übergabe (`product-plan/shell/`, `product-plan/sections/`)
 
+## Sprachen
+
+- Deutsch (Quelle) und Englisch, eigene Lösung ohne Bibliothek in `packages/shared/src/i18n`: Wörterbücher als JSON je Bereich (`de/*.json`, `en/*.json`), `translate(locale, key, params)` mit Platzhaltern `{name}`, Plural über `{ one, other }` und `Intl.PluralRules`, verschachtelte Texte als Parameter
+- Der Typecheck verlangt jeden deutschen Schlüssel auch im Englischen; Tests prüfen Platzhalter, Übersetzung und dass im Web keine deutschen Inline-Texte entstehen (`apps/web/src/i18n/noInlineGerman.test.ts`)
+- Web: `LocaleProvider` mit `useT()`, Sprache aus localStorage bzw. Browser, nach der Anmeldung aus `players.locale`; die API bekommt sie als `X-Locale`
+- Server: Fehler (`LocalizedError`, `sendError`), Mails und Push in der Sprache der Anfrage bzw. des Empfängers
+- Spielereignisse speichern Schlüssel und Parameter (`text`) neben dem deutschen `message`; Fraktionen und Einheiten übersetzt der Client über die ID (`compendium/data.en.json`)
+
 ## Ton
 
 - Eigene Engine auf der Web Audio API (`apps/web/src/audio/`), ohne Bibliothek: `AudioContext` nach der ersten Interaktion, `GainNode`-Busse für Gesamt, Musik, Effekte und Umgebung, `AudioBufferSourceNode` für Schleifen und Effekte

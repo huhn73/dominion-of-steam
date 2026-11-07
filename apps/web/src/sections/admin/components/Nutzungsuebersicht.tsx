@@ -58,13 +58,21 @@ export function Nutzungsuebersicht({
 
   const kontoTiles: Tile[] = [
     { label: t('admin.tile.accounts'), value: a.total },
-    { label: t('admin.tile.verified'), value: a.verified, hint: `${percent(a.verified, a.total)} %` },
+    {
+      label: t('admin.tile.verified'),
+      value: a.verified,
+      hint: `${percent(a.verified, a.total)} %`,
+    },
     { label: t('admin.tile.new'), value: a.new, hint: last },
     { label: t('admin.tile.active24'), value: a.active24h },
     { label: t('admin.tile.active'), value: a.activeRange, hint: last },
   ]
   const partieTiles: Tile[] = [
-    { label: t('admin.tile.running'), value: m.running, hint: t('admin.tile.waiting', { count: m.waiting }) },
+    {
+      label: t('admin.tile.running'),
+      value: m.running,
+      hint: t('admin.tile.waiting', { count: m.waiting }),
+    },
     {
       label: t('admin.tile.finished'),
       value: m.finished,
@@ -89,15 +97,16 @@ export function Nutzungsuebersicht({
             <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-none tracking-wide">
               {t('admin.title')}
             </h1>
-            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
-              {t('admin.excluded')}
-            </p>
+            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">{t('admin.excluded')}</p>
           </div>
           <div aria-busy={loading} className={loading ? 'opacity-60' : undefined}>
             <Segmented
               label={t('admin.range')}
               value={range}
-              options={ADMIN_RANGES.map((r) => ({ value: r, label: t('admin.days', { count: r }) }))}
+              options={ADMIN_RANGES.map((r) => ({
+                value: r,
+                label: t('admin.days', { count: r }),
+              }))}
               onChange={onRangeChange}
             />
           </div>

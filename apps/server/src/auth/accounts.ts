@@ -42,11 +42,7 @@ export const toMe = (p: Player): Me => ({
 })
 
 export const mailUnavailable = () =>
-  new AccountError(
-    503,
-    'MAIL_UNAVAILABLE',
-    { key: 'errors.mailUnavailable' },
-  )
+  new AccountError(503, 'MAIL_UNAVAILABLE', { key: 'errors.mailUnavailable' })
 
 const COOLDOWN_MS = ACCOUNT_MAIL_COOLDOWN_MINUTES * 60_000
 
@@ -236,11 +232,7 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
     if (player.emailVerifiedAt) return { ok: true as const, alreadyVerified: true }
     if (!mail) throw mailUnavailable()
     if (await recentlyIssued(db, playerId, 'verify_email', COOLDOWN_MS, now))
-      throw new AccountError(
-        429,
-        'RESEND_COOLDOWN',
-        { key: 'errors.mailCooldown' },
-      )
+      throw new AccountError(429, 'RESEND_COOLDOWN', { key: 'errors.mailCooldown' })
     await sendVerificationMail(player, origin, now)
     return { ok: true as const, alreadyVerified: false }
   }
@@ -281,12 +273,7 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
    */
   async function resetPassword(token: string, password: string, origin: string, now = new Date()) {
     const t = await consumeToken(db, token, 'reset_password', now)
-    const invalid = () =>
-      new AccountError(
-        422,
-        'INVALID_TOKEN',
-        { key: 'errors.linkInvalid' },
-      )
+    const invalid = () => new AccountError(422, 'INVALID_TOKEN', { key: 'errors.linkInvalid' })
     if (!t) throw invalid()
     const [player] = await db.select().from(players).where(eq(players.id, t.playerId))
     if (!player) throw invalid()
@@ -347,8 +334,7 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
 
   async function addFriendByName(playerId: string, name: string, now = new Date()) {
     const friend = await findByName(name)
-    if (!friend)
-      throw new AccountError(404, 'PLAYER_NOT_FOUND', { key: 'errors.noSuchPlayer' })
+    if (!friend) throw new AccountError(404, 'PLAYER_NOT_FOUND', { key: 'errors.noSuchPlayer' })
     if (friend.id === playerId)
       throw new AccountError(422, 'CANNOT_FRIEND_SELF', { key: 'errors.friendSelf' })
     await addFriend(playerId, friend.id)

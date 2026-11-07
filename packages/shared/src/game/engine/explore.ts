@@ -122,13 +122,7 @@ export function exploreTurn(state: GameState, unit: UnitState) {
     if (returnDistance(unit, bases) === 0) {
       if (!reachable(type.range ?? 0)) {
         stop()
-        addEvent(
-          state,
-          owner,
-          'exploration',
-          unit,
-          msg('events.exploreDone'),
-        )
+        addEvent(state, owner, 'exploration', unit, msg('events.exploreDone'))
       }
       break
     }

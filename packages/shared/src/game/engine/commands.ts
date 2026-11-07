@@ -232,8 +232,7 @@ function unload(state: GameState, playerId: string, unitId: string, target: HexC
   const unit = ownUnit(state, playerId, unitId)
   if (!unit.carriedBy) fail('INVALID_ORDER', 'commands.notLoaded')
   if (unit.movesLeft <= 0) fail('NO_MOVES', 'commands.noMoves')
-  if (unitType(unit.unitTypeId).domain !== 'land')
-    fail('INVALID_ORDER', 'commands.unloadLand')
+  if (unitType(unit.unitTypeId).domain !== 'land') fail('INVALID_ORDER', 'commands.unloadLand')
   const { idx } = knowledge(state, playerId)
   const tile = idx.tileAt(target)
   const city = idx.cityAt(target)
@@ -313,8 +312,7 @@ function setProduction(state: GameState, playerId: string, cityId: string, unitT
   const faction = factionOf(state, playerId)
   if (!type || (type.factionId && type.factionId !== faction?.id))
     return fail('NOT_BUILDABLE', 'commands.notBuildable')
-  if (type.domain === 'sea' && !isCoastal(state, city))
-    fail('NOT_BUILDABLE', 'commands.coastOnly')
+  if (type.domain === 'sea' && !isCoastal(state, city)) fail('NOT_BUILDABLE', 'commands.coastOnly')
   if (city.production?.unitTypeId === unitTypeId) return
   city.production = {
     unitTypeId,

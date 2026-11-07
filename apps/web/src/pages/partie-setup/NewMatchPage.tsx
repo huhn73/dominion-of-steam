@@ -26,11 +26,7 @@ export function NewMatchPage() {
   if (error || !data)
     return (
       <PlaceholderPage title={t('partieSetup.title')}>
-        <p>
-          {error instanceof ApiRequestError
-            ? error.message
-            : t('partieSetup.loadFailed')}
-        </p>
+        <p>{error instanceof ApiRequestError ? error.message : t('partieSetup.loadFailed')}</p>
         <button
           type="button"
           onClick={() => void refetch()}
@@ -58,8 +54,7 @@ export function NewMatchPage() {
         onError: (e) =>
           setToast({
             kind: 'error',
-            text:
-              e instanceof ApiRequestError ? e.message : t('partieSetup.createFailed'),
+            text: e instanceof ApiRequestError ? e.message : t('partieSetup.createFailed'),
           }),
       },
     )

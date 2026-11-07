@@ -66,10 +66,7 @@ export function GameLayout() {
                   state: { notice: t('shell.surrendered') },
                 }),
               onError: (e) =>
-                toast.error(
-                  e instanceof ApiRequestError ? e : null,
-                  t('shell.surrenderFailed'),
-                ),
+                toast.error(e instanceof ApiRequestError ? e : null, t('shell.surrenderFailed')),
             })
           }}
         />

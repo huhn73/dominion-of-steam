@@ -1,13 +1,12 @@
 import { LOCALES } from '@dos/shared/i18n'
 import { useChangeLocale } from '../data/session'
-import { languageChoiceEnabled, useLocale, useT } from '../i18n'
+import { useLocale, useT } from '../i18n'
 
 /** Small DE · EN switch under the login and legal cards (visitors without an account) */
 export function LanguageSwitch() {
   const { locale } = useLocale()
   const changeLocale = useChangeLocale()
   const t = useT()
-  if (!languageChoiceEnabled) return null
   return (
     <div
       role="group"
@@ -16,7 +15,11 @@ export function LanguageSwitch() {
     >
       {LOCALES.map((l, i) => (
         <span key={l} className="flex items-center gap-1">
-          {i > 0 && <span aria-hidden className="text-stone-400">·</span>}
+          {i > 0 && (
+            <span aria-hidden className="text-stone-400">
+              ·
+            </span>
+          )}
           <button
             type="button"
             lang={l}

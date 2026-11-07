@@ -26,9 +26,37 @@ import mail from './mail.json'
 import notify from './notify.json'
 
 /** Names from the compendium, so events can name units and factions by id */
-const units: Record<string, string> = Object.fromEntries(compendiumData.unitTypes.map((u) => [u.id, u.name]))
+const units: Record<string, string> = Object.fromEntries(
+  compendiumData.unitTypes.map((u) => [u.id, u.name]),
+)
 const factions: Record<string, string> = Object.fromEntries(
   compendiumData.factions.map((f) => [f.id, f.shortName]),
 )
 
-export const en: DictShape<typeof de> = { units, factions, common, shell, match, account, auth, lobby, settings, profile, admin, legal, setup, partieSetup, game, compendium, board, city, unit, tutorial, events, commands, errors, mail, notify }
+export const en: DictShape<typeof de> = {
+  units,
+  factions,
+  common,
+  shell,
+  match,
+  account,
+  auth,
+  lobby,
+  settings,
+  profile,
+  admin,
+  legal,
+  setup,
+  partieSetup,
+  game,
+  compendium,
+  board,
+  city,
+  unit,
+  tutorial,
+  events,
+  commands,
+  errors,
+  mail,
+  notify,
+}

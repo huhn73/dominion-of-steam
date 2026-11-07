@@ -18,11 +18,7 @@
         "mode": "add",
         "minBase": 5
       },
-      "playstyle": [
-        "Defensive",
-        "Land warfare",
-        "Slow build-up"
-      ],
+      "playstyle": ["Defensive", "Land warfare", "Slow build-up"],
       "playstyleSummary": "For patient strategists who take city after city with superior land forces. At sea and in the air the Iron Covenant has to make do with standard units.",
       "history": "When the old coalfields of Valdrin drove out their princes after the Great Standstill, the mining towns joined in a covenant that trusts only one thing: what can be forged. A council of pit masters rules from the Hammer House in Eisenhafen, and every town sends as many votes as it runs blast furnaces.\n\nThe Iron Covenant wages war the way it digs galleries: slowly, thoroughly and without ever giving ground. Its Steam Colossi are feared across the continent, even if wags claim you can comfortably outrun one on foot. Little binds it to its neighbours beyond a mutual mistrust, which the Covenant's diplomats reliably deepen.",
       "specialUnitTypeId": "dampfkoloss"
@@ -44,11 +40,7 @@
         "modifier": 1,
         "mode": "add"
       },
-      "playstyle": [
-        "Offensive",
-        "Naval warfare",
-        "Rapid expansion"
-      ],
+      "playstyle": ["Offensive", "Naval warfare", "Rapid expansion"],
       "playstyleSummary": "For players who seize island chains quickly and press with nimble fleets. On land the Republic lacks the stamina for long campaigns.",
       "history": "The Aurelian Republic grew out of an alliance of trading ports whose merchants eventually found that cannons write better contracts than notaries. Its fleet is the largest in the known world, and its admirals sit in the Senate.",
       "specialUnitTypeId": "blitzkorvette"
@@ -70,11 +62,7 @@
         "modifier": 1.5,
         "mode": "multiply"
       },
-      "playstyle": [
-        "Reconnaissance",
-        "Air warfare",
-        "Flexible"
-      ],
+      "playstyle": ["Reconnaissance", "Air warfare", "Flexible"],
       "playstyleSummary": "For players who see first and strike second. The long range of the airships covers large parts of the map.",
       "history": "In the barren north people learned early that the shortest way across the glaciers leads through the air. The Collective is led by elected captains, and its Cloud Cruisers are shipyard, barracks and town hall all at once.",
       "specialUnitTypeId": "wolkenkreuzer"
@@ -96,10 +84,7 @@
         "modifier": 1,
         "mode": "add"
       },
-      "playstyle": [
-        "Fortification",
-        "Defence"
-      ],
+      "playstyle": ["Fortification", "Defence"],
       "playstyleSummary": "For players who would rather hold than take. Without a special unit, the League's strength lies in cities that are hard to capture.",
       "history": "A loose league of fortress towns along the salt marshes, held together by common enemies and the salt trade.",
       "specialUnitTypeId": null
@@ -202,9 +187,7 @@
       "factionId": null,
       "canCaptureCities": false,
       "description": "Small, nimble ships for coastal defence and reconnaissance.",
-      "tactics": [
-        "Send Gunboats on patrol along your coasts."
-      ],
+      "tactics": ["Send Gunboats on patrol along your coasts."],
       "illustrationUrl": "/art/units/kanonenboot.webp",
       "variantIllustrationUrls": {
         "eisenbund": "/art/units/eisenbund/kanonenboot.webp",

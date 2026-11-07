@@ -68,7 +68,13 @@ export const urgentMatch: Match = {
     victoryCondition: { key: 'setup.victory.elimination.label' },
     allowDuplicateFactions: false,
   },
-  map: { sizeLabel: { key: 'setup.size.small' }, width: 14, height: 10, landShare: 50, seed: 'SALZ-0031' },
+  map: {
+    sizeLabel: { key: 'setup.size.small' },
+    width: 14,
+    height: 10,
+    landShare: 50,
+    seed: 'SALZ-0031',
+  },
   miniMap: ['~~~~~~', '~00.1~', '~0011~', '~~~~~~'],
 }
 
@@ -175,7 +181,13 @@ export function roomData(patch: Partial<WaitingRoomData['room']> = {}): WaitingR
         victoryCondition: { key: 'setup.victory.capitals.label' },
         allowDuplicateFactions: false,
       },
-      map: { sizeLabel: { key: 'setup.size.medium' }, width: 18, height: 12, landShare: 45, seed: 'KOHLE-5530' },
+      map: {
+        sizeLabel: { key: 'setup.size.medium' },
+        width: 18,
+        height: 12,
+        landShare: 45,
+        seed: 'KOHLE-5530',
+      },
       fillEmptyWithAI: true,
       seats: [
         {

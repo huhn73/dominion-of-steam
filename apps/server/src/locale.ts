@@ -1,12 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { ApiError } from '@dos/shared/game'
-import {
-  isLocale,
-  pickLocale,
-  translateMessage,
-  type Locale,
-  type Message,
-} from '@dos/shared/i18n'
+import { isLocale, pickLocale, translateMessage, type Locale, type Message } from '@dos/shared/i18n'
 
 /**
  * Language of a request: the logged-in player's choice if the session is loaded, else the
@@ -42,7 +36,7 @@ export class LocalizedError extends Error {
 
 /** Error answer `{ error: { code, message } }` in the language of the request */
 export function sendError(reply: FastifyReply, status: number, code: string, text: Text) {
-  return reply
-    .status(status)
-    .send({ error: { code, message: localize(requestLocale(reply.request), text) } } satisfies ApiError)
+  return reply.status(status).send({
+    error: { code, message: localize(requestLocale(reply.request), text) },
+  } satisfies ApiError)
 }

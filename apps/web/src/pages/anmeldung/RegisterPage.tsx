@@ -115,7 +115,11 @@ export function RegisterPage() {
           error={errors.password}
           hint={t('auth.register.passwordHint', { min: PASSWORD_MIN })}
         />
-        <SubmitButton busy={busy} label={t('auth.register.submit')} busyLabel={t('auth.register.busy')} />
+        <SubmitButton
+          busy={busy}
+          label={t('auth.register.submit')}
+          busyLabel={t('auth.register.busy')}
+        />
       </form>
     </AuthLayout>
   )

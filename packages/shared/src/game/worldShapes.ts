@@ -35,4 +35,5 @@ export const WORLD_SHAPES: WorldShapeOption[] = [
 export const isWorldShape = (x: unknown): x is WorldShape => WORLD_SHAPES.some((s) => s.id === x)
 
 export const worldShapeLabel = (id: WorldShape | null | undefined): MessageKey =>
-  WORLD_SHAPES.find((s) => s.id === (id ?? DEFAULT_WORLD_SHAPE))?.label ?? 'setup.shape.continent.label'
+  WORLD_SHAPES.find((s) => s.id === (id ?? DEFAULT_WORLD_SHAPE))?.label ??
+  'setup.shape.continent.label'

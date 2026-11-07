@@ -68,7 +68,10 @@ export function walk(state: GameState, unit: UnitState, path: HexCoord[]) {
         unit.ownerId,
         'enemySighted',
         step,
-        msg('events.blocked', { unit: unitName(unit.unitTypeId), enemy: unitName(enemy.unitTypeId) }),
+        msg('events.blocked', {
+          unit: unitName(unit.unitTypeId),
+          enemy: unitName(enemy.unitTypeId),
+        }),
       )
       blocked = true
       break

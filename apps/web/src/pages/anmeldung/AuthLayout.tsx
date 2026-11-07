@@ -45,7 +45,7 @@ export function AuthLayout({
             <Cog className="size-9 animate-spin [animation-duration:24s] motion-reduce:animate-none" />
           </span>
           <p className="font-['Big_Shoulders_Display'] text-3xl font-black uppercase leading-none tracking-[0.12em] sm:text-4xl dark:text-amber-50">
-            Dominion of Steam
+            {t('common.appName')}
           </p>
           <p className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
             {t('auth.tagline')}

@@ -23,12 +23,7 @@ export function handleMatchError(err: unknown, reply: FastifyReply) {
   if (err instanceof NotParticipantError)
     return sendError(reply, 403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
   if (err instanceof SurrenderedError)
-    return sendError(
-      reply,
-      409,
-      'SURRENDERED',
-      { key: 'errors.surrendered' },
-    )
+    return sendError(reply, 409, 'SURRENDERED', { key: 'errors.surrendered' })
   if (err instanceof CommandError)
     return sendError(reply, CONFLICT_CODES.has(err.code) ? 409 : 422, err.code, err.text)
   throw err

@@ -6,7 +6,7 @@ import { Einstellungen } from '../../sections/profil/components'
 import { settingsKey, useAccountActions, useSettings, useSettingsActions } from '../../data/profile'
 import { PUSH_NO_PROMPT_HINT, unsubscribePush, usePushPermission } from '../../data/push'
 import { meKey, useChangeLocale, useLogout, useSignOut } from '../../data/session'
-import { languageChoiceEnabled, useLocale, useT } from '../../i18n'
+import { useLocale, useT } from '../../i18n'
 import { routes } from '../../routes'
 import { Toast, useToast } from '../shared/toast'
 import { useAudio } from '../../audio/AudioProvider'
@@ -138,7 +138,7 @@ export function SettingsPage() {
         key={epoch}
         settings={data.settings}
         locale={locale}
-        onChangeLocale={languageChoiceEnabled ? changeLocale : undefined}
+        onChangeLocale={changeLocale}
         account={data.account}
         displayName={data.displayName}
         pushPermission={push.permission}
@@ -147,28 +147,20 @@ export function SettingsPage() {
           void push
             .enable()
             .then((result) => result === 'default' && toast.info(t(PUSH_NO_PROMPT_HINT)))
-            .catch((e: unknown) =>
-              toast.error(e, t('lobby.pushFailed')),
-            )
+            .catch((e: unknown) => toast.error(e, t('lobby.pushFailed')))
         }
         onResendVerification={() =>
           run(account.resendVerification(), (r) =>
-            r.alreadyVerified
-              ? t('common.verify.already')
-              : t('common.verify.sent'),
+            r.alreadyVerified ? t('common.verify.already') : t('common.verify.sent'),
           )
         }
         onChangeEmail={(email, currentPassword) =>
-          run(
-            account.changeEmail(email, currentPassword),
-            (r) => t('settings.linkSent', { email: r.pendingEmail }),
+          run(account.changeEmail(email, currentPassword), (r) =>
+            t('settings.linkSent', { email: r.pendingEmail }),
           )
         }
         onChangePassword={(currentPassword, newPassword) =>
-          run(
-            account.changePassword(currentPassword, newPassword),
-            t('settings.passwordChanged'),
-          )
+          run(account.changePassword(currentPassword, newPassword), t('settings.passwordChanged'))
         }
         onLogout={() => void flush().finally(() => void logout())}
         onLogoutEverywhere={() =>

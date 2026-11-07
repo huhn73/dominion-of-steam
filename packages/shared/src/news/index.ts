@@ -47,6 +47,16 @@ export const NEWS: readonly ReleaseNotes[] = [
           text: 'When uploading, you choose the round crop of your profile picture yourself; even large phone photos up to 10 MB work, and a small picture without location data is stored.',
         },
       },
+      {
+        de: {
+          title: 'Englisch',
+          text: 'Das Spiel gibt es jetzt auch auf Englisch: Die Sprache richtet sich nach deinem Browser, lässt sich unter Einstellungen → Darstellung und auf der Anmeldeseite wechseln und gilt auch für E-Mails und Benachrichtigungen.',
+        },
+        en: {
+          title: 'English',
+          text: 'The game is now available in English: the language follows your browser, can be switched under Settings → Display and on the login page, and also applies to e-mails and notifications.',
+        },
+      },
     ],
   },
   {

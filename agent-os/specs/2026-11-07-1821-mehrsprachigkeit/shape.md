@@ -16,6 +16,18 @@ Dominion of Steam bekommt Englisch als zweite Sprache neben Deutsch. Übersetzt 
 - **Routen und Meta:** Die Routen bleiben deutsch. Manifest und die Meta-Tags in `index.html` bleiben deutsch, nur `<html lang>` wird zur Laufzeit gesetzt.
 - **Lieferung:** In Etappen, je Etappe ein Commit. Die Sprachwahl bleibt hinter `DEV_TOOLS`, bis alles übersetzt ist.
 
+## Englische Namen (bestätigt)
+
+- Fraktionen: Iron Covenant of Valdrin (Iron Covenant), Aurelian Republic (Aurelia), Nordmark Collective (Nordmark), Salt Coast League (Salt Coast)
+- Einheiten: Grenadiers, Armoured Car, Steam Colossus, Gunboat, Armoured Cruiser, Submersible, Transport Freighter, Aircraft Carrier, Lightning Corvette, Biplane, Heavy Bomber, Cloud Cruiser
+- Britische Schreibweise
+
+## Abweichungen vom Plan
+
+- Ereignisse behalten `message` (deutsch) und bekommen zusätzlich `text` (Schlüssel und Parameter), statt `message` optional zu machen: Server, Simulation und Tests lesen weiter den deutschen Text.
+- Wörterbücher als JSON je Bereich statt als TS-Dateien, damit Werkzeuge sie leicht ergänzen können; die Typen leitet TypeScript aus den JSON-Dateien ab.
+- Texte von Benachrichtigungen sind Funktionen der Sprache und entstehen in `enqueue` mit `players.locale`.
+
 ## Context
 
 - **Visuals:** keine

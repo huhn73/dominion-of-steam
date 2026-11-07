@@ -19,4 +19,3 @@ export const FONTS = ['Barlow', 'Big Shoulders Display', 'IBM Plex Mono']
 
 /** The MIT text without the exception note, which is explained on the page itself */
 export const mitText = license.split('\n---')[0]!.trim()
-

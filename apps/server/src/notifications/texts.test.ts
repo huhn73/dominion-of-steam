@@ -27,7 +27,12 @@ describe('Benachrichtigungen in der Sprache des Empfängers', () => {
   })
 
   it('schreibt die Partie-Mail mit Gruß und Knopf in der Sprache', () => {
-    const mail = mailFor({ title: 'T', body: 'B', url: '/partie/x' }, 'Lena', 'https://d.test', 'en')
+    const mail = mailFor(
+      { title: 'T', body: 'B', url: '/partie/x' },
+      'Lena',
+      'https://d.test',
+      'en',
+    )
     expect(mail.text).toMatch(/^Hello Lena,/)
     expect(mail.text).toContain('To the match: https://d.test/partie/x')
   })

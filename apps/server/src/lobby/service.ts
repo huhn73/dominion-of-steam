@@ -52,8 +52,7 @@ import { signal, signalMatch, signalRoom } from '../realtime/signals'
 export class LobbyError extends LocalizedError {}
 
 const notFound = () => new LobbyError(404, 'MATCH_NOT_FOUND', { key: 'errors.matchNotFound' })
-const matchFull = () =>
-  new LobbyError(409, 'MATCH_FULL', { key: 'errors.matchFull' })
+const matchFull = () => new LobbyError(409, 'MATCH_FULL', { key: 'errors.matchFull' })
 const alreadyStarted = () =>
   new LobbyError(409, 'ALREADY_STARTED', { key: 'errors.alreadyStarted' })
 const invitationInvalid = (why: Text = { key: 'errors.invitationInvalid' }) =>
@@ -505,24 +504,12 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       if (!self || self.surrender)
         throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
       if (state.mode !== 'async')
-        throw new LobbyError(
-          422,
-          'REMIND_NOT_AVAILABLE',
-          { key: 'errors.remindAsyncOnly' },
-        )
+        throw new LobbyError(422, 'REMIND_NOT_AVAILABLE', { key: 'errors.remindAsyncOnly' })
       const current = currentParticipant(state)
       if (current.isAI || current.id === me.id)
-        throw new LobbyError(
-          422,
-          'REMIND_NOT_AVAILABLE',
-          { key: 'errors.remindNobody' },
-        )
+        throw new LobbyError(422, 'REMIND_NOT_AVAILABLE', { key: 'errors.remindNobody' })
       if (participantId !== current.id)
-        throw new LobbyError(
-          409,
-          'TURN_CHANGED',
-          { key: 'errors.remindMoved' },
-        )
+        throw new LobbyError(409, 'TURN_CHANGED', { key: 'errors.remindMoved' })
       const [last] = await tx
         .select()
         .from(reminders)
@@ -532,11 +519,10 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
         const hours = Math.ceil(
           REMIND_COOLDOWN_HOURS - (now.getTime() - last.remindedAt.getTime()) / 3600_000,
         )
-        throw new LobbyError(
-          429,
-          'REMIND_COOLDOWN',
-          { key: 'errors.remindedAlready', params: { hours } },
-        )
+        throw new LobbyError(429, 'REMIND_COOLDOWN', {
+          key: 'errors.remindedAlready',
+          params: { hours },
+        })
       }
       await tx
         .insert(reminders)
@@ -570,8 +556,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
     return transaction(async (tx) => {
       const before = await lockRunning(tx, matchId)
       const self = before.participants.find((p) => p.id === me)
-      if (!self)
-        throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
+      if (!self) throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
       if (self.surrender)
         throw new LobbyError(409, 'SURRENDERED', { key: 'errors.alreadySurrendered' })
       if (self.status !== 'active')
@@ -716,21 +701,12 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
         .select({ id: matches.id })
         .from(matches)
         .where(eq(matches.inviteToken, token.trim().toUpperCase()))
-      if (!found)
-        throw new LobbyError(
-          404,
-          'INVITE_INVALID',
-          { key: 'errors.inviteLinkInvalid' },
-        )
+      if (!found) throw new LobbyError(404, 'INVITE_INVALID', { key: 'errors.inviteLinkInvalid' })
       const { row, seats } = await lockWaiting(tx, found.id)
       const joined = seats.some((s) => s.kind === 'player' && s.playerId === me)
       if (joined) return { matchId: row.id }
       if (row.status !== 'waiting')
-        throw new LobbyError(
-          410,
-          'INVITE_EXPIRED',
-          { key: 'errors.inviteLinkStarted' },
-        )
+        throw new LobbyError(410, 'INVITE_EXPIRED', { key: 'errors.inviteLinkStarted' })
       if (!(await acceptSeat(tx, seats, me, now))) {
         const seat = LINK_KINDS.map((k) => seats.find((s) => s.kind === k)).find(Boolean)
         if (!seat) throw matchFull()
@@ -774,8 +750,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
     return transaction(async (tx) => {
       const { row, seats } = await lockWaiting(tx, matchId)
       if (row.status !== 'waiting') throw alreadyStarted()
-      if (row.hostId !== me)
-        throw new LobbyError(403, 'NOT_HOST', { key: 'errors.notHost' })
+      if (row.hostId !== me) throw new LobbyError(403, 'NOT_HOST', { key: 'errors.notHost' })
       const people = await namesAndAvatars(seats.flatMap((s) => (s.playerId ? [s.playerId] : [])))
       const blockers = startBlockers(
         seats.map((s) => ({
@@ -792,11 +767,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       if (!fill) {
         const free = seats.filter((s) => FREE_KINDS.includes(s.kind))
         if (seats.length - free.length < 2)
-          throw new LobbyError(
-            409,
-            'TOO_FEW_PLAYERS',
-            { key: 'errors.tooFewPlayers' },
-          )
+          throw new LobbyError(409, 'TOO_FEW_PLAYERS', { key: 'errors.tooFewPlayers' })
         if (free.length)
           await tx.delete(matchSeats).where(
             and(
@@ -839,7 +810,8 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
             playerId,
             kind: 'matchCancelled' as const,
             matchId,
-            title: (locale: Locale) => translate(locale, 'notify.cancelled.title', { name: row.name }),
+            title: (locale: Locale) =>
+              translate(locale, 'notify.cancelled.title', { name: row.name }),
             body: (locale: Locale) =>
               translate(locale, 'notify.cancelled.body', { host: me.displayName, name: row.name }),
             url: LOBBY_PATH,

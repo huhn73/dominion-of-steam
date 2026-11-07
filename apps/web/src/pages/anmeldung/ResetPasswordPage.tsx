@@ -92,7 +92,11 @@ export function ResetPasswordPage() {
             onChange={update('repeat')}
             error={errors.repeat}
           />
-          <SubmitButton busy={busy} label={t('auth.reset.submit')} busyLabel={t('auth.reset.busy')} />
+          <SubmitButton
+            busy={busy}
+            label={t('auth.reset.submit')}
+            busyLabel={t('auth.reset.busy')}
+          />
         </form>
       )}
     </AuthLayout>

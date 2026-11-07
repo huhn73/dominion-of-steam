@@ -55,9 +55,7 @@ export function ProfilePage() {
             if (r.isError) toast.error(r.error, t('profile.olderFailed'))
           })
         }}
-        onUpdateDisplayName={(name) =>
-          run(actions.updateDisplayName(name), t('profile.nameSaved'))
-        }
+        onUpdateDisplayName={(name) => run(actions.updateDisplayName(name), t('profile.nameSaved'))}
         onUploadAvatar={(file, crop) =>
           run(
             actions.uploadAvatar(file, crop),

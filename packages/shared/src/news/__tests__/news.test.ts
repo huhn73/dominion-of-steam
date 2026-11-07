@@ -17,7 +17,9 @@ describe('Neuigkeiten', () => {
       for (const item of n.items)
         for (const locale of LOCALES) {
           expect(item[locale].title.trim(), `${n.version} ${locale}`).not.toBe('')
-          expect(item[locale].text, `${n.version} ${locale}`).toMatch(/^[^.!?]+(?:\.[^\s.][^.!?]*)*[.!]$/)
+          expect(item[locale].text, `${n.version} ${locale}`).toMatch(
+            /^[^.!?]+(?:\.[^\s.][^.!?]*)*[.!]$/,
+          )
         }
   })
 

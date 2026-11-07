@@ -126,7 +126,7 @@ export function AvatarCropper({
             onClick={onCancel}
             className="min-h-11 rounded-lg border-2 border-stone-300 px-4 font-semibold dark:border-stone-700"
           >
-            Abbrechen
+            {t('profile.cancel')}
           </button>
           <button
             type="button"

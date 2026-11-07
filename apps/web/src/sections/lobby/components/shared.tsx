@@ -44,7 +44,7 @@ export function Avatar({ name, url, color, className = 'size-10' }: { name: stri
   const hasImage = useImageLoaded(url)
   const initials = name
     .split(/[\s-]+/)
-    .filter((p) => p.length > 0 && p !== 'für')
+    .filter((p) => p.length > 0 && p !== 'für') // i18n-ignore: word skipped in initials
     .slice(0, 2)
     .map((p) => p[0])
     .join('')

@@ -58,8 +58,7 @@ export function validateDraft(input: unknown, friendIds: Set<string>): DraftVali
 
   if (typeof input.name !== 'string') return fail('setup.block.name')
   const name = input.name.trim()
-  if (name.length > MATCH_NAME_MAX)
-    return fail('setup.invalid.nameLong', { max: MATCH_NAME_MAX })
+  if (name.length > MATCH_NAME_MAX) return fail('setup.invalid.nameLong', { max: MATCH_NAME_MAX })
 
   if (input.mode !== 'live' && input.mode !== 'async') return fail('setup.invalid.mode')
   if (!o.asyncTurnLimits.some((l) => l.hours === input.asyncTurnLimitHours))
@@ -94,8 +93,7 @@ export function validateDraft(input: unknown, friendIds: Set<string>): DraftVali
   if (!isWorldShape(worldShape)) return fail('setup.invalid.mapSetting')
   if (typeof m.seed !== 'string') return fail('setup.block.seed')
   const seed = m.seed.trim()
-  if (seed && !SEED_PATTERN.test(seed))
-    return fail('setup.invalid.seedChars')
+  if (seed && !SEED_PATTERN.test(seed)) return fail('setup.invalid.seedChars')
 
   const seats = input.seats.map(parseSeat)
   if (seats.some((s) => s === null)) return fail('setup.invalid.seat')
@@ -136,16 +134,13 @@ export function validateDraft(input: unknown, friendIds: Set<string>): DraftVali
   }
 
   const friendSeats = draft.seats.flatMap((s) => (s.kind === 'friend' ? [s.friendId] : []))
-  if (friendSeats.some((id) => !friendIds.has(id)))
-    return fail('setup.invalid.friendsOnly')
-  if (new Set(friendSeats).size !== friendSeats.length)
-    return fail('setup.invalid.friendTwice')
+  if (friendSeats.some((id) => !friendIds.has(id))) return fail('setup.invalid.friendsOnly')
+  if (new Set(friendSeats).size !== friendSeats.length) return fail('setup.invalid.friendTwice')
 
   const aiIds = draft.seats.flatMap((s) => (s.kind === 'ai' ? [s.personalityId] : []))
   if (aiIds.some((id) => !AI_PERSONALITIES.some((p) => p.id === id)))
     return fail('setup.invalid.ai')
-  if (new Set(aiIds).size !== aiIds.length)
-    return fail('setup.invalid.aiTwice')
+  if (new Set(aiIds).size !== aiIds.length) return fail('setup.invalid.aiTwice')
 
   if (!draft.allowDuplicateFactions && draft.seats.length > SETUP_FACTIONS.length)
     return fail('setup.invalid.tooManyNoDuplicates', { max: SETUP_FACTIONS.length })

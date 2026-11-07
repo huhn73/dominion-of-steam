@@ -346,7 +346,9 @@ describe('Einstellungen', () => {
     await waitFor(() => expect(document.documentElement.lang).toBe('en'))
     expect(localStorage.getItem('dos.locale')).toBe('en')
     expect(screen.getByRole('radiogroup', { name: 'Language' })).toBeInTheDocument()
-    await waitFor(() => expect(calls.find((c) => c.path === '/locale')?.body).toEqual({ locale: 'en' }))
+    await waitFor(() =>
+      expect(calls.find((c) => c.path === '/locale')?.body).toEqual({ locale: 'en' }),
+    )
     expect(queryClient.getQueryData<Me>(meKey)?.locale).toBe('en')
   })
 

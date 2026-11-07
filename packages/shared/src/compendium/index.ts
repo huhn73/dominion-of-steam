@@ -25,7 +25,15 @@ const BY_LOCALE: Record<Locale, CompendiumData> = {
 
 export const compendiumFor = (locale: Locale): CompendiumData => BY_LOCALE[locale]
 
-const FACTION_TEXT = ['name', 'shortName', 'motto', 'trait', 'playstyle', 'playstyleSummary', 'history'] as const
+const FACTION_TEXT = [
+  'name',
+  'shortName',
+  'motto',
+  'trait',
+  'playstyle',
+  'playstyleSummary',
+  'history',
+] as const
 const UNIT_TEXT = ['name', 'description', 'tactics'] as const
 
 /**
@@ -33,7 +41,10 @@ const UNIT_TEXT = ['name', 'description', 'tactics'] as const
  * bonus label …); only fields the item already has are replaced, so it works for the compendium,
  * the game catalog and the factions of lobby and setup alike.
  */
-export function localizeFactions<T extends { id: string }>(items: readonly T[], locale: Locale): T[] {
+export function localizeFactions<T extends { id: string }>(
+  items: readonly T[],
+  locale: Locale,
+): T[] {
   const byId = new Map(BY_LOCALE[locale].factions.map((f) => [f.id, f]))
   return items.map((item) => {
     const f = byId.get(item.id)
@@ -55,7 +66,10 @@ export function localizeFactions<T extends { id: string }>(items: readonly T[], 
 }
 
 /** Like `localizeFactions` for unit types (name, description, tactics) */
-export function localizeUnitTypes<T extends { id: string }>(items: readonly T[], locale: Locale): T[] {
+export function localizeUnitTypes<T extends { id: string }>(
+  items: readonly T[],
+  locale: Locale,
+): T[] {
   const byId = new Map(BY_LOCALE[locale].unitTypes.map((u) => [u.id, u]))
   return items.map((item) => {
     const u = byId.get(item.id)

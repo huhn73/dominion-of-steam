@@ -278,10 +278,18 @@ export function resolveCombat(
         needsOrders: false,
       })
     }
-    const text = msg(leavesGarrison ? 'events.capturedGarrison' : 'events.captured', { city: city.name })
+    const text = msg(leavesGarrison ? 'events.capturedGarrison' : 'events.captured', {
+      city: city.name,
+    })
     addEvent(state, attacker.ownerId, 'cityCaptured', city, text)
     if (previousOwner)
-      addEvent(state, previousOwner, 'cityLost', city, msg('events.cityLost', { city: city.name, player: me.name }))
+      addEvent(
+        state,
+        previousOwner,
+        'cityLost',
+        city,
+        msg('events.cityLost', { city: city.name, player: me.name }),
+      )
     return { ...base, captured: true, garrisonUnitId, ...asResult(text) }
   }
   const text = msg('events.attackFailed', { city: city.name })

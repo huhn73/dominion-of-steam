@@ -57,7 +57,13 @@ export function LegalPage({
           </p>
         )}
         {children}
-        {stand && <p className="text-xs text-stone-500 dark:text-stone-400">{t('legal.stand', { date: formatDate(locale, `${stand}T12:00:00`, { dateStyle: 'long' }) })}</p>}
+        {stand && (
+          <p className="text-xs text-stone-500 dark:text-stone-400">
+            {t('legal.stand', {
+              date: formatDate(locale, `${stand}T12:00:00`, { dateStyle: 'long' }),
+            })}
+          </p>
+        )}
       </div>
     </AuthLayout>
   )

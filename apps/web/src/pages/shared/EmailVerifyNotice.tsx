@@ -27,11 +27,7 @@ export function EmailVerifyNotice({
     setBusy(true)
     try {
       const result = await resendVerification()
-      onInfo(
-        result.alreadyVerified
-          ? t('common.verify.already')
-          : t('common.verify.sent'),
-      )
+      onInfo(result.alreadyVerified ? t('common.verify.already') : t('common.verify.sent'))
     } catch (e) {
       onError(e)
     } finally {
@@ -47,7 +43,10 @@ export function EmailVerifyNotice({
     >
       <MailWarning className="size-6 shrink-0 text-amber-700 dark:text-amber-400" aria-hidden />
       <p className="min-w-0 flex-1 basis-64 text-sm">
-        <Rich text={t('common.verify.text')} email={<strong className="break-all">{me.email}</strong>} />
+        <Rich
+          text={t('common.verify.text')}
+          email={<strong className="break-all">{me.email}</strong>}
+        />
       </p>
       <div className="flex flex-wrap gap-2">
         <button

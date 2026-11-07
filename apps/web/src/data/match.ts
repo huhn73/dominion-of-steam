@@ -11,7 +11,6 @@ import { useLocalizedMasterData } from '../i18n/localize'
 /** Without event stream: poll while others are on the move */
 export const POLL_WHILE_WAITING_MS = 5000
 
-
 export const matchKey = (matchId: string) => ['match', matchId] as const
 
 export function useMatchView(matchId: string) {

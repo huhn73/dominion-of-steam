@@ -36,10 +36,7 @@ export function sendVerification(mail: Mailer, origin: string, to: Recipient, to
     ...renderMail({
       title: t('mail.verify.title'),
       name: to.displayName,
-      body: [
-        t('mail.verify.body'),
-        t('mail.verify.valid', { hours: EMAIL_VERIFY_TTL_HOURS }),
-      ],
+      body: [t('mail.verify.body'), t('mail.verify.valid', { hours: EMAIL_VERIFY_TTL_HOURS })],
       cta: {
         label: t('mail.verify.cta'),
         url: `${origin}/api/account/verify?token=${token}`,
@@ -58,10 +55,7 @@ export function sendPasswordReset(mail: Mailer, origin: string, to: Recipient, t
     ...renderMail({
       title: t('mail.reset.title'),
       name: to.displayName,
-      body: [
-        t('mail.reset.body'),
-        t('mail.reset.valid', { minutes: PASSWORD_RESET_TTL_MINUTES }),
-      ],
+      body: [t('mail.reset.body'), t('mail.reset.valid', { minutes: PASSWORD_RESET_TTL_MINUTES })],
       cta: {
         label: t('mail.reset.cta'),
         url: `${origin}${RESET_PASSWORD_PATH}?token=${token}`,
@@ -85,10 +79,7 @@ export function sendEmailChangeConfirmation(
     ...renderMail({
       title: t('mail.change.title'),
       name: to.displayName,
-      body: [
-        t('mail.change.body'),
-        t('mail.change.valid', { hours: EMAIL_VERIFY_TTL_HOURS }),
-      ],
+      body: [t('mail.change.body'), t('mail.change.valid', { hours: EMAIL_VERIFY_TTL_HOURS })],
       cta: {
         label: t('mail.verify.cta'),
         url: `${origin}/api/account/email/confirm?token=${token}`,
@@ -107,10 +98,7 @@ export function sendEmailChanged(mail: Mailer, origin: string, to: Recipient, ne
     ...renderMail({
       title: t('mail.changed.title'),
       name: to.displayName,
-      body: [
-        t('mail.changed.body', { email: newEmail }),
-        notYou(t),
-      ],
+      body: [t('mail.changed.body', { email: newEmail }), notYou(t)],
       cta: { label: t('mail.resetCta'), url: `${origin}${FORGOT_PASSWORD_PATH}` },
       footer: t('mail.accountFooter'),
       locale,
@@ -126,10 +114,7 @@ export function sendPasswordChanged(mail: Mailer, origin: string, to: Recipient)
     ...renderMail({
       title: t('mail.password.title'),
       name: to.displayName,
-      body: [
-        t('mail.password.body'),
-        notYou(t),
-      ],
+      body: [t('mail.password.body'), notYou(t)],
       cta: { label: t('mail.resetCta'), url: `${origin}${FORGOT_PASSWORD_PATH}` },
       footer: t('mail.accountFooter'),
       locale,

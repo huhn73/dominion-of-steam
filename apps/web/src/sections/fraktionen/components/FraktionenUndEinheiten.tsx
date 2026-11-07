@@ -200,7 +200,7 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
               }}
               className="mt-5 flex min-h-11 items-center gap-1.5 rounded-lg bg-amber-500 px-4 font-semibold text-stone-950 hover:bg-amber-400"
             >
-              <X className="size-4" /> Filter zurücksetzen
+              <X className="size-4" /> {t('compendium.resetFilter')}
             </button>
           </div>
         ) : (

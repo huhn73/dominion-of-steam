@@ -239,7 +239,15 @@ export function createNotifier(db: Db, opts: NotifierOptions) {
           continue
         }
         try {
-          await opts.mail!({ to: p.email, ...mailFor(n, p.displayName, opts.publicUrl(), isLocale(p.locale) ? p.locale : DEFAULT_LOCALE) })
+          await opts.mail!({
+            to: p.email,
+            ...mailFor(
+              n,
+              p.displayName,
+              opts.publicUrl(),
+              isLocale(p.locale) ? p.locale : DEFAULT_LOCALE,
+            ),
+          })
           await set({ emailStatus: 'sent', emailSentAt: now })
         } catch (err) {
           log(`E-Mail an ${p.email} fehlgeschlagen`, err)

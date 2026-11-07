@@ -86,7 +86,11 @@ export function dictionary(locale: Locale): Dictionary {
 }
 
 /** Date and number formatting in the given language */
-export function formatDate(locale: Locale, value: string | Date, options: Intl.DateTimeFormatOptions) {
+export function formatDate(
+  locale: Locale,
+  value: string | Date,
+  options: Intl.DateTimeFormatOptions,
+) {
   return new Intl.DateTimeFormat(INTL_LOCALE[locale], options).format(new Date(value))
 }
 
