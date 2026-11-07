@@ -10,7 +10,7 @@ import type { WorldShape } from './worldShapes'
 const WATER: readonly Terrain[] = ['deepSea', 'shallows']
 const isWaterTerrain = (t: Terrain) => WATER.includes(t)
 
-/** Additional defense of land units by the terrain they stand on */
+/** Additional defense of infantry by the terrain it stands on */
 export const TERRAIN_DEFENSE: Record<Terrain, number> = {
   deepSea: 0,
   shallows: 0,
@@ -18,6 +18,42 @@ export const TERRAIN_DEFENSE: Record<Terrain, number> = {
   forest: 1,
   hills: 1,
   mountains: 2,
+}
+
+/** Additional defense of vehicles: they cannot dig in among trees or rocks, only on hills */
+export const VEHICLE_TERRAIN_DEFENSE: Record<Terrain, number> = {
+  deepSea: 0,
+  shallows: 0,
+  plains: 0,
+  forest: 0,
+  hills: 1,
+  mountains: 0,
+}
+
+/** Land vehicles: rough terrain ends their move and gives them less cover */
+export const VEHICLE_UNIT_TYPES: ReadonlySet<string> = new Set(['panzerwagen', 'dampfkoloss'])
+
+/** Forest, hills and mountains */
+export const ROUGH_TERRAIN: readonly Terrain[] = ['forest', 'hills', 'mountains']
+
+export const isVehicle = (type: Pick<UnitType, 'id'>) => VEHICLE_UNIT_TYPES.has(type.id)
+
+/**
+ * Whether entering the terrain uses up the unit's remaining moves: vehicles in rough terrain.
+ * A tile with a city never does (streets). Any unit with a move left may still enter one tile.
+ */
+export function endsMovement(
+  type: Pick<UnitType, 'id'>,
+  terrain: Terrain,
+  hasCity = false,
+): boolean {
+  return !hasCity && isVehicle(type) && ROUGH_TERRAIN.includes(terrain)
+}
+
+/** Sight radius of a unit: 1 for land units, 2 on hills and mountains; 2 for sea and air */
+export function sightRadius(type: Pick<UnitType, 'domain'>, terrain: Terrain | undefined): number {
+  if (type.domain !== 'land') return 2
+  return terrain === 'hills' || terrain === 'mountains' ? 2 : 1
 }
 
 export const TERRAIN_LABEL = {
@@ -74,9 +110,22 @@ export function attackTargetsDescription(
   }
 }
 
-/** Terrain bonus on defense: only land units dig in */
-export function terrainDefense(defender: Pick<UnitType, 'domain'>, terrain: Terrain): number {
-  return defender.domain === 'land' ? TERRAIN_DEFENSE[terrain] : 0
+/** Terrain bonus on defense: only land units dig in, vehicles only on hills */
+export function terrainDefense(
+  defender: Pick<UnitType, 'id' | 'domain'>,
+  terrain: Terrain,
+): number {
+  if (defender.domain !== 'land') return 0
+  return (isVehicle(defender) ? VEHICLE_TERRAIN_DEFENSE : TERRAIN_DEFENSE)[terrain]
+}
+
+/** Terrains that give the unit type a defense bonus, with the bonus (compendium) */
+export function terrainDefenseTable(
+  type: Pick<UnitType, 'id' | 'domain'>,
+): { terrain: Terrain; value: number }[] {
+  return (Object.keys(TERRAIN_DEFENSE) as Terrain[])
+    .map((terrain) => ({ terrain, value: terrainDefense(type, terrain) }))
+    .filter((t) => t.value > 0)
 }
 
 export interface DefenseModifier {
@@ -86,7 +135,7 @@ export interface DefenseModifier {
 
 /** Visible defense modifiers of a defender (without faction fortification), for the attack dialog */
 export function defenseModifiers(
-  defender: Pick<UnitType, 'domain'>,
+  defender: Pick<UnitType, 'id' | 'domain'>,
   terrain: Terrain,
   inCity: boolean,
 ): DefenseModifier[] {

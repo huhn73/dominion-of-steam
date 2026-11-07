@@ -22,7 +22,7 @@ import {
   type UnitState,
   unitType,
 } from './state'
-import { hiddenFrom, STEALTH_UNIT_TYPES, tileAt, visibleTiles } from './visibility'
+import { hiddenFrom, STEALTH_UNIT_TYPES, stopsAt, tileAt, visibleTiles } from './visibility'
 import { projectBoard } from './view'
 
 /** The board as the participant knows it (map, cities, units), with an index over it */
@@ -78,7 +78,8 @@ export function walk(state: GameState, unit: UnitState, path: HexCoord[]) {
     }
     detach(state, unit)
     placeUnit(state, unit, step)
-    unit.movesLeft -= 1
+    // Rough terrain uses up the remaining moves of a vehicle
+    unit.movesLeft = stopsAt(state, unit.unitTypeId, step) ? 0 : unit.movesLeft - 1
     if (unit.fuel != null) unit.fuel -= 1
     walked.push(step)
   }

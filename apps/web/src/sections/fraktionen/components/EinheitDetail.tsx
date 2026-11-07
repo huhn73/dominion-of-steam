@@ -3,8 +3,9 @@ import { ArrowLeft, ArrowUpRight, Flag, FlagOff } from 'lucide-react'
 import {
   attackTargetsDescription,
   CITY_DEFENSE,
-  TERRAIN_DEFENSE,
+  isVehicle,
   TERRAIN_LABEL,
+  terrainDefenseTable,
 } from '@dos/shared/game/rules'
 import type { EinheitDetailProps, UnitType } from '../types'
 import { FactionEmblem } from './FactionEmblem'
@@ -260,13 +261,28 @@ export function EinheitDetail({
           <div className="rounded-lg border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
             <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">{t('compendium.defenseBonus')}</dt>
             <dd className="mt-1 text-stone-700 dark:text-stone-300">
-              {unit.domain === 'land'
-                ? (Object.keys(TERRAIN_DEFENSE) as (keyof typeof TERRAIN_DEFENSE)[])
-                    .filter((terrain) => TERRAIN_DEFENSE[terrain] > 0)
-                    .map((terrain) => `${t(TERRAIN_LABEL[terrain])} +${TERRAIN_DEFENSE[terrain]}`)
+              {terrainDefenseTable(unit).length > 0
+                ? terrainDefenseTable(unit)
+                    .map(({ terrain, value }) => `${t(TERRAIN_LABEL[terrain])} +${value}`)
                     .join(' · ')
                 : t('compendium.noTerrainBonus')}
               {` · ${t('compendium.cityBonus', { value: CITY_DEFENSE })}`}
+            </dd>
+          </div>
+          <div className="rounded-lg border border-stone-200 bg-white p-5 md:col-span-2 dark:border-stone-800 dark:bg-stone-900">
+            <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">{t('compendium.terrain')}</dt>
+            <dd className="mt-1 text-stone-700 dark:text-stone-300">
+              {t(
+                unit.domain === 'air'
+                  ? 'compendium.terrainAir'
+                  : unit.domain === 'sea'
+                    ? unit.id === 'tauchboot'
+                      ? 'compendium.terrainSubmarine'
+                      : 'compendium.terrainSea'
+                    : isVehicle(unit)
+                      ? 'compendium.terrainVehicle'
+                      : 'compendium.terrainInfantry',
+              )}
             </dd>
           </div>
         </dl>

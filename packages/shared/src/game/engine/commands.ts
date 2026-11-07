@@ -7,6 +7,7 @@ import {
   hexDistance,
   hexKey,
   isWater,
+  marchTurns,
   reachableTiles,
   sameHex,
 } from '../hex'
@@ -221,7 +222,8 @@ function move(
   const remaining = path.length - walked.length
   if (kind === 'goto' && remaining > 0 && !blocked) {
     const movement = withBonus(type, factionOf(state, playerId), 'movement') ?? type.movement
-    unit.order = { type: 'goto', target, turnsRemaining: Math.ceil(remaining / movement) }
+    const rest = path.slice(walked.length)
+    unit.order = { type: 'goto', target, turnsRemaining: marchTurns(type, rest, idx, movement) }
   }
   refreshNeedsOrders(unit)
   if (unit.order.type !== 'none') unit.needsOrders = false
@@ -275,7 +277,7 @@ function attack(
     // Move next to the target first, using the closest tile from which the attack is possible
     const reach = reachableTiles(viewUnit, idx)
     const origin = [...reach.values()]
-      .filter((r) => r.dist < unit.movesLeft && hexDistance(r.coord, chosen.coord) === 1)
+      .filter((r) => r.cost < unit.movesLeft && hexDistance(r.coord, chosen.coord) === 1)
       .sort((a, b) => a.dist - b.dist)[0]
     const path = origin && findPath(viewUnit, origin.coord, idx)
     if (!path) return fail('UNREACHABLE', 'commands.unreachable')

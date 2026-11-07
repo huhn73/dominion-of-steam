@@ -244,11 +244,11 @@ export function Spielfeld({
 
   const pathMarkers: PathMarker[] = useMemo(() => {
     if (!preview || !selectedUnit || !selectedType) return []
-    const turns = pathTurns(selectedUnit, selectedType, preview.path.length)
+    const turns = pathTurns(selectedUnit, selectedType, preview.path, idx)
     return preview.path
       .map((coord, i) => ({ coord, turn: turns[i] }))
       .filter((m, i, all) => i === all.length - 1 || all[i + 1].turn !== m.turn)
-  }, [preview, selectedUnit, selectedType])
+  }, [preview, selectedUnit, selectedType, idx])
   const previewBeyondReach = !!preview && !reach.has(hexKey(preview.target))
 
   const unloadTargets = useMemo(() => {
@@ -355,7 +355,7 @@ export function Spielfeld({
     let origin: HexCoord = attacker
     if (hexDistance(attacker, target) > 1) {
       const o = [...reachableTiles(attacker, idx).values()]
-        .filter((r) => r.dist < attacker.movesLeft && hexDistance(r.coord, target) === 1)
+        .filter((r) => r.cost < attacker.movesLeft && hexDistance(r.coord, target) === 1)
         .sort((a, b) => a.dist - b.dist)[0]
       if (o) origin = o.coord
     }
@@ -908,7 +908,7 @@ export function Spielfeld({
     let approach = 0
     if (hexDistance(attacker, target.coord) > 1) {
       const steps = [...reachableTiles(attacker, idx).values()]
-        .filter((r) => r.dist < attacker.movesLeft && hexDistance(r.coord, target.coord) === 1)
+        .filter((r) => r.cost < attacker.movesLeft && hexDistance(r.coord, target.coord) === 1)
         .map((r) => r.dist)
       approach = steps.length ? Math.min(...steps) : 0
     }

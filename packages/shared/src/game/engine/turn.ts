@@ -1,6 +1,6 @@
 import type { ParamValue } from '../../i18n'
 import { withBonus } from '../bonus'
-import { findPath, hexDistance, hexKey, sameHex } from '../hex'
+import { findPath, hexDistance, hexKey, marchTurns, sameHex } from '../hex'
 import type { HexCoord } from '../types'
 import { destroyUnit } from './combat'
 import { exploreTurn } from './explore'
@@ -19,7 +19,7 @@ import {
   type UnitState,
   unitType,
 } from './state'
-import { seesUnit, sightingSnapshot, updateKnowledge, visibleTiles } from './visibility'
+import { seesUnit, sightingSnapshot, unitSight, updateKnowledge, visibleTiles } from './visibility'
 import { capitulate, shouldCapitulate } from './surrender'
 import {
   checkVictory,
@@ -272,7 +272,7 @@ function executeStandingOrders(state: GameState, playerId: string) {
   for (const unit of state.units.filter((u) => u.ownerId === playerId)) {
     const order = unit.order
     if (order.type === 'sentry') {
-      const sight = unitType(unit.unitTypeId).domain === 'land' ? 1 : 2
+      const sight = unitSight(state, unit)
       const enemy = enemies.find((e) => hexDistance(e, unit) <= sight)
       if (enemy) {
         unit.order = { type: 'none' }
@@ -300,7 +300,7 @@ function executeStandingOrders(state: GameState, playerId: string) {
           ? {
               type: 'goto',
               target: order.target,
-              turnsRemaining: Math.ceil(rest.length / movement),
+              turnsRemaining: marchTurns(type, rest, idx, movement),
             }
           : { type: 'none' }
       }

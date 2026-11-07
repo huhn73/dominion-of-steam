@@ -11,7 +11,15 @@ import type {
   CombatOdds,
   Visibility,
 } from './types'
-import { canAttack, CITY_DEFENSE, cityAttackOdds, exchangeOdds, terrainDefense } from './rules'
+import {
+  canAttack,
+  CITY_DEFENSE,
+  cityAttackOdds,
+  endsMovement,
+  exchangeOdds,
+  isVehicle,
+  terrainDefense,
+} from './rules'
 import { TERRAIN_OF_CODE, tileIndex, VISIBILITY_OF_CODE } from './mapcodec'
 
 // Pointy-top hexes in odd-r offset coordinates (odd rows shifted right)
@@ -188,10 +196,23 @@ export function tilesNear(
 
 const moveBudget = (unit: Unit) => Math.min(unit.movesLeft, unit.fuel ?? Infinity)
 
-/** Tiles the unit can reach this round, with their distance */
+/** Whether entering the tile uses up the unit's remaining moves (vehicles in rough terrain) */
+export function stopsOn(
+  type: Pick<UnitType, 'id'>,
+  c: HexCoord,
+  idx: Pick<BoardIndex, 'terrainAt' | 'cityAt'>,
+) {
+  const terrain = idx.terrainAt(c)
+  return !!terrain && endsMovement(type, terrain, !!idx.cityAt(c))
+}
+
+/**
+ * Tiles the unit can reach this round: `dist` counts the steps, `cost` the moves used (rough
+ * terrain uses up all moves of a vehicle, so the search does not go on from there)
+ */
 export function reachableTiles(unit: Unit, idx: BoardIndex) {
   const type = idx.unitType(unit.unitTypeId)
-  const result = new Map<string, { coord: HexCoord; dist: number }>()
+  const result = new Map<string, { coord: HexCoord; dist: number; cost: number }>()
   if (!type) return result
   const budget = moveBudget(unit)
   const seen = new Set([hexKey(unit)])
@@ -203,7 +224,11 @@ export function reachableTiles(unit: Unit, idx: BoardIndex) {
         const k = hexKey(n)
         if (seen.has(k)) continue
         seen.add(k)
-        if (canEnter(type, n, idx, true)) result.set(k, { coord: n, dist: d })
+        if (canEnter(type, n, idx, true)) {
+          const stops = stopsOn(type, n, idx)
+          result.set(k, { coord: n, dist: d, cost: stops ? budget : d })
+          if (stops) continue
+        }
         // land units may end on a transport but not pass through water
         if (canEnter(type, n, idx, false)) next.push(n)
       }
@@ -248,7 +273,8 @@ export interface PathBudget {
 
 /**
  * Shortest path from the unit to target (excluding start), or null. Breadth-first over tile
- * indices; a budget stops the search (null) once `used` reaches `maxNodes`.
+ * indices; vehicles weigh rough terrain as a whole round (`weightedPath`). A budget stops the
+ * search (null) once `used` reaches `maxNodes`.
  */
 export function findPath(
   unit: Unit,
@@ -264,6 +290,7 @@ export function findPath(
   const start = tileIndex(idx.map, unit)
   const goal = tileIndex(idx.map, target)
   if (start < 0 || goal < 0) return null
+  if (isVehicle(type)) return weightedPath(type, start, goal, idx, budget)
   // prev[i] = index of the tile we came from, -1 for the start, -2 for unseen
   const prev = new Int32Array(n).fill(-2)
   prev[start] = -1
@@ -297,12 +324,95 @@ export function findPath(
   return null
 }
 
+/**
+ * Cheapest path for vehicles: a step costs 1, a step into rough terrain `movement` (it ends the
+ * round). Dijkstra with buckets per cost (Dial), the same node budget as `findPath`.
+ */
+function weightedPath(
+  type: UnitType,
+  start: number,
+  goal: number,
+  idx: BoardIndex,
+  budget: PathBudget | undefined,
+): HexCoord[] | null {
+  const { width, height } = idx.map
+  const n = width * height
+  const cost = new Int32Array(n).fill(-1)
+  const prev = new Int32Array(n).fill(-1)
+  const buckets: number[][] = [[start]]
+  cost[start] = 0
+  const coordOf = (i: number): HexCoord => ({ col: i % width, row: (i / width) | 0 })
+  const roughCost = Math.max(1, type.movement)
+  for (let c = 0; c < buckets.length; c++) {
+    const bucket = buckets[c]
+    if (!bucket) continue
+    for (const ci of bucket) {
+      if (cost[ci] !== c) continue
+      if (ci === goal) {
+        const path: HexCoord[] = []
+        for (let p = goal; p !== start; p = prev[p]!) path.push(coordOf(p))
+        return path.reverse()
+      }
+      if (budget && budget.used >= budget.maxNodes) return null
+      if (budget) budget.used++
+      for (const nb of neighbors(coordOf(ci))) {
+        const ni = tileIndex(idx.map, nb)
+        if (ni < 0) continue
+        // The goal was checked as a final tile; every other tile must be passable
+        if (ni !== goal && !canEnter(type, nb, idx, false)) continue
+        const next = c + (stopsOn(type, nb, idx) ? roughCost : 1)
+        if (cost[ni] !== -1 && cost[ni]! <= next) continue
+        cost[ni] = next
+        prev[ni] = ci
+        ;(buckets[next] ??= []).push(ni)
+      }
+    }
+  }
+  return null
+}
+
+/**
+ * Round in which each step of a path is reached (1 = this round), starting with `budget` moves
+ * and `movement` per later round; tiles where `stops` holds end the round.
+ */
+function stepTurns(
+  budget: number,
+  movement: number,
+  path: readonly HexCoord[],
+  stops: (c: HexCoord) => boolean,
+) {
+  let turn = 1
+  let left = budget
+  return path.map((c) => {
+    if (left <= 0) {
+      turn++
+      left = movement
+    }
+    left = stops(c) ? 0 : left - 1
+    return turn
+  })
+}
+
 /** Round number (1 = this round) in which the unit reaches each step of the path */
-export function pathTurns(unit: Unit, type: UnitType, length: number) {
-  const budget = moveBudget(unit)
-  return Array.from({ length }, (_, i) =>
-    i < budget ? 1 : 1 + Math.ceil((i + 1 - budget) / type.movement),
-  )
+export function pathTurns(
+  unit: Unit,
+  type: UnitType,
+  path: readonly HexCoord[],
+  idx: Pick<BoardIndex, 'terrainAt' | 'cityAt'>,
+  movement = type.movement,
+) {
+  return stepTurns(moveBudget(unit), movement, path, (c) => stopsOn(type, c, idx))
+}
+
+/** Full rounds a march along the path takes, starting at the beginning of a round */
+export function marchTurns(
+  type: UnitType,
+  path: readonly HexCoord[],
+  idx: Pick<BoardIndex, 'terrainAt' | 'cityAt'>,
+  movement = type.movement,
+) {
+  if (!path.length) return 0
+  return stepTurns(0, movement, path, (c) => stopsOn(type, c, idx)).at(-1)! - 1
 }
 
 export interface AttackTarget {
@@ -327,7 +437,7 @@ export function attackTargets(
   const reach = reachableTiles(unit, idx)
   const origins: HexCoord[] = [
     unit,
-    ...[...reach.values()].filter((r) => r.dist < unit.movesLeft).map((r) => r.coord),
+    ...[...reach.values()].filter((r) => r.cost < unit.movesLeft).map((r) => r.coord),
   ]
   const inRange = (c: HexCoord) => origins.some((o) => hexDistance(o, c) === 1)
   const coastal = (c: HexCoord) =>

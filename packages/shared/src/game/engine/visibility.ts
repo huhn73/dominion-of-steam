@@ -1,5 +1,6 @@
 import { decodeBits, encodeBits } from '../bits'
-import { hexDistance, isWater, neighbors } from '../hex'
+import { hexDistance, isWater, neighbors, sameHex } from '../hex'
+import { endsMovement, sightRadius } from '../rules'
 import { terrainAt as terrainOf, tileIndex } from '../mapcodec'
 import type { HexCoord } from '../types'
 import {
@@ -10,15 +11,24 @@ import {
   type UnitState,
 } from './state'
 
-/** Sight radius: 1 for land units and cities, 2 for sea and air units */
-const sightOf = (domain: string) => (domain === 'land' ? 1 : 2)
+/** Sight radius of a unit where it stands (land units see further from hills and mountains) */
+export function unitSight(state: GameState, u: UnitState): number {
+  return sightRadius(unitType(u.unitTypeId), terrainOf(state.map, u))
+}
+
+/** Whether entering the tile uses up the unit's remaining moves (vehicles in rough terrain) */
+export function stopsAt(state: GameState, unitTypeId: string, c: HexCoord): boolean {
+  const terrain = terrainOf(state.map, c)
+  const city = state.cities.some((x) => sameHex(x, c))
+  return !!terrain && endsMovement(unitType(unitTypeId), terrain, city)
+}
 
 /** Tile indices of all tiles the participant currently sees */
 export function visibleIndices(state: GameState, participantId: string): Set<number> {
   const sources: { at: HexCoord; radius: number }[] = []
   for (const u of state.units) {
     if (u.ownerId !== participantId || u.carriedBy) continue
-    sources.push({ at: u, radius: sightOf(unitType(u.unitTypeId).domain) })
+    sources.push({ at: u, radius: unitSight(state, u) })
   }
   for (const c of state.cities) {
     if (c.ownerId === participantId) sources.push({ at: c, radius: 1 })
@@ -155,8 +165,9 @@ export const STEALTH_UNIT_TYPES = new Set(['tauchboot'])
 const SONAR_RANGE = 2
 
 /**
- * Whether a unit is hidden from the viewer even on a visible tile: an enemy submarine is only
- * seen by a submarine of the viewer close by, or after a unit of the viewer ran into it.
+ * Whether a unit is hidden from the viewer even on a visible tile: an enemy submarine in deep
+ * sea is only seen by a submarine of the viewer close by, or after a unit of the viewer ran
+ * into it. In shallows it is always seen.
  */
 export function hiddenFrom(
   state: GameState,
@@ -165,6 +176,7 @@ export function hiddenFrom(
 ): boolean {
   if (u.ownerId === viewerId || !STEALTH_UNIT_TYPES.has(u.unitTypeId)) return false
   if (u.revealedTo?.includes(viewerId)) return false
+  if (terrainOf(state.map, u) === 'shallows') return false
   return !state.units.some(
     (o) =>
       o.ownerId === viewerId &&

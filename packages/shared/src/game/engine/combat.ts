@@ -24,7 +24,7 @@ import {
   type UnitState,
   unitType,
 } from './state'
-import { tileAt } from './visibility'
+import { stopsAt, tileAt } from './visibility'
 
 /** Defense bonus of cities owned by a faction whose bonus affects cities (e.g. Salzküsten-Liga) */
 function fortification(state: GameState, ownerId: string | null) {
@@ -106,10 +106,11 @@ function canAdvance(state: GameState, attacker: UnitState, at: HexCoord) {
   return !city || city.ownerId === attacker.ownerId
 }
 
-/** Move the winner onto the defender's tile; aircraft burn fuel for it */
+/** Move the winner onto the defender's tile; aircraft burn fuel, vehicles stop in rough terrain */
 function advance(state: GameState, attacker: UnitState, at: HexCoord) {
   placeUnit(state, attacker, at)
   if (attacker.fuel != null) attacker.fuel = Math.max(0, attacker.fuel - 1)
+  if (stopsAt(state, attacker.unitTypeId, at)) attacker.movesLeft = 0
 }
 
 /** Remove a unit together with its cargo */

@@ -24,6 +24,22 @@ export interface ReleaseNotes {
 
 export const NEWS: readonly ReleaseNotes[] = [
   {
+    version: '0.12.0',
+    date: '2026-11-07',
+    items: [
+      {
+        de: {
+          title: 'Gelände',
+          text: 'Wald, Hügel und Gebirge halten Panzerwagen und Dampfkoloss für den Rest der Runde auf und geben ihnen nur auf Hügeln Deckung, Landeinheiten sehen von Hügeln und Gebirge zwei Felder weit, und Tauchboote sind im Flachwasser für alle sichtbar.',
+        },
+        en: {
+          title: 'Terrain',
+          text: 'Forest, hills and mountains stop Armoured Cars and the Steam Colossus for the rest of the round and give them cover only on hills, land units see two tiles from hills and mountains, and Submersibles are visible to everyone in shallows.',
+        },
+      },
+    ],
+  },
+  {
     version: '0.11.0',
     date: '2026-11-07',
     items: [

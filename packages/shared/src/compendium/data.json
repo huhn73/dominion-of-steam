@@ -137,7 +137,8 @@
       "description": "Gepanzerte Dampfwagen mit Schnellfeuerkanone. Schnell genug, um neutrale Städte vor dem Gegner zu erreichen.",
       "tactics": [
         "Nutze die doppelte Bewegung, um Lücken in der Front zu schließen.",
-        "Panzerwagen eignen sich gut für Mehrrunden-Märsche zu weit entfernten Städten."
+        "Panzerwagen eignen sich gut für Mehrrunden-Märsche zu weit entfernten Städten.",
+        "Fahre über Ebenen: Wald, Hügel und Gebirge halten Panzerwagen für den Rest der Runde auf, und nur auf Hügeln finden sie Deckung."
       ],
       "illustrationUrl": "/art/units/panzerwagen.webp",
       "variantIllustrationUrls": {
@@ -166,7 +167,8 @@
       "tactics": [
         "Begleite den Koloss mit Grenadieren, damit er nicht eingekesselt wird.",
         "Plane seinen Weg früh: Er braucht für jede Strecke doppelt so lange wie ein Panzerwagen.",
-        "Ein Koloss in einer Stadt macht sie praktisch uneinnehmbar."
+        "Ein Koloss in einer Stadt macht sie praktisch uneinnehmbar.",
+        "Wald und Gebirge geben dem Koloss keine Deckung, nur Hügel."
       ],
       "illustrationUrl": "/art/units/dampfkoloss.webp",
       "variantIllustrationUrls": {}
@@ -239,9 +241,10 @@
       "productionTurns": 9,
       "factionId": null,
       "canCaptureCities": false,
-      "description": "Unsichtbare Jäger unter Wasser. Hoher Angriff, aber kaum Panzerung. Der Gegner sieht ein Tauchboot nur mit einem eigenen Tauchboot in der Nähe (zwei Felder) oder wenn er dagegen fährt; dann bleibt es bis zum nächsten Zug seines Besitzers sichtbar.",
+      "description": "Unsichtbare Jäger unter Wasser. Hoher Angriff, aber kaum Panzerung. Der Gegner sieht ein Tauchboot nur mit einem eigenen Tauchboot in der Nähe (zwei Felder) oder wenn er dagegen fährt; dann bleibt es bis zum nächsten Zug seines Besitzers sichtbar. Im Flachwasser ist es für alle zu sehen.",
       "tactics": [
-        "Tauchboote sind ideal gegen Panzerkreuzer, aber verwundbar, sobald sie entdeckt sind."
+        "Tauchboote sind ideal gegen Panzerkreuzer, aber verwundbar, sobald sie entdeckt sind.",
+        "Halte dich in tiefer See: Im Flachwasser vor der Küste verliert das Tauchboot seine Tarnung."
       ],
       "illustrationUrl": "/art/units/tauchboot.webp",
       "variantIllustrationUrls": {

@@ -137,7 +137,8 @@
       "description": "Armoured steam carriages with a rapid-fire cannon. Fast enough to reach neutral cities before the enemy does.",
       "tactics": [
         "Use the double movement to close gaps in the front.",
-        "Armoured Cars are well suited to multi-round marches to distant cities."
+        "Armoured Cars are well suited to multi-round marches to distant cities.",
+        "Drive across plains: forest, hills and mountains stop Armoured Cars for the rest of the round, and only hills give them cover."
       ],
       "illustrationUrl": "/art/units/panzerwagen.webp",
       "variantIllustrationUrls": {
@@ -166,7 +167,8 @@
       "tactics": [
         "Escort the Colossus with Grenadiers so it does not get encircled.",
         "Plan its route early: it takes twice as long as an Armoured Car for any distance.",
-        "A Colossus in a city makes it practically impregnable."
+        "A Colossus in a city makes it practically impregnable.",
+        "Forest and mountains give the Colossus no cover, only hills do."
       ],
       "illustrationUrl": "/art/units/dampfkoloss.webp",
       "variantIllustrationUrls": {}
@@ -239,9 +241,10 @@
       "productionTurns": 9,
       "factionId": null,
       "canCaptureCities": false,
-      "description": "Invisible hunters beneath the waves. Strong attack, but hardly any armour. The enemy only sees a Submersible with a Submersible of their own nearby (two tiles) or by running into it; it then stays visible until its owner's next turn.",
+      "description": "Invisible hunters beneath the waves. Strong attack, but hardly any armour. The enemy only sees a Submersible with a Submersible of their own nearby (two tiles) or by running into it; it then stays visible until its owner's next turn. In shallows everyone can see it.",
       "tactics": [
-        "Submersibles are ideal against Armoured Cruisers, but vulnerable once discovered."
+        "Submersibles are ideal against Armoured Cruisers, but vulnerable once discovered.",
+        "Stay in deep sea: in the shallows off the coast the Submersible loses its cover."
       ],
       "illustrationUrl": "/art/units/tauchboot.webp",
       "variantIllustrationUrls": {

@@ -359,6 +359,34 @@ Neues Werkzeug: **Katalog-Überschreibungen** in der Simulation (`catalog` in de
 
 **Entscheidung:** Es werden keine Werte geändert. Der Ist-Stand liegt mit 18–30 % je Fraktion im Rahmen dessen, was die Simulation unterscheiden kann. Der Katalog-Sweep bleibt als Werkzeug für künftige Regeländerungen. Feinere Balance braucht entweder deutlich mehr Seeds je Punkt (100+, etwa eine Stunde je Punkt) oder Daten aus echten Partien.
 
+## Nachmessung Gelände (7. November 2026, Spec `2026-11-07-2050-gelaenderegeln`)
+
+Regeländerung, keine KI-Änderung: Wald, Hügel und Gebirge beenden die Bewegung von Panzerwagen und Dampfkoloss (nicht in Städten), ihre Wegsuche weicht rauem Gelände aus; Fahrzeuge bekommen nur auf Hügeln +1 Abwehr; Landeinheiten sehen von Hügeln und Gebirge 2 Felder; Tauchboote sind im Flachwasser sichtbar. Die KI nutzt die neuen Regeln über `findPath`, `reachableTiles` und `attackTargets` ohne eigene Anpassung.
+
+| Serie | Matchup | vorher | nachher |
+|---|---|---|---|
+| `stufen` | schwer gegen normal | 62 % | 58 % |
+| `stufen` | normal gegen leicht | 75 % | 75 % |
+| `stufen` | schwer gegen leicht | 90 % | 92 % |
+| `fraktionen` | Spanne der Duelle | 37–63 % | 41–59 % |
+| `inseln-vorherrschaft` | schwer gegen normal | 82 %, entschieden 93–98 % | 77 %, entschieden 88–92 % |
+| `inseln-vorherrschaft` | Aurelia gegen Eisenbund | 37 : 37 % | 32 : 35 % |
+
+Vierer (`2026-11-07-2116-fraktionen-ffa.md`, 800 Partien, dieselben 50 Seeds wie die Nullmessung):
+
+| Zelle | Eisenbund | Aurelia | Nordmark | Salzküste |
+|---|---|---|---|---|
+| normal, Kontinent | 31 % (28) | 25 % (25) | 20 % (22) | 25 % (26) |
+| normal, Inseln | 31 % (30) | 25 % (24) | 22 % (24) | 23 % (23) |
+| schwer, Kontinent | 32 % (30) | 23 % (26) | 20 % (18) | 26 % (28) |
+| schwer, Inseln | 26 % (30) | 31 % (26) | 23 % (22) | 22 % (22) |
+
+**Befunde:**
+- Alle Verschiebungen liegen im Rauschen (±5 Punkte in den Duellen, ±6 je Vierer-Zelle). Die Fraktionsduelle sind enger als vorher; Nordmark auf „schwer“, Kontinent ist von 18 auf 20 % gestiegen.
+- „schwer“ verliert gegen „normal“ etwas (62 → 58 % auf dem Kontinent, 82 → 77 % mit Vorherrschaft), Partien bleiben etwas häufiger am Rundendeckel hängen (entschieden 88–92 statt 93–98 %). Plausibel: Die Panzerwagen-Offensive von „schwer“ kommt im Gelände langsamer voran, und Verteidiger auf Höhen sehen sie früher.
+- Zugdauer gestiegen (Stufen Ø 41 → 56 ms je KI-Zug, Inseln „schwer“ p95 289 → 408 ms), weit unter dem Budget von 10 s, nie erschöpft. Die Stufen-Serie lief teilweise parallel zu Dev-Server und Browser, der Anstieg ist also eine Obergrenze; Ursache sonst die gewichtete Wegsuche für Fahrzeuge.
+- **Entscheidung:** Keine Nachjustierung. Die Regeln verschieben keine Quote über das Rauschen hinaus; was sie für Menschen ändern (Routenwahl, Höhen besetzen, Tauchboote an Küsten), misst die Simulation nicht.
+
 ## Was die Simulation noch nicht misst
 
 - Spielspaß und Druck auf einen Menschen: KI gegen KI misst nur relative Stärke. Nächster Schritt sind Sparringsgegner mit festem Verhalten (passiv, reiner Expandierer, Rusher), gegen die jede Stufe eine Zielquote hat.
