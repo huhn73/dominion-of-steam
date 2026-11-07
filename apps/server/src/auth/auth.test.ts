@@ -164,6 +164,25 @@ describe.skipIf(!url)('Konten-API (Datenbank)', () => {
     expect(mail.html).toContain('<html lang="en">')
   })
 
+  it('lehnt reservierte und anstößige Namen bei der Registrierung ab', async () => {
+    const id = unique()
+    const res = await register({
+      displayName: 'Admin',
+      email: `admin-${id}@example.test`,
+      password: 'sehr-geheim',
+    })
+    expect(res.statusCode).toBe(422)
+    expect(res.json().error.message).toBe('Dieser Name ist reserviert. Bitte wähle einen anderen.')
+    const blocked = await register({
+      displayName: 'N4zi Boss',
+      email: `n-${id}@example.test`,
+      password: 'sehr-geheim',
+    })
+    expect(blocked.json().error.message).toBe(
+      'Dieser Name ist nicht erlaubt. Bitte wähle einen anderen.',
+    )
+  })
+
   it('setzt Secure hinter einem https-Proxy, dem der Server vertraut', async () => {
     const payload = {
       displayName: `Proxy ${unique()}`,

@@ -5,5 +5,7 @@
   "emailMissing": "Bitte gib deine E-Mail-Adresse ein.",
   "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
   "newPasswordShort": "Das neue Passwort muss mindestens {min} Zeichen lang sein.",
-  "newPasswordLong": "Das neue Passwort ist zu lang."
+  "newPasswordLong": "Das neue Passwort ist zu lang.",
+  "nameReserved": "Dieser Name ist reserviert. Bitte wähle einen anderen.",
+  "nameBlocked": "Dieser Name ist nicht erlaubt. Bitte wähle einen anderen."
 }

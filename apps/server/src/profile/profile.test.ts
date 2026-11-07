@@ -313,6 +313,12 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     })
     expect((await patch('   ')).statusCode).toBe(422)
     expect((await patch('x'.repeat(25))).statusCode).toBe(422)
+    expect((await patch('Moderator')).json().error.message).toBe(
+      'Dieser Name ist reserviert. Bitte wähle einen anderen.',
+    )
+    expect((await patch('Ar5chl0ch')).json().error.message).toBe(
+      'Dieser Name ist nicht erlaubt. Bitte wähle einen anderen.',
+    )
     const taken = await patch('lena hartmann')
     expect(taken.statusCode).toBe(409)
     expect(taken.json().error.message).toBe('Dieser Name ist bereits vergeben.')

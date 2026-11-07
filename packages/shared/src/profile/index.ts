@@ -1,6 +1,5 @@
 // Spielerprofil & Einstellungen: Datentypen der Übergabe, Vorgaben, Prüfregeln und API-Formen
 import type { Message } from '../i18n'
-import { DISPLAY_NAME_MAX, DISPLAY_NAME_MIN } from '../account'
 import {
   DEFAULT_NOTIFICATION_SETTINGS,
   EMAIL_DELAY_HOURS,
@@ -133,13 +132,8 @@ export function validateSettings(input: unknown): { settings: Settings } | { err
 // Profil
 // =============================================================================
 
-/** Same rule as the dialog „Profil bearbeiten“ (after trim) */
-export function validateDisplayName(name: string): Message | null {
-  const n = name.trim()
-  if (n.length < DISPLAY_NAME_MIN || n.length > DISPLAY_NAME_MAX)
-    return { key: 'account.nameLength', params: { min: DISPLAY_NAME_MIN, max: DISPLAY_NAME_MAX } }
-  return null
-}
+/** Same rule as the registration, see `account/names.ts` */
+export { validateDisplayName } from '../account/names'
 
 /** Entries of the match history per page (`limit`, at most `HISTORY_PAGE_MAX`) */
 export const HISTORY_PAGE_SIZE = 10

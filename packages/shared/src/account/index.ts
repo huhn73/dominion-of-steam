@@ -1,6 +1,7 @@
 // Konten, Anmeldung und Freunde: gemeinsame Typen und Regeln für Client und Server
 import type { Locale } from '../i18n/locale'
 import type { Message } from '../i18n'
+import { validateDisplayName } from './names'
 
 /** Logged-in player as returned by `GET /api/me` */
 export interface Me {
@@ -54,8 +55,13 @@ export interface ResetPasswordRequest {
   password: string
 }
 
-export const DISPLAY_NAME_MIN = 3
-export const DISPLAY_NAME_MAX = 24
+export {
+  DISPLAY_NAME_MAX,
+  DISPLAY_NAME_MIN,
+  nameProblem,
+  normalizeName,
+  validateDisplayName,
+} from './names'
 export const PASSWORD_MIN = 8
 export const PASSWORD_MAX = 200
 
@@ -77,12 +83,8 @@ export function validateRegistration(input: {
   password: string
 }): Partial<Record<'displayName' | 'email' | 'password', Message>> {
   const errors: Partial<Record<'displayName' | 'email' | 'password', Message>> = {}
-  const name = input.displayName.trim()
-  if (name.length < DISPLAY_NAME_MIN || name.length > DISPLAY_NAME_MAX)
-    errors.displayName = {
-      key: 'account.nameLength',
-      params: { min: DISPLAY_NAME_MIN, max: DISPLAY_NAME_MAX },
-    }
+  const nameError = validateDisplayName(input.displayName)
+  if (nameError) errors.displayName = nameError
   const emailError = validateEmail(input.email)
   if (emailError) errors.email = emailError
   const passwordError = validatePassword(input.password)
