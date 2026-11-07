@@ -1,3 +1,4 @@
+import type { CatalogOverride } from './catalogOverride'
 import type { ProfileOverride, SimConfig } from './config'
 import type { GameResult, ParticipantResult } from './collector'
 import { mean, median, percentile, wilson } from './stats'
@@ -81,6 +82,7 @@ export interface MapSummary {
 export interface MatchupSummary {
   matchupId: string
   sweepParams?: ProfileOverride
+  catalogParams?: CatalogOverride
   games: number
   medianRounds: number
   meanRounds: number
@@ -100,6 +102,28 @@ export interface SweepRank {
   winRate: number
   wilson: [number, number]
   avgPlacement: number | null
+}
+
+/** One cell of a catalog sweep point: a matchup of the config on one map */
+export interface CatalogCell {
+  matchupId: string
+  mapId: string
+  games: number
+  /** Win rate per label */
+  rates: Record<string, number>
+}
+
+export interface CatalogSweepRank {
+  rank: number
+  point: string
+  params: CatalogOverride
+  baseline: boolean
+  games: number
+  /** Largest distance of any label's win rate from an even share (1 / seats), over all cells */
+  maxDeviation: number
+  /** Mean distance from the even share over all labels and cells */
+  meanDeviation: number
+  cells: CatalogCell[]
 }
 
 export interface RunError {
@@ -129,6 +153,7 @@ export interface RunSummary extends RunMeta {
   avgCommandsPerTurn: number
   matchups: MatchupSummary[]
   sweep?: SweepRank[]
+  catalogSweep?: CatalogSweepRank[]
 }
 
 const sum = (xs: readonly number[]) => xs.reduce((a, b) => a + b, 0)
@@ -285,7 +310,7 @@ export function summarizeMatchup(
 }
 
 export function rankSweep(config: SimConfig, matchups: readonly MatchupSummary[]): SweepRank[] {
-  const subject = config.sweep?.subject.label
+  const subject = config.sweep?.kind === 'profile' ? config.sweep.subject.label : undefined
   if (!subject) return []
   const rows = matchups
     .filter((m) => m.sweepParams)
@@ -313,6 +338,52 @@ export function rankSweep(config: SimConfig, matchups: readonly MatchupSummary[]
   return rows
 }
 
+/** Ranks the points of a catalog sweep by how close every label comes to an even share */
+export function rankCatalogSweep(
+  config: SimConfig,
+  matchups: readonly MatchupSummary[],
+): CatalogSweepRank[] {
+  const byPoint = new Map<string, CatalogSweepRank>()
+  for (const m of matchups) {
+    const mc = config.matchups.find((x) => x.id === m.matchupId)
+    if (!mc?.sweepPoint) continue
+    let row = byPoint.get(mc.sweepPoint)
+    if (!row) {
+      row = {
+        rank: 0,
+        point: mc.sweepPoint,
+        params: mc.catalogParams ?? {},
+        baseline: Object.keys(mc.catalogParams ?? {}).length === 0,
+        games: 0,
+        maxDeviation: 0,
+        meanDeviation: 0,
+        cells: [],
+      }
+      byPoint.set(mc.sweepPoint, row)
+    }
+    const base = mc.id.slice(mc.sweepPoint.length + 1)
+    for (const map of m.byMap) {
+      const rates: Record<string, number> = {}
+      for (const l of m.labels)
+        rates[l.label] = map.games ? (map.wins[l.label] ?? 0) / map.games : 0
+      row.cells.push({ matchupId: base, mapId: map.mapId, games: map.games, rates })
+      row.games += map.games
+    }
+  }
+  const rows = [...byPoint.values()]
+  for (const row of rows) {
+    const devs = row.cells.flatMap((c) => {
+      const even = 1 / Object.keys(c.rates).length
+      return Object.values(c.rates).map((r) => Math.abs(r - even))
+    })
+    row.maxDeviation = devs.length ? Math.max(...devs) : 1
+    row.meanDeviation = devs.length ? mean(devs) : 1
+  }
+  rows.sort((a, b) => a.maxDeviation - b.maxDeviation || a.meanDeviation - b.meanDeviation)
+  rows.forEach((r, i) => (r.rank = i + 1))
+  return rows
+}
+
 export function aggregate(
   config: SimConfig,
   results: readonly GameResult[],
@@ -327,14 +398,18 @@ export function aggregate(
   }
   const matchups = [...byMatchup.entries()]
     .filter(([, games]) => games.length > 0)
-    .map(([id, games]) =>
-      summarizeMatchup(id, games, config.matchups.find((m) => m.id === id)?.sweepParams),
-    )
+    .map(([id, games]) => {
+      const mc = config.matchups.find((m) => m.id === id)
+      const summary = summarizeMatchup(id, games, mc?.sweepParams)
+      return mc?.catalogParams ? { ...summary, catalogParams: mc.catalogParams } : summary
+    })
   const rounds = sum(results.map((r) => r.rounds))
   const turnMs = sum(results.flatMap((r) => r.participants.map((p) => p.turns.totalMs)))
   const turns = sum(results.flatMap((r) => r.participants.map((p) => p.turns.count)))
   const commands = sum(results.flatMap((r) => r.participants.map((p) => p.turns.commands)))
-  const sweep = config.sweep ? rankSweep(config, matchups) : undefined
+  const sweep = config.sweep?.kind === 'profile' ? rankSweep(config, matchups) : undefined
+  const catalogSweep =
+    config.sweep?.kind === 'catalog' ? rankCatalogSweep(config, matchups) : undefined
   return {
     ...meta,
     name: config.name,
@@ -350,5 +425,6 @@ export function aggregate(
     avgCommandsPerTurn: turns ? commands / turns : 0,
     matchups,
     ...(sweep ? { sweep } : {}),
+    ...(catalogSweep ? { catalogSweep } : {}),
   }
 }

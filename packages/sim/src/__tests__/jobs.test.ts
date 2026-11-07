@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseConfig } from '../config'
+import { parseConfig, type ProfileSweepConfig } from '../config'
 import { expandJobs, rotate, seedList } from '../jobs'
 import { gridCombinations, sweepMatchups } from '../sweep'
 
@@ -85,7 +85,7 @@ describe('sweep', () => {
         grid: { attackThreshold: [0.4, 0.6], garrison: [true] },
       },
     })
-    const matchups = sweepMatchups(c.sweep!)
+    const matchups = sweepMatchups(c.sweep as ProfileSweepConfig)
     expect(matchups.map((m) => m.id)).toEqual(['sweep-0', 'sweep-1', 'sweep-2'])
     expect(matchups[0]!.sweepParams).toEqual({})
     expect(matchups[0]!.participants[0]!.profile).toEqual({ maxShips: 3 })

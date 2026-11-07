@@ -1,5 +1,6 @@
 import { createMatch, endTurn, playAITurn, type GameState } from '@dos/shared/engine'
 import { MetricsCollector, type GameResult, type VictoryType } from './collector'
+import { applyCatalog } from './catalogOverride'
 import type { GameJob } from './jobs'
 
 /** Fixed clock: timestamps and deadlines never influence the simulation */
@@ -27,6 +28,15 @@ function classify(state: GameState): VictoryType {
 
 /** Play one game headless, every seat by the AI, and collect its metrics */
 export function runGame(job: GameJob, hooks: GameHooks = {}): GameResult {
+  const restore = applyCatalog(job.catalog)
+  try {
+    return playGame(job, hooks)
+  } finally {
+    restore()
+  }
+}
+
+function playGame(job: GameJob, hooks: GameHooks): GameResult {
   const t0 = performance.now()
   let s = createMatch(
     {

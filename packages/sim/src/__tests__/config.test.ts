@@ -120,7 +120,7 @@ describe('parseConfig', () => {
       },
     })
     expect(c.matchups).toEqual([])
-    expect(c.sweep?.grid.attackThreshold).toEqual([0.4, 0.6])
+    expect(c.sweep?.kind === 'profile' && c.sweep.grid.attackThreshold).toEqual([0.4, 0.6])
     expect(() =>
       parseConfig({
         ...base,

@@ -324,6 +324,41 @@ Sweeps mit 200 Partien je Punkt (Berichte `2026-11-06-2100-sweep-ki6-*`):
 - **Entscheidung:** `musterDistance` steht für alle Stufen auf 0 (aus). Code und Tests bleiben als Option für Sweeps. Kontrolle: `stufen` mit Vorgabe 0 reproduziert die Nullmessung exakt (62 / 75 / 90 %).
 - Zwei Blöcke in Folge ohne messbaren Effekt in KI-gegen-KI-Partien: Die Simulation stößt an ihre Grenze. Weitere Verhaltensarbeit sollte sich an echten Partien gegen Menschen ausrichten.
 
+## Nachmessung Werte (7. November 2026, Spec `2026-11-07-1551-balance-fraktionen-einheiten`)
+
+Ziel: Die Fraktionen sollen nur über Werte ausbalanciert werden (Fraktionsboni, Sondereinheiten, allgemeine Einheiten). Gemessen wird am Vierer aller Fraktionen auf „Mittel“, Kontinent und Inseln mit je 35 % Land, „normal“ und „schwer“, 150 Runden, Siegbedingung Rundenlimit. Mit Vorherrschaft bleiben viele Vierer am Deckel ohne Sieger. Das Ziel ist 20–30 % je Fraktion in allen vier Zellen.
+
+Neues Werkzeug: **Katalog-Überschreibungen** in der Simulation (`catalog` in der Config, `sweep.catalogGrid`). Jeder Rasterpunkt spielt alle Matchups, die Rangliste sortiert nach der größten Abweichung vom gleichen Anteil. Details in `ki-simulation/README.md`.
+
+**Nullmessung** (`2026-11-07-1557-fraktionen-ffa.md`, 800 Partien, 50 Seeds):
+
+| Zelle | Eisenbund | Aurelia | Nordmark | Salzküste |
+|---|---|---|---|---|
+| normal, Kontinent | 28 % | 25 % | 22 % | 26 % |
+| normal, Inseln | 30 % | 24 % | 24 % | 23 % |
+| schwer, Kontinent | 30 % | 26 % | **18 %** | 28 % |
+| schwer, Inseln | 30 % | 26 % | 22 % | 22 % |
+
+**Sweeps** (je Punkt 320 Partien, 20 Seeds):
+
+| Sweep | Rasterpunkt | größte Abweichung | Befund |
+|---|---|---|---|
+| `2026-11-07-1623-sweep-katalog-1` | Basis | 8,8 Pkt. | |
+| | Eisenbund-Bonus nur für den Dampfkoloss (`minBase` 8) | 13,8–15,0 Pkt. | Eisenbund fällt mit „schwer“ auf Inseln auf 10–13 %, Aurelia steigt auf 38–39 % |
+| | Wolkenkreuzer 10 statt 12 Runden | 7,5 Pkt. | wirkt nur auf „schwer“, Nordmark unverändert (24/21 %), der Rest ist Rauschen |
+| `2026-11-07-1712-sweep-katalog-2` | Basis | 13,8 Pkt. | |
+| | Panzerwagen 8 Runden, Stärke 5 | 10,0 Pkt. | Aurelia mit „normal“ 15–16 % |
+| | Panzerwagen 9 Runden, Stärke 4 | 10,0 Pkt. | Aurelia mit „schwer“ auf Inseln 35 % |
+| | Panzerwagen 8 Runden, Stärke 4 / 9 Runden, Stärke 5 | 12,5 / 13,8 Pkt. | |
+
+**Befunde:**
+- **Das Rauschen ist so groß wie die Unterschiede.** Die Basis beider Sweeps ist dieselbe Konfiguration mit anderen Seeds. Trotzdem kommt Eisenbund mit „normal“ auf dem Kontinent einmal auf 23 % und einmal auf 39 %. Die vier Sitzrotationen eines Seeds spielen auf derselben Welt, also hat eine Zelle mit 20 Seeds effektiv 20 Stichproben (±10 Punkte), mit 50 Seeds etwa ±6. Ein Sweep mit 20 Seeds kann Unterschiede von 5 Punkten nicht auflösen.
+- **Die Werte geben kaum feine Stufen her.** Bauzeiten sind ganze Runden. Beim Eisenbund-Bonus gibt es praktisch nur zwei Stufen, mit Panzerwagen (7 → 6) oder ohne, und ohne kippen die Inseln zu Aurelia.
+- **Der Nordmark-Bonus wirkt bei der KI auf „normal“ nicht.** „normal“ baut keine Flugzeuge, also lässt sich Nordmark dort über Luftwerte nicht anheben. Das ist eine Frage des KI-Verhaltens.
+- Die Simulation ist deterministisch: Ein Rasterpunkt mit den Basiswerten ergibt exakt dieselben Partien wie die Basis, und die Überschreibung wird sauber zurückgesetzt.
+
+**Entscheidung:** Es werden keine Werte geändert. Der Ist-Stand liegt mit 18–30 % je Fraktion im Rahmen dessen, was die Simulation unterscheiden kann. Der Katalog-Sweep bleibt als Werkzeug für künftige Regeländerungen. Feinere Balance braucht entweder deutlich mehr Seeds je Punkt (100+, etwa eine Stunde je Punkt) oder Daten aus echten Partien.
+
 ## Was die Simulation noch nicht misst
 
 - Spielspaß und Druck auf einen Menschen: KI gegen KI misst nur relative Stärke. Nächster Schritt sind Sparringsgegner mit festem Verhalten (passiv, reiner Expandierer, Rusher), gegen die jede Stufe eine Zielquote hat.

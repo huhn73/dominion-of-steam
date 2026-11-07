@@ -2,6 +2,7 @@ import type { AiProfile, Level, VictoryCondition } from '@dos/shared/engine'
 import { isWorldShape, type WorldShape } from '@dos/shared/game/worldShapes'
 import { FACTIONS, MAP_SIZES, type MapSizeId } from '@dos/shared/game/catalog'
 import { aiPersonality } from '@dos/shared/setup/data'
+import { checkCatalogEntry, type CatalogOverride } from './catalogOverride'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export const DIFFICULTIES: readonly Difficulty[] = ['easy', 'normal', 'hard']
@@ -59,6 +60,11 @@ export interface MatchupConfig {
   participants: SimParticipantConfig[]
   /** Set by the sweep: the grid point this matchup tests */
   sweepParams?: ProfileOverride
+  /** Unit and faction values for this matchup (on top of the config's catalog) */
+  catalog?: CatalogOverride
+  /** Set by a catalog sweep: the grid point id ("sweep-0" is the baseline) and its values */
+  sweepPoint?: string
+  catalogParams?: CatalogOverride
 }
 
 export interface MapConfig {
@@ -69,11 +75,21 @@ export interface MapConfig {
   terrain: Level
 }
 
-export interface SweepConfig {
+/** AI profile sweep: the subject with overrides against the reference */
+export interface ProfileSweepConfig {
+  kind: 'profile'
   reference: SimParticipantConfig
   subject: SimParticipantConfig
   grid: Partial<Record<ProfileKey, (number | boolean | string)[]>>
 }
+
+/** Catalog sweep: every grid point plays all matchups of the config with these values */
+export interface CatalogSweepConfig {
+  kind: 'catalog'
+  catalogGrid: Record<string, number[]>
+}
+
+export type SweepConfig = ProfileSweepConfig | CatalogSweepConfig
 
 export interface SimConfig {
   name: string
@@ -87,6 +103,8 @@ export interface SimConfig {
   victoryCondition: VictoryCondition
   workers?: number
   sweep?: SweepConfig
+  /** Unit and faction values for all matchups */
+  catalog?: CatalogOverride
 }
 
 export class ConfigError extends Error {}
@@ -177,6 +195,17 @@ export function parseParticipant(raw: unknown, path: string): SimParticipantConf
   }
 }
 
+export function parseCatalog(raw: unknown, path: string): CatalogOverride {
+  if (!isRecord(raw)) fail(path, 'muss ein Objekt sein')
+  const out: CatalogOverride = {}
+  for (const [key, value] of Object.entries(raw)) {
+    const error = checkCatalogEntry(key, value)
+    if (error) fail(`${path}.${key}`, error)
+    out[key] = value as number
+  }
+  return out
+}
+
 export function parseMatchup(raw: unknown, path: string): MatchupConfig {
   if (!isRecord(raw)) fail(path, 'muss ein Objekt sein')
   if (typeof raw.id !== 'string' || !raw.id.trim()) fail(`${path}.id`, 'fehlt')
@@ -189,7 +218,11 @@ export function parseMatchup(raw: unknown, path: string): MatchupConfig {
   const labels = new Set(participants.map((p) => p.label))
   if (labels.size !== participants.length)
     fail(`${path}.participants`, 'Labels müssen eindeutig sein')
-  return { id: raw.id, participants }
+  return {
+    id: raw.id,
+    participants,
+    ...(raw.catalog !== undefined ? { catalog: parseCatalog(raw.catalog, `${path}.catalog`) } : {}),
+  }
 }
 
 export function parseMap(raw: unknown, path: string): MapConfig {
@@ -220,13 +253,30 @@ export function parseMap(raw: unknown, path: string): MapConfig {
 
 export function parseSweep(raw: unknown, path: string): SweepConfig {
   if (!isRecord(raw)) fail(path, 'muss ein Objekt sein')
+  if (raw.catalogGrid !== undefined) {
+    if (raw.grid !== undefined || raw.subject !== undefined || raw.reference !== undefined)
+      fail(path, 'catalogGrid nicht zusammen mit grid, subject oder reference')
+    if (!isRecord(raw.catalogGrid) || Object.keys(raw.catalogGrid).length === 0)
+      fail(`${path}.catalogGrid`, 'fehlt oder ist leer')
+    const catalogGrid: Record<string, number[]> = {}
+    for (const [key, values] of Object.entries(raw.catalogGrid)) {
+      if (!Array.isArray(values) || values.length === 0)
+        fail(`${path}.catalogGrid.${key}`, 'muss eine nicht leere Liste sein')
+      values.forEach((v, i) => {
+        const error = checkCatalogEntry(key, v)
+        if (error) fail(`${path}.catalogGrid.${key}[${i}]`, error)
+      })
+      catalogGrid[key] = values as number[]
+    }
+    return { kind: 'catalog', catalogGrid }
+  }
   const reference = parseParticipant(raw.reference, `${path}.reference`)
   const subject = parseParticipant(raw.subject, `${path}.subject`)
   if (reference.label === subject.label)
     fail(path, 'reference und subject brauchen verschiedene Labels')
   if (!isRecord(raw.grid) || Object.keys(raw.grid).length === 0)
     fail(`${path}.grid`, 'fehlt oder ist leer')
-  const grid: SweepConfig['grid'] = {}
+  const grid: ProfileSweepConfig['grid'] = {}
   for (const [key, values] of Object.entries(raw.grid)) {
     if (!oneOf(key, PROFILE_KEYS))
       fail(`${path}.grid.${key}`, `unbekanntes Profilfeld (${PROFILE_KEYS.join(', ')})`)
@@ -236,7 +286,7 @@ export function parseSweep(raw: unknown, path: string): SweepConfig {
       parseProfileValue(key, v, `${path}.grid.${key}[${i}]`),
     ) as never
   }
-  return { reference, subject, grid }
+  return { kind: 'profile', reference, subject, grid }
 }
 
 /** Validate a raw JSON config and fill in the defaults */
@@ -248,8 +298,8 @@ export function parseConfig(raw: unknown, path = 'config'): SimConfig {
   const rawMatchups = raw.matchups ?? []
   if (!Array.isArray(rawMatchups)) fail(`${path}.matchups`, 'muss eine Liste sein')
   const matchups = rawMatchups.map((m, i) => parseMatchup(m, `${path}.matchups[${i}]`))
-  if (matchups.length === 0 && !sweep)
-    fail(`${path}.matchups`, 'braucht mindestens ein Matchup (oder einen sweep)')
+  if (matchups.length === 0 && sweep?.kind !== 'profile')
+    fail(`${path}.matchups`, 'braucht mindestens ein Matchup (oder einen Profil-Sweep)')
   if (new Set(matchups.map((m) => m.id)).size !== matchups.length)
     fail(`${path}.matchups`, 'Matchup-IDs müssen eindeutig sein')
   const rawMaps = raw.maps ?? [{ size: 'medium' }]
@@ -281,5 +331,6 @@ export function parseConfig(raw: unknown, path = 'config'): SimConfig {
     victoryCondition,
     ...(raw.workers !== undefined ? { workers: raw.workers as number } : {}),
     ...(sweep ? { sweep } : {}),
+    ...(raw.catalog !== undefined ? { catalog: parseCatalog(raw.catalog, `${path}.catalog`) } : {}),
   }
 }

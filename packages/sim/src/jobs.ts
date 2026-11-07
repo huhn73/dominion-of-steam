@@ -1,6 +1,7 @@
 import { defaultRules, type GameRules, type MapSettings } from '@dos/shared/engine'
 import { MAP_SIZES } from '@dos/shared/game/catalog'
 import type { ParticipantColor } from '@dos/shared/game/types'
+import type { CatalogOverride } from './catalogOverride'
 import type { MapConfig, SimConfig, SimParticipantConfig } from './config'
 
 export const COLORS: readonly ParticipantColor[] = [
@@ -30,6 +31,8 @@ export interface GameJob {
   /** Hard cap in rounds, also for 'elimination' and 'capitals' */
   maxRounds: number
   participants: JobParticipant[]
+  /** Unit and faction values patched in for this game only */
+  catalog?: CatalogOverride
 }
 
 export function seedList(config: SimConfig): string[] {
@@ -83,6 +86,7 @@ export function expandJobs(config: SimConfig): GameJob[] {
   const jobs: GameJob[] = []
   for (const matchup of config.matchups) {
     const rotations = config.rotateSeats ? matchup.participants.length : 1
+    const catalog = { ...config.catalog, ...matchup.catalog }
     for (const map of config.maps) {
       const mid = mapId(map)
       for (const seed of seeds) {
@@ -103,6 +107,7 @@ export function expandJobs(config: SimConfig): GameJob[] {
             rules,
             maxRounds: config.roundLimit,
             participants,
+            ...(Object.keys(catalog).length ? { catalog } : {}),
           })
         }
       }

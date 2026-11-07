@@ -51,6 +51,22 @@ Inselbalance und Tarnung (`agent-os/specs/2026-11-01-2015-inselbalance-tarnung/`
 
 `pnpm sim maps --shape islands|archipelago|continent --sizes small,medium,large --shares 20,35,50 --seats 2,4,6 --seeds 30` erzeugt Welten und zählt je Zelle: Hauptstädte auf getrennten Landmassen, Hauptstädte an der Küste, Heimatmasse min/Ø/max gegen das Ziel aus `islandTargets`, neutrale Inseln ab 6 Feldern, Städte gegen die Dichte, erreichter Landanteil, ms je Welt. Messwerte der Inselwelt-Spec in `agent-os/specs/2026-11-01-1830-inselwelt/shape.md`.
 
+## Kataloge rastern
+
+Spielwerte lassen sich ohne Änderung an `compendium/data.json` überschreiben. Die Schlüssel sind Pfade, die Werte Zahlen:
+
+```json
+"catalog": { "units.panzerwagen.productionTurns": 8, "factions.nordmark.modifier": 2 }
+```
+
+- `units.<id>.<wert>` mit `strength`, `defense`, `hitPoints`, `damage`, `movement`, `range`, `capacity`, `productionTurns`; `factions.<id>.<feld>` mit `modifier` und `minBase` des Fraktionsbonus.
+- `catalog` gilt auf oberster Ebene für alle Matchups und im Matchup nur für dieses. Der Worker patcht die Werte je Partie an Ort und Stelle (`packages/sim/src/catalogOverride.ts`) und setzt sie danach zurück.
+- Katalog-Sweep: `"sweep": { "catalogGrid": { "<pfad>": [werte], … } }` zusammen mit normalen `matchups`. Jeder Rasterpunkt spielt alle Matchups, `sweep-0` ist die Basis. Der Bericht sortiert nach der größten Abweichung einer Siegquote vom gleichen Anteil (1 / Sitze) über alle Zellen (Matchup × Karte) und zeigt eine Quotentabelle je Zelle. Beispiele: `sweep-katalog-1.json`, `sweep-katalog-2.json`.
+- Seeds werden aus dem Config-Namen gebildet. Zwei Sweeps mit verschiedenen Namen spielen also verschiedene Welten, und ihre Basis ist nicht vergleichbar. Innerhalb eines Sweeps spielen alle Punkte dieselben Welten.
+- Genauigkeit: Die Sitzrotationen eines Seeds spielen auf derselben Welt. Effektiv zählt eine Zelle so viele Stichproben wie Seeds, bei 20 Seeds also etwa ±10 Punkte im Vierer.
+
+Der Vierer `fraktionen-ffa.json` läuft seit dem 7. November 2026 auf „Mittel“, Kontinent und Inseln mit 35 % Land, „normal“ und „schwer“ als eigene Matchups, 150 Runden, Siegbedingung Rundenlimit. Eine Partie dauert etwa 60 s, 800 Partien mit 30 Workern rund 25 Minuten. Auswertung in `../ki-balance.md`, Abschnitt „Nachmessung Werte“.
+
 ## Lesart der Berichte
 
 - **Quote und 95 %-Intervall:** Siegquote mit Wilson-Intervall. Überlappen sich die Intervalle zweier Seiten deutlich, ist der Unterschied nicht belegt. Rotationen desselben Seeds sind korreliert, die Intervalle also etwas zu eng.

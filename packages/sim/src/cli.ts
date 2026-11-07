@@ -12,8 +12,9 @@ import { createRunDir, JsonlWriter, writeJson, writeText } from './output'
 import { runJobs } from './pool'
 import { pct, renderReport } from './report'
 import { stamp } from './output'
-import { sweepMatchups } from './sweep'
+import { catalogSweepMatchups, sweepMatchups } from './sweep'
 import { mapStats, renderMapStats } from './mapstats'
+import { describeCatalog } from './catalogOverride'
 import { MAP_SIZES, type MapSizeId } from '@dos/shared/game/mapSizes'
 import { isWorldShape } from '@dos/shared/game/worldShapes'
 
@@ -25,7 +26,8 @@ const DEFAULT_REPORTS = join(REPO_DIR, 'agent-os', 'product', 'ki-simulation')
 const USAGE = `Aufruf: pnpm sim [run|sweep|bench] --config <datei.json> [Optionen]
 
   run     Matchups der Config spielen (Vorgabe)
-  sweep   Raster aus config.sweep gegen die Referenz spielen
+  sweep   Raster aus config.sweep spielen: KI-Profil (grid) gegen die Referenz oder
+          Katalogwerte (catalogGrid) mit allen Matchups der Config
   bench   drei Partien im Hauptthread messen (ms je Runde, Befehle je Zug, Spielstandsgröße)
   maps    Welten erzeugen und vermessen: Hauptstädte getrennt und an der Küste, Heimatinseln, Städte
           --shape continent|islands|archipelago  --sizes small,medium  --shares 20,35,50  --seats 2,4,6  --seeds 20
@@ -175,7 +177,13 @@ async function main() {
   if (mode === 'sweep') {
     if (!config.sweep)
       throw new ConfigError('sweep: die Konfiguration hat keinen Abschnitt "sweep"')
-    config = { ...config, matchups: sweepMatchups(config.sweep) }
+    config = {
+      ...config,
+      matchups:
+        config.sweep.kind === 'profile'
+          ? sweepMatchups(config.sweep)
+          : catalogSweepMatchups(config.sweep, config.matchups),
+    }
   }
   const jobs = expandJobs(config)
   const workers = Math.max(
@@ -239,6 +247,12 @@ async function main() {
   if (summary.sweep?.length) {
     const best = summary.sweep[0]!
     console.log(`Sweep: bester Rasterpunkt ${JSON.stringify(best.params)} mit ${pct(best.winRate)}`)
+  }
+  if (summary.catalogSweep?.length) {
+    const best = summary.catalogSweep[0]!
+    console.log(
+      `Katalog-Sweep: bester Rasterpunkt ${describeCatalog(best.params)}, größte Abweichung ${de(best.maxDeviation * 100, 1)} Punkte`,
+    )
   }
 }
 

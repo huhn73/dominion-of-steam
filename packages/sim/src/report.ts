@@ -2,6 +2,7 @@ import { UNIT_TYPES } from '@dos/shared/game/catalog'
 import type { LabelSummary, MatchupSummary, RunSummary } from './aggregate'
 import { mapId } from './jobs'
 import { describeParams } from './sweep'
+import { describeCatalog } from './catalogOverride'
 
 const de = (x: number, digits = 1) => x.toFixed(digits).replace('.', ',')
 export const pct = (x: number, digits = 0) => `${de(x * 100, digits)} %`
@@ -38,6 +39,7 @@ function labelName(l: LabelSummary) {
 function matchupSection(m: MatchupSummary, title: string): string {
   const out: string[] = [`## ${title}`, '']
   if (m.sweepParams) out.push(`Rasterpunkt: ${describeParams(m.sweepParams)}`, '')
+  if (m.catalogParams) out.push(`Katalog: ${describeCatalog(m.catalogParams)}`, '')
   const victory = Object.entries(m.victoryTypes)
     .map(([k, v]) => `${VICTORY_NAMES[k] ?? k} ${v}`)
     .join(', ')
@@ -218,6 +220,8 @@ export function renderReport(s: RunSummary): string {
       `Rundenlimit ${s.config.roundLimit}, Siegbedingung ${VICTORY_NAMES[s.config.victoryCondition] ?? s.config.victoryCondition}.`,
     '',
   )
+  if (s.config.catalog && Object.keys(s.config.catalog).length)
+    out.push(`Katalogwerte für alle Partien: ${describeCatalog(s.config.catalog)}.`, '')
   out.push('**Laufzeit der Engine**', '')
   out.push(
     table(
@@ -234,9 +238,50 @@ export function renderReport(s: RunSummary): string {
     ),
     '',
   )
-  if (s.sweep?.length) {
-    const subject = s.config.sweep!.subject.label
-    const reference = s.config.sweep!.reference.label
+  if (s.catalogSweep?.length) {
+    out.push('## Katalog-Sweep', '')
+    out.push(
+      'Jeder Rasterpunkt spielt alle Matchups der Config mit diesen Werten. Sortiert nach der größten Abweichung einer Siegquote vom gleichen Anteil (1 / Sitze) über alle Zellen (Matchup × Karte), dann nach der mittleren.',
+      '',
+    )
+    const cells = s.catalogSweep[0]!.cells.map((c) => `${c.matchupId} · ${c.mapId}`)
+    out.push(
+      table(
+        ['Rang', 'Rasterpunkt', 'Partien', 'größte Abw.', 'mittlere Abw.'],
+        s.catalogSweep.map((r) => [
+          String(r.rank),
+          r.baseline ? '**Basis**' : describeCatalog(r.params),
+          r.games,
+          `${de(r.maxDeviation * 100, 1)} Pkt.`,
+          `${de(r.meanDeviation * 100, 1)} Pkt.`,
+        ]),
+      ),
+      '',
+    )
+    out.push('**Siegquoten je Zelle**', '')
+    const labels = [
+      ...new Set(s.catalogSweep.flatMap((r) => r.cells.flatMap((c) => Object.keys(c.rates)))),
+    ]
+    for (const cell of cells) {
+      out.push(`*${cell}*`, '')
+      out.push(
+        table(
+          ['Rang', ...labels],
+          s.catalogSweep.map((r) => {
+            const c = r.cells.find((x) => `${x.matchupId} · ${x.mapId}` === cell)
+            return [
+              String(r.rank),
+              ...labels.map((l) => (c && l in c.rates ? pct(c.rates[l]!) : '–')),
+            ]
+          }),
+        ),
+        '',
+      )
+    }
+  }
+  if (s.sweep?.length && s.config.sweep?.kind === 'profile') {
+    const subject = s.config.sweep.subject.label
+    const reference = s.config.sweep.reference.label
     out.push(`## Sweep: ${subject} gegen ${reference}`, '')
     out.push(
       table(

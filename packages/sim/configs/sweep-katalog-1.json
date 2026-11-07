@@ -1,0 +1,77 @@
+{
+  "name": "sweep-katalog-1",
+  "matchups": [
+    {
+      "id": "ffa-normal",
+      "participants": [
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "normal"
+        },
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "normal"
+        },
+        {
+          "label": "nordmark",
+          "factionId": "nordmark",
+          "difficulty": "normal"
+        },
+        {
+          "label": "salzkueste",
+          "factionId": "salzkueste",
+          "difficulty": "normal"
+        }
+      ]
+    },
+    {
+      "id": "ffa-hard",
+      "participants": [
+        {
+          "label": "eisenbund",
+          "factionId": "eisenbund",
+          "difficulty": "hard"
+        },
+        {
+          "label": "aurelia",
+          "factionId": "aurelia",
+          "difficulty": "hard"
+        },
+        {
+          "label": "nordmark",
+          "factionId": "nordmark",
+          "difficulty": "hard"
+        },
+        {
+          "label": "salzkueste",
+          "factionId": "salzkueste",
+          "difficulty": "hard"
+        }
+      ]
+    }
+  ],
+  "maps": [
+    {
+      "size": "medium",
+      "worldShape": "continent",
+      "landShare": 35
+    },
+    {
+      "size": "medium",
+      "worldShape": "islands",
+      "landShare": 35
+    }
+  ],
+  "seeds": 20,
+  "rotateSeats": true,
+  "roundLimit": 150,
+  "victoryCondition": "roundLimit",
+  "sweep": {
+    "catalogGrid": {
+      "factions.eisenbund.minBase": [5, 8],
+      "units.wolkenkreuzer.productionTurns": [12, 10]
+    }
+  }
+}
