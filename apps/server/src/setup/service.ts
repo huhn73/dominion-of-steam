@@ -1,4 +1,5 @@
 import { LocalizedError, type Text } from '../locale'
+import { translate, type Locale } from '@dos/shared/i18n'
 import { isWorldShape, mapSize } from '@dos/shared/game'
 import { randomBytes, randomUUID } from 'node:crypto'
 import { and, desc, eq, inArray, isNotNull } from 'drizzle-orm'
@@ -424,15 +425,20 @@ export function createSetupService(db: Db, accounts: AccountService, notifier?: 
               createdAt: now,
             })),
           )
-          const mode = draft.mode === 'async' ? 'asynchrone' : 'Live-'
           await notifier?.enqueue(
             tx,
             invited.map((playerId) => ({
               playerId,
               kind: 'invitation' as const,
               matchId: id,
-              title: `Einladung: ${draft.name}`,
-              body: `${host.displayName} lädt dich zur ${mode}Partie „${draft.name}“ ein (${draft.seats.length} Plätze). Nimm die Einladung in der Lobby an.`,
+              title: (locale: Locale) =>
+                translate(locale, 'notify.invitation.title', { name: draft.name }),
+              body: (locale: Locale) =>
+                translate(locale, `notify.invitation.${draft.mode}`, {
+                  host: host.displayName,
+                  name: draft.name,
+                  seats: draft.seats.length,
+                }),
               url: '/',
               dedupeKey: `invitation:${id}:${playerId}`,
             })),

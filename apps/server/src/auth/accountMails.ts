@@ -1,4 +1,5 @@
 import { EMAIL_VERIFY_TTL_HOURS, PASSWORD_RESET_TTL_MINUTES } from '@dos/shared/account'
+import { DEFAULT_LOCALE, isLocale, translator, type Translate } from '@dos/shared/i18n'
 import type { Mailer } from '../notifications/channels'
 import { renderMail } from '../notifications/mail'
 
@@ -8,11 +9,7 @@ export const supportEmail = () =>
 
 const fromAddress = () => /<([^>]+)>/.exec(process.env.MAIL_FROM ?? '')?.[1]
 
-const ACCOUNT_FOOTER =
-  'Du bekommst diese E-Mail, weil zu dieser Adresse ein Konto bei Dominion of Steam gehört.'
-
-const notYou = () =>
-  `Wenn du das nicht warst, setze sofort dein Passwort zurück und schreib uns an ${supportEmail()}.`
+const notYou = (t: Translate) => t('mail.notYou', { support: supportEmail() })
 
 /** Paths of the web app the links point to */
 export const RESET_PASSWORD_PATH = '/passwort-zuruecksetzen'
@@ -21,44 +18,56 @@ export const FORGOT_PASSWORD_PATH = '/passwort-vergessen'
 interface Recipient {
   displayName: string
   email: string
+  /** Language of the mail; German if unknown */
+  locale?: string
+}
+
+/** Translator and layout language for a recipient */
+function textsFor(to: Recipient) {
+  const locale = isLocale(to.locale) ? to.locale : DEFAULT_LOCALE
+  return { locale, t: translator(locale) }
 }
 
 /** Welcome and verification link after registration (and on „Erneut senden“) */
 export function sendVerification(mail: Mailer, origin: string, to: Recipient, token: string) {
+  const { locale, t } = textsFor(to)
   return mail({
     to: to.email,
     ...renderMail({
-      title: 'Willkommen bei Dominion of Steam',
+      title: t('mail.verify.title'),
       name: to.displayName,
       body: [
-        'schön, dass du dabei bist. Bitte bestätige deine E-Mail-Adresse, damit wir dich benachrichtigen können, wenn du am Zug bist oder eine Einladung bekommst.',
-        `Der Link ist ${EMAIL_VERIFY_TTL_HOURS} Stunden gültig. Wenn du dich nicht registriert hast, ignoriere diese E-Mail.`,
+        t('mail.verify.body'),
+        t('mail.verify.valid', { hours: EMAIL_VERIFY_TTL_HOURS }),
       ],
       cta: {
-        label: 'E-Mail-Adresse bestätigen',
+        label: t('mail.verify.cta'),
         url: `${origin}/api/account/verify?token=${token}`,
       },
-      footer: ACCOUNT_FOOTER,
+      footer: t('mail.accountFooter'),
+      locale,
     }),
   })
 }
 
 /** Link to set a new password („Passwort vergessen“) */
 export function sendPasswordReset(mail: Mailer, origin: string, to: Recipient, token: string) {
+  const { locale, t } = textsFor(to)
   return mail({
     to: to.email,
     ...renderMail({
-      title: 'Neues Passwort für Dominion of Steam',
+      title: t('mail.reset.title'),
       name: to.displayName,
       body: [
-        'du hast ein neues Passwort angefordert. Über den Link legst du es fest; danach sind alle anderen Geräte abgemeldet.',
-        `Der Link ist ${PASSWORD_RESET_TTL_MINUTES} Minuten gültig. Wenn du das nicht warst, ignoriere diese E-Mail; dein Passwort bleibt unverändert.`,
+        t('mail.reset.body'),
+        t('mail.reset.valid', { minutes: PASSWORD_RESET_TTL_MINUTES }),
       ],
       cta: {
-        label: 'Neues Passwort festlegen',
+        label: t('mail.reset.cta'),
         url: `${origin}${RESET_PASSWORD_PATH}?token=${token}`,
       },
-      footer: ACCOUNT_FOOTER,
+      footer: t('mail.accountFooter'),
+      locale,
     }),
   })
 }
@@ -70,54 +79,60 @@ export function sendEmailChangeConfirmation(
   to: Recipient,
   token: string,
 ) {
+  const { locale, t } = textsFor(to)
   return mail({
     to: to.email,
     ...renderMail({
-      title: 'Bestätige deine neue E-Mail-Adresse',
+      title: t('mail.change.title'),
       name: to.displayName,
       body: [
-        'bitte bestätige deine neue E-Mail-Adresse für Dominion of Steam. Erst dann gilt sie für dein Konto.',
-        `Der Link ist ${EMAIL_VERIFY_TTL_HOURS} Stunden gültig. Wenn du die Änderung nicht angefordert hast, ignoriere diese E-Mail.`,
+        t('mail.change.body'),
+        t('mail.change.valid', { hours: EMAIL_VERIFY_TTL_HOURS }),
       ],
       cta: {
-        label: 'E-Mail-Adresse bestätigen',
+        label: t('mail.verify.cta'),
         url: `${origin}/api/account/email/confirm?token=${token}`,
       },
-      footer: ACCOUNT_FOOTER,
+      footer: t('mail.accountFooter'),
+      locale,
     }),
   })
 }
 
 /** Notice to the OLD address once an e-mail change took effect */
 export function sendEmailChanged(mail: Mailer, origin: string, to: Recipient, newEmail: string) {
+  const { locale, t } = textsFor(to)
   return mail({
     to: to.email,
     ...renderMail({
-      title: 'Deine E-Mail-Adresse wurde geändert',
+      title: t('mail.changed.title'),
       name: to.displayName,
       body: [
-        `die E-Mail-Adresse deines Kontos bei Dominion of Steam ist jetzt ${newEmail}. An diese Adresse hier schicken wir künftig nichts mehr.`,
-        notYou(),
+        t('mail.changed.body', { email: newEmail }),
+        notYou(t),
       ],
-      cta: { label: 'Passwort zurücksetzen', url: `${origin}${FORGOT_PASSWORD_PATH}` },
-      footer: ACCOUNT_FOOTER,
+      cta: { label: t('mail.resetCta'), url: `${origin}${FORGOT_PASSWORD_PATH}` },
+      footer: t('mail.accountFooter'),
+      locale,
     }),
   })
 }
 
 /** Notice after a password change or reset */
 export function sendPasswordChanged(mail: Mailer, origin: string, to: Recipient) {
+  const { locale, t } = textsFor(to)
   return mail({
     to: to.email,
     ...renderMail({
-      title: 'Dein Passwort wurde geändert',
+      title: t('mail.password.title'),
       name: to.displayName,
       body: [
-        'das Passwort deines Kontos bei Dominion of Steam wurde gerade geändert. Alle anderen Geräte sind abgemeldet.',
-        notYou(),
+        t('mail.password.body'),
+        notYou(t),
       ],
-      cta: { label: 'Passwort zurücksetzen', url: `${origin}${FORGOT_PASSWORD_PATH}` },
-      footer: ACCOUNT_FOOTER,
+      cta: { label: t('mail.resetCta'), url: `${origin}${FORGOT_PASSWORD_PATH}` },
+      footer: t('mail.accountFooter'),
+      locale,
     }),
   })
 }

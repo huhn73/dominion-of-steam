@@ -1,18 +1,30 @@
 import { currentParticipant, type GameState } from '@dos/shared/engine'
 import { DEADLINE_SOON_HOURS } from '@dos/shared/notifications'
+import { formatDate, translate, type Locale, type MessageKey, type Params } from '@dos/shared/i18n'
 import type { NotificationInput } from './service'
 
-const deadlineFormat = new Intl.DateTimeFormat('de-DE', {
-  timeZone: process.env.TZ_DISPLAY ?? 'Europe/Berlin',
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-})
+/** „Sa., 31. Okt., 11:00“ / „Sat 31 Oct, 11:00“ (German time unless TZ_DISPLAY says otherwise) */
+export const formatDeadline = (locale: Locale, iso: string) =>
+  formatDate(locale, iso, {
+    timeZone: process.env.TZ_DISPLAY ?? 'Europe/Berlin',
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 
-/** „Sa., 31. Okt., 11:00“ (German time unless TZ_DISPLAY says otherwise) */
-export const formatDeadline = (iso: string) => deadlineFormat.format(new Date(iso))
+/** A text in the recipient's language, rendered when the notification is stored */
+const text =
+  (key: MessageKey, params: (locale: Locale) => Params = () => ({})) =>
+  (locale: Locale) =>
+    translate(locale, key, params(locale))
+
+/** „ Frist: Sa., 31. Okt., 11:00.“ or nothing */
+const deadlineOf = (state: GameState) => (locale: Locale) =>
+  state.turnDeadline
+    ? translate(locale, 'notify.deadline', { deadline: formatDeadline(locale, state.turnDeadline) })
+    : ''
 
 export const matchPath = (matchId: string) => `/partie/${matchId}`
 export const roomPath = (matchId: string) => `/warteraum/${matchId}`
@@ -26,14 +38,19 @@ export function yourTurnNotification(
   playerId: string,
   { started = false } = {},
 ): NotificationInput {
-  const deadline = state.turnDeadline ? ` Frist: ${formatDeadline(state.turnDeadline)}.` : ''
+  const deadline = deadlineOf(state)
   return {
     playerId,
     kind: 'yourTurn',
     matchId: state.id,
     round: state.round,
-    title: started ? `„${state.name}“ hat begonnen` : `Du bist am Zug: ${state.name}`,
-    body: `${started ? 'Die Partie läuft, und du' : 'Du'} bist in Runde ${state.round} am Zug. Deine Truppen warten auf Befehle.${deadline}`,
+    title: text(started ? 'notify.started.title' : 'notify.yourTurn.title', () => ({
+      name: state.name,
+    })),
+    body: text(started ? 'notify.yourTurn.startedBody' : 'notify.yourTurn.body', (locale) => ({
+      round: state.round,
+      deadline: deadline(locale),
+    })),
     url: matchPath(state.id),
     dedupeKey: `yourTurn:${turnKey(state)}`,
     email: state.mode === 'async',
@@ -46,8 +63,12 @@ export function deadlineSoonNotification(state: GameState, playerId: string): No
     kind: 'deadlineSoon',
     matchId: state.id,
     round: state.round,
-    title: `Frist läuft bald ab: ${state.name}`,
-    body: `Dein Zug in „${state.name}“ endet in weniger als ${DEADLINE_SOON_HOURS} Stunden (${formatDeadline(state.turnDeadline!)}). Danach endet er automatisch.`,
+    title: text('notify.deadlineSoon.title', () => ({ name: state.name })),
+    body: text('notify.deadlineSoon.body', (locale) => ({
+      name: state.name,
+      hours: DEADLINE_SOON_HOURS,
+      deadline: formatDeadline(locale, state.turnDeadline!),
+    })),
     url: matchPath(state.id),
     dedupeKey: `deadlineSoon:${turnKey(state)}`,
     email: true,
@@ -59,14 +80,19 @@ export function remindNotification(
   playerId: string,
   fromName: string,
 ): NotificationInput {
-  const deadline = state.turnDeadline ? ` Frist: ${formatDeadline(state.turnDeadline)}.` : ''
+  const deadline = deadlineOf(state)
   return {
     playerId,
     kind: 'remind',
     matchId: state.id,
     round: state.round,
-    title: `Erinnerung: ${state.name}`,
-    body: `${fromName} wartet in „${state.name}“ auf deinen Zug (Runde ${state.round}).${deadline}`,
+    title: text('notify.remind.title', () => ({ name: state.name })),
+    body: text('notify.remind.body', (locale) => ({
+      from: fromName,
+      name: state.name,
+      round: state.round,
+      deadline: deadline(locale),
+    })),
     url: matchPath(state.id),
     email: true,
   }
@@ -75,16 +101,23 @@ export function remindNotification(
 function endedNotification(state: GameState, playerId: string): NotificationInput {
   const p = state.participants.find((x) => x.id === playerId)!
   const winner = state.participants.find((x) => x.id === state.winnerId)
-  const result =
+  const result = (locale: Locale) =>
     state.winnerId === playerId
-      ? 'Sieg! Du hast die Partie gewonnen.'
-      : `Du belegst Platz ${p.placement ?? state.participants.length} von ${state.participants.length}.${winner ? ` Sieger: ${winner.name}.` : ''}`
+      ? translate(locale, 'notify.ended.victory')
+      : translate(locale, 'notify.ended.place', {
+          place: p.placement ?? state.participants.length,
+          total: state.participants.length,
+        }) + (winner ? translate(locale, 'notify.ended.winner', { name: winner.name }) : '')
   return {
     playerId,
     kind: 'matchEnded',
     matchId: state.id,
-    title: `Partie beendet: ${state.name}`,
-    body: `„${state.name}“ ist nach ${state.round} Runden zu Ende. ${result}`,
+    title: text('notify.ended.title', () => ({ name: state.name })),
+    body: text('notify.ended.body', (locale) => ({
+      name: state.name,
+      rounds: state.round,
+      result: result(locale),
+    })),
     url: matchPath(state.id),
     dedupeKey: `matchEnded:${state.id}:${playerId}`,
     email: true,
@@ -122,8 +155,8 @@ export function turnNotifications(
           playerId: p.id,
           kind: 'matchStarted',
           matchId: after.id,
-          title: `„${after.name}“ hat begonnen`,
-          body: `Die Partie läuft. ${current.name} ist zuerst am Zug; du bekommst Bescheid, wenn du dran bist.`,
+          title: text('notify.started.title', () => ({ name: after.name })),
+          body: text('notify.matchStarted.body', () => ({ name: current.name })),
           url: matchPath(after.id),
           dedupeKey: `started:${after.id}:${p.id}`,
           email: false,

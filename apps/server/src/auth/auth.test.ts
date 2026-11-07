@@ -142,6 +142,19 @@ describe.skipIf(!url)('Konten-API (Datenbank)', () => {
     )
   })
 
+  it('schickt Kontomails in der Sprache des Spielers', async () => {
+    const id = unique()
+    const email = `mail-en-${id}@example.test`
+    await register({ displayName: `Mail ${id}`, email, password: 'sehr-geheim', locale: 'en' })
+    expect(mails.at(-1)!.subject).toBe('Welcome to Dominion of Steam')
+    mails.length = 0
+    await app.inject({ method: 'POST', url: '/api/auth/forgot', payload: { email } })
+    const mail = mails.at(-1)!
+    expect(mail.subject).toBe('New password for Dominion of Steam')
+    expect(mail.text).toMatch(/^Hello Mail /)
+    expect(mail.html).toContain('<html lang="en">')
+  })
+
   it('setzt Secure hinter einem https-Proxy, dem der Server vertraut', async () => {
     const payload = {
       displayName: `Proxy ${unique()}`,

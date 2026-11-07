@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { DEFAULT_LOCALE, isLocale, translate, type Locale } from '@dos/shared/i18n'
 import { and, eq, inArray, lte, sql } from 'drizzle-orm'
 import { currentParticipant, normalizeState } from '@dos/shared/engine'
 import {
@@ -36,14 +37,21 @@ export const EVENT_OF: Record<NotificationKind, NotificationEvent> = {
 /** Kinds that are about a turn: void once the player is no longer on the move */
 const TURN_KINDS = new Set<NotificationKind>(['yourTurn', 'remind', 'deadlineSoon'])
 
+/** A text, or a function giving it in the recipient's language */
+export type Localizable = string | ((locale: Locale) => string)
+
+const inLocale = (text: Localizable, locale: Locale) =>
+  typeof text === 'string' ? text : text(locale)
+
 export interface NotificationInput {
   playerId: string
   kind: NotificationKind
   matchId?: string | null
   /** Round of the turn (turn kinds) */
   round?: number | null
-  title: string
-  body: string
+  /** Fixed text or rendered in the recipient's language when the notification is stored */
+  title: Localizable
+  body: Localizable
   /** Path within the app */
   url: string
   /** Same key → only one notification (e.g. deadlineSoon once per turn) */
@@ -65,14 +73,19 @@ export interface NotifierOptions {
 type Row = typeof notifications.$inferSelect
 
 /** Plain text and simple HTML for a notification e-mail */
-export function mailFor(n: Pick<Row, 'title' | 'body' | 'url'>, name: string, origin: string) {
+export function mailFor(
+  n: Pick<Row, 'title' | 'body' | 'url'>,
+  name: string,
+  origin: string,
+  locale: Locale = DEFAULT_LOCALE,
+) {
   return renderMail({
     title: n.title,
     name,
     body: [n.body],
-    cta: { label: 'Zur Partie', url: `${origin}${n.url}` },
-    footer:
-      'Welche Benachrichtigungen du per E-Mail bekommst, stellst du unter Profil & Einstellungen ein.',
+    cta: { label: translate(locale, 'mail.toMatch'), url: `${origin}${n.url}` },
+    footer: translate(locale, 'mail.notificationFooter'),
+    locale,
   })
 }
 
@@ -91,10 +104,16 @@ export function createNotifier(db: Db, opts: NotifierOptions) {
     const known = new Map(
       (
         await tx
-          .select({ id: players.id, settings: players.settings })
+          .select({ id: players.id, settings: players.settings, locale: players.locale })
           .from(players)
           .where(inArray(players.id, ids))
-      ).map((p) => [p.id, notificationSettingsOf(p.settings)]),
+      ).map((p) => [
+        p.id,
+        {
+          ...notificationSettingsOf(p.settings),
+          locale: isLocale(p.locale) ? p.locale : DEFAULT_LOCALE,
+        },
+      ]),
     )
     const rows = items.flatMap((i) => {
       const settings = known.get(i.playerId)
@@ -109,8 +128,8 @@ export function createNotifier(db: Db, opts: NotifierOptions) {
           kind: i.kind,
           matchId: i.matchId ?? null,
           round: i.round ?? null,
-          title: i.title,
-          body: i.body,
+          title: inLocale(i.title, settings.locale),
+          body: inLocale(i.body, settings.locale),
           url: i.url,
           dedupeKey: i.dedupeKey ?? null,
           pushStatus: channel.push ? ('pending' as const) : ('skipped' as const),
@@ -220,7 +239,7 @@ export function createNotifier(db: Db, opts: NotifierOptions) {
           continue
         }
         try {
-          await opts.mail!({ to: p.email, ...mailFor(n, p.displayName, opts.publicUrl()) })
+          await opts.mail!({ to: p.email, ...mailFor(n, p.displayName, opts.publicUrl(), isLocale(p.locale) ? p.locale : DEFAULT_LOCALE) })
           await set({ emailStatus: 'sent', emailSentAt: now })
         } catch (err) {
           log(`E-Mail an ${p.email} fehlgeschlagen`, err)

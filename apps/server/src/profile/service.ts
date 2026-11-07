@@ -496,7 +496,7 @@ export function createProfileService(
     await sendEmailChangeConfirmation(
       mail,
       origin,
-      { displayName: player.displayName, email },
+      { displayName: player.displayName, email, locale: player.locale },
       token,
     )
     return { ok: true as const, pendingEmail: email }

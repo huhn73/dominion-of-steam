@@ -1,0 +1,38 @@
+{
+  "deadline": " Deadline: {deadline}.",
+  "started": {
+    "title": "“{name}” has started"
+  },
+  "yourTurn": {
+    "title": "Your turn: {name}",
+    "body": "It is your turn in round {round}. Your troops await orders.{deadline}",
+    "startedBody": "The match is under way, and it is your turn in round {round}. Your troops await orders.{deadline}"
+  },
+  "deadlineSoon": {
+    "title": "Deadline approaching: {name}",
+    "body": "Your turn in “{name}” ends in less than {hours} hours ({deadline}). After that it ends automatically."
+  },
+  "remind": {
+    "title": "Reminder: {name}",
+    "body": "{from} is waiting for your move in “{name}” (round {round}).{deadline}"
+  },
+  "ended": {
+    "title": "Match ended: {name}",
+    "body": "“{name}” is over after {rounds} rounds. {result}",
+    "victory": "Victory! You have won the match.",
+    "place": "You finish in place {place} of {total}.",
+    "winner": " Winner: {name}."
+  },
+  "matchStarted": {
+    "body": "The match is under way. {name} moves first; you will be told when it is your turn."
+  },
+  "cancelled": {
+    "title": "Match disbanded: {name}",
+    "body": "{host} disbanded “{name}” before the start."
+  },
+  "invitation": {
+    "title": "Invitation: {name}",
+    "async": "{host} invites you to the asynchronous match “{name}” ({seats} seats). Accept the invitation in the lobby.",
+    "live": "{host} invites you to the live match “{name}” ({seats} seats). Accept the invitation in the lobby."
+  }
+}

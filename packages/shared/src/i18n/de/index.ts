@@ -20,6 +20,8 @@ import compendiumData from '../../compendium/data.json'
 import events from './events.json'
 import commands from './commands.json'
 import errors from './errors.json'
+import mail from './mail.json'
+import notify from './notify.json'
 
 /** Names from the compendium, so events can name units and factions by id */
 const units: Record<string, string> = Object.fromEntries(compendiumData.unitTypes.map((u) => [u.id, u.name]))
@@ -28,4 +30,4 @@ const factions: Record<string, string> = Object.fromEntries(
 )
 
 /** German texts, the source for all other languages (one JSON file per area) */
-export const de = { units, factions, common, shell, match, account, auth, lobby, settings, profile, admin, legal, setup, partieSetup, game, compendium, board, city, unit, tutorial, events, commands, errors }
+export const de = { units, factions, common, shell, match, account, auth, lobby, settings, profile, admin, legal, setup, partieSetup, game, compendium, board, city, unit, tutorial, events, commands, errors, mail, notify }

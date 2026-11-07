@@ -1,0 +1,38 @@
+{
+  "deadline": " Frist: {deadline}.",
+  "started": {
+    "title": "„{name}“ hat begonnen"
+  },
+  "yourTurn": {
+    "title": "Du bist am Zug: {name}",
+    "body": "Du bist in Runde {round} am Zug. Deine Truppen warten auf Befehle.{deadline}",
+    "startedBody": "Die Partie läuft, und du bist in Runde {round} am Zug. Deine Truppen warten auf Befehle.{deadline}"
+  },
+  "deadlineSoon": {
+    "title": "Frist läuft bald ab: {name}",
+    "body": "Dein Zug in „{name}“ endet in weniger als {hours} Stunden ({deadline}). Danach endet er automatisch."
+  },
+  "remind": {
+    "title": "Erinnerung: {name}",
+    "body": "{from} wartet in „{name}“ auf deinen Zug (Runde {round}).{deadline}"
+  },
+  "ended": {
+    "title": "Partie beendet: {name}",
+    "body": "„{name}“ ist nach {rounds} Runden zu Ende. {result}",
+    "victory": "Sieg! Du hast die Partie gewonnen.",
+    "place": "Du belegst Platz {place} von {total}.",
+    "winner": " Sieger: {name}."
+  },
+  "matchStarted": {
+    "body": "Die Partie läuft. {name} ist zuerst am Zug; du bekommst Bescheid, wenn du dran bist."
+  },
+  "cancelled": {
+    "title": "Partie aufgelöst: {name}",
+    "body": "{host} hat „{name}“ vor dem Start aufgelöst."
+  },
+  "invitation": {
+    "title": "Einladung: {name}",
+    "async": "{host} lädt dich zur asynchronen Partie „{name}“ ein ({seats} Plätze). Nimm die Einladung in der Lobby an.",
+    "live": "{host} lädt dich zur Live-Partie „{name}“ ein ({seats} Plätze). Nimm die Einladung in der Lobby an."
+  }
+}

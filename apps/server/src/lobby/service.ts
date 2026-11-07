@@ -1,4 +1,4 @@
-import type { Message } from '@dos/shared/i18n'
+import { translate, type Locale, type Message } from '@dos/shared/i18n'
 import { LocalizedError, type Text } from '../locale'
 import { isWaterCode, mapSize, mapSizeLabel } from '@dos/shared/game'
 import { and, desc, eq, inArray } from 'drizzle-orm'
@@ -839,8 +839,9 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
             playerId,
             kind: 'matchCancelled' as const,
             matchId,
-            title: `Partie aufgelöst: ${row.name}`,
-            body: `${me.displayName} hat „${row.name}“ vor dem Start aufgelöst.`,
+            title: (locale: Locale) => translate(locale, 'notify.cancelled.title', { name: row.name }),
+            body: (locale: Locale) =>
+              translate(locale, 'notify.cancelled.body', { host: me.displayName, name: row.name }),
             url: LOBBY_PATH,
             email: false,
           })),

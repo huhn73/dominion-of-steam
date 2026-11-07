@@ -1,0 +1,34 @@
+{
+  "hello": "Hallo {name},",
+  "buttonFallback": "Falls der Knopf nicht geht, öffne diesen Link: {url}",
+  "accountFooter": "Du bekommst diese E-Mail, weil zu dieser Adresse ein Konto bei Dominion of Steam gehört.",
+  "notYou": "Wenn du das nicht warst, setze sofort dein Passwort zurück und schreib uns an {support}.",
+  "verify": {
+    "title": "Willkommen bei Dominion of Steam",
+    "body": "schön, dass du dabei bist. Bitte bestätige deine E-Mail-Adresse, damit wir dich benachrichtigen können, wenn du am Zug bist oder eine Einladung bekommst.",
+    "valid": "Der Link ist {hours} Stunden gültig. Wenn du dich nicht registriert hast, ignoriere diese E-Mail.",
+    "cta": "E-Mail-Adresse bestätigen"
+  },
+  "reset": {
+    "title": "Neues Passwort für Dominion of Steam",
+    "body": "du hast ein neues Passwort angefordert. Über den Link legst du es fest; danach sind alle anderen Geräte abgemeldet.",
+    "valid": "Der Link ist {minutes} Minuten gültig. Wenn du das nicht warst, ignoriere diese E-Mail; dein Passwort bleibt unverändert.",
+    "cta": "Neues Passwort festlegen"
+  },
+  "change": {
+    "title": "Bestätige deine neue E-Mail-Adresse",
+    "body": "bitte bestätige deine neue E-Mail-Adresse für Dominion of Steam. Erst dann gilt sie für dein Konto.",
+    "valid": "Der Link ist {hours} Stunden gültig. Wenn du die Änderung nicht angefordert hast, ignoriere diese E-Mail."
+  },
+  "changed": {
+    "title": "Deine E-Mail-Adresse wurde geändert",
+    "body": "die E-Mail-Adresse deines Kontos bei Dominion of Steam ist jetzt {email}. An diese Adresse hier schicken wir künftig nichts mehr."
+  },
+  "resetCta": "Passwort zurücksetzen",
+  "password": {
+    "title": "Dein Passwort wurde geändert",
+    "body": "das Passwort deines Kontos bei Dominion of Steam wurde gerade geändert. Alle anderen Geräte sind abgemeldet."
+  },
+  "toMatch": "Zur Partie",
+  "notificationFooter": "Welche Benachrichtigungen du per E-Mail bekommst, stellst du unter Profil & Einstellungen ein."
+}
