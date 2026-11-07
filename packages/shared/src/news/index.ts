@@ -25,7 +25,7 @@ export interface ReleaseNotes {
 export const NEWS: readonly ReleaseNotes[] = [
   {
     version: '0.11.0',
-    date: '2026-11-06',
+    date: '2026-11-07',
     items: [
       {
         de: {
