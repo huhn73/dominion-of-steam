@@ -9,5 +9,6 @@
   "newsTitle": "News",
   "newsIntro": "What each version of Dominion of Steam has brought.",
   "notFound": "Not found",
-  "notFoundText": "This page does not exist."
+  "notFoundText": "This page does not exist.",
+  "translationNotice": "This translation is provided for convenience; the German version is legally binding."
 }

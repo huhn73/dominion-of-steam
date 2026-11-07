@@ -1,25 +1,13 @@
-import license from '../../../../../LICENSE?raw'
-import credits from '../../../../../public/audio/credits.json'
 import { ANBIETER } from './anbieter'
+import { useLocale } from '../../i18n'
+import { credits, FONTS, mitText, SFX_RECORDINGS } from './licenseData'
+import { LizenzenPageEn } from './LizenzenPageEn'
 import { ExternalLink, LegalPage, Section } from './LegalPage'
 
-interface Recording {
-  title: string
-  author: string
-  source: string
-  license: string
-  license_url: string
-}
+export { SFX_RECORDINGS }
 
-/** The CC0 recordings the effects were cut from (public/audio/credits.json) */
-export const SFX_RECORDINGS = credits.sfx_source_recordings as Recording[]
-
-const FONTS = ['Barlow', 'Big Shoulders Display', 'IBM Plex Mono']
-
-/** The MIT text without the exception note, which is explained on the page itself */
-const mitText = license.split('\n---')[0]!.trim()
-
-export function LizenzenPage() {
+/** German text, legally binding */
+function LizenzenPageDe() {
   return (
     <LegalPage id="licenses" title="Lizenzen">
       <Section title="Spiel und Quellcode">
@@ -82,4 +70,10 @@ export function LizenzenPage() {
       </Section>
     </LegalPage>
   )
+}
+
+/** Lizenzen: English as a convenience translation, German otherwise */
+export function LizenzenPage() {
+  const { locale } = useLocale()
+  return locale === 'en' ? <LizenzenPageEn /> : <LizenzenPageDe />
 }

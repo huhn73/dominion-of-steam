@@ -29,3 +29,13 @@ describe('English', () => {
     expect(screen.getByRole('switch', { name: 'Reduce animations' })).toBeInTheDocument()
   })
 })
+
+describe('English legal pages', () => {
+  it('shows the translation with the notice that the German text is binding', async () => {
+    mockApi({})
+    renderApp('/datenschutz', { user: null, locale: 'en' })
+    expect(await screen.findByRole('heading', { name: 'Privacy' })).toBeInTheDocument()
+    expect(screen.getByRole('note')).toHaveTextContent('the German version is legally binding')
+    expect(screen.getByText(/As of: 7 November 2026/)).toBeInTheDocument()
+  })
+})

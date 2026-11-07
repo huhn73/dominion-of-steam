@@ -1,7 +1,10 @@
 import { ANBIETER, istPlatzhalter } from './anbieter'
+import { useLocale } from '../../i18n'
+import { ImpressumPageEn } from './ImpressumPageEn'
 import { LegalPage, Section } from './LegalPage'
 
-export function ImpressumPage() {
+/** German text, legally binding */
+function ImpressumPageDe() {
   return (
     <LegalPage id="imprint" title="Impressum">
       {import.meta.env.DEV && istPlatzhalter() && (
@@ -65,4 +68,10 @@ export function ImpressumPage() {
       </Section>
     </LegalPage>
   )
+}
+
+/** Impressum: English as a convenience translation, German otherwise */
+export function ImpressumPage() {
+  const { locale } = useLocale()
+  return locale === 'en' ? <ImpressumPageEn /> : <ImpressumPageDe />
 }

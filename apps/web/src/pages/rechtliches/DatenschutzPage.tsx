@@ -1,9 +1,12 @@
 import { ANBIETER } from './anbieter'
+import { useLocale } from '../../i18n'
+import { DatenschutzPageEn } from './DatenschutzPageEn'
 import { LegalPage, Section } from './LegalPage'
 
 const li = 'list-disc space-y-1 pl-5'
 
-export function DatenschutzPage() {
+/** German text, legally binding */
+function DatenschutzPageDe() {
   return (
     <LegalPage id="privacy" title="Datenschutz">
       <p>
@@ -50,7 +53,7 @@ export function DatenschutzPage() {
             gespeichert
           </li>
           <li>Anzeigename und, falls hochgeladen, ein Profilbild</li>
-          <li>Einstellungen (Darstellung, Ton, Benachrichtigungen)</li>
+          <li>Einstellungen (Darstellung, Ton, Benachrichtigungen) und die gewählte Sprache</li>
           <li>
             Partiedaten: Spielstände, Züge, Ergebnisse und der Partieverlauf. Mitspielerinnen und
             Mitspieler sehen Anzeigename, Profilbild und Fraktion, nicht die E-Mail-Adresse.
@@ -75,8 +78,8 @@ export function DatenschutzPage() {
           <code className="font-['IBM_Plex_Mono'] text-xs">dos_session</code>. Es hält die Sitzung,
           ist auf 30 Tage ab der letzten Nutzung begrenzt und für den Betrieb zwingend nötig (§ 25
           Abs. 2 Nr. 2 TDDDG). Es gibt keine Analyse-, Werbe- oder Drittanbieter-Cookies und deshalb
-          auch kein Cookie-Banner. Darstellungsoptionen wie das Farbschema liegen nur im Speicher
-          Ihres Browsers.
+          auch kein Cookie-Banner. Darstellungsoptionen wie das Farbschema und die Sprache liegen
+          zusätzlich im Speicher Ihres Browsers.
         </p>
       </Section>
 
@@ -140,4 +143,10 @@ export function DatenschutzPage() {
       </Section>
     </LegalPage>
   )
+}
+
+/** Datenschutz: English as a convenience translation, German otherwise */
+export function DatenschutzPage() {
+  const { locale } = useLocale()
+  return locale === 'en' ? <DatenschutzPageEn /> : <DatenschutzPageDe />
 }

@@ -18,7 +18,7 @@ export const ANBIETER = {
   repo: 'https://github.com/huhn73/dominion-of-steam',
 } as const
 
-/** Date shown under the legal texts; bump it when the texts change */
-export const STAND = '31. Oktober 2026'
+/** Date shown under the legal texts (ISO); bump it when the texts change */
+export const STAND = '2026-11-07'
 
 export const istPlatzhalter = () => ANBIETER.name === PLATZHALTER_NAME
