@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
 import { ADMIN_RANGES, type AdminRange, type AdminStats } from '@dos/shared/admin'
 import { percent, Segmented } from '../../profil/components'
+import { formatNumber } from '@dos/shared/i18n'
 import { KontenListe, PartienListe } from './Listen'
 import { VerlaufDiagramm } from './VerlaufDiagramm'
+import { useLocale, useT } from '../../../i18n'
 
 export interface NutzungsuebersichtProps {
   stats: AdminStats
@@ -49,29 +51,31 @@ export function Nutzungsuebersicht({
   onRangeChange,
   loading,
 }: NutzungsuebersichtProps) {
+  const t = useT()
+  const { locale } = useLocale()
   const { accounts: a, matches: m } = stats
-  const days = `${range} Tage`
+  const last = t('admin.lastDays', { count: range })
 
   const kontoTiles: Tile[] = [
-    { label: 'Konten', value: a.total },
-    { label: 'Bestätigt', value: a.verified, hint: `${percent(a.verified, a.total)} %` },
-    { label: 'Neu', value: a.new, hint: `letzte ${days}` },
-    { label: 'Aktiv 24 h', value: a.active24h },
-    { label: 'Aktiv', value: a.activeRange, hint: `letzte ${days}` },
+    { label: t('admin.tile.accounts'), value: a.total },
+    { label: t('admin.tile.verified'), value: a.verified, hint: `${percent(a.verified, a.total)} %` },
+    { label: t('admin.tile.new'), value: a.new, hint: last },
+    { label: t('admin.tile.active24'), value: a.active24h },
+    { label: t('admin.tile.active'), value: a.activeRange, hint: last },
   ]
   const partieTiles: Tile[] = [
-    { label: 'Laufend', value: m.running, hint: `${m.waiting} warten auf Spieler` },
+    { label: t('admin.tile.running'), value: m.running, hint: t('admin.tile.waiting', { count: m.waiting }) },
     {
-      label: 'Beendet',
+      label: t('admin.tile.finished'),
       value: m.finished,
       hint:
         m.avgRoundsFinished == null
           ? undefined
-          : `Ø ${m.avgRoundsFinished.toLocaleString('de-DE')} Runden`,
+          : t('admin.tile.avgRounds', { rounds: formatNumber(locale, m.avgRoundsFinished) }),
     },
-    { label: 'Neu', value: m.newInRange, hint: `letzte ${days}` },
-    { label: 'Live / Async', value: `${m.live} / ${m.async}` },
-    { label: 'Solo / Mehrspieler', value: `${m.solo} / ${m.multiplayer}` },
+    { label: t('admin.tile.new'), value: m.newInRange, hint: last },
+    { label: t('admin.tile.liveAsync'), value: `${m.live} / ${m.async}` },
+    { label: t('admin.tile.soloMulti'), value: `${m.solo} / ${m.multiplayer}` },
   ]
 
   return (
@@ -80,20 +84,20 @@ export function Nutzungsuebersicht({
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-1 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-stone-500 dark:text-stone-400">
-              Verwaltung
+              {t('admin.kicker')}
             </p>
             <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-none tracking-wide">
-              Nutzung
+              {t('admin.title')}
             </h1>
             <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
-              Ohne Dev-Konten und Demo-Partie.
+              {t('admin.excluded')}
             </p>
           </div>
           <div aria-busy={loading} className={loading ? 'opacity-60' : undefined}>
             <Segmented
-              label="Zeitraum"
+              label={t('admin.range')}
               value={range}
-              options={ADMIN_RANGES.map((r) => ({ value: r, label: `${r} Tage` }))}
+              options={ADMIN_RANGES.map((r) => ({ value: r, label: t('admin.days', { count: r }) }))}
               onChange={onRangeChange}
             />
           </div>
@@ -101,35 +105,35 @@ export function Nutzungsuebersicht({
 
         <section aria-labelledby="admin-konten">
           <h2 id="admin-konten" className={h2}>
-            Konten
+            {t('admin.accounts')}
           </h2>
-          <Kacheln label="Konten" tiles={kontoTiles} />
+          <Kacheln label={t('admin.accounts')} tiles={kontoTiles} />
         </section>
 
         <section aria-labelledby="admin-partien">
           <h2 id="admin-partien" className={h2}>
-            Partien
+            {t('admin.matches')}
           </h2>
-          <Kacheln label="Partien" tiles={partieTiles} />
+          <Kacheln label={t('admin.matches')} tiles={partieTiles} />
         </section>
 
         <section aria-labelledby="admin-verlauf">
           <h2 id="admin-verlauf" className={h2}>
-            Verlauf
+            {t('admin.history')}
           </h2>
           <VerlaufDiagramm days={stats.daily} />
         </section>
 
         <section aria-labelledby="admin-letzte-konten">
           <h2 id="admin-letzte-konten" className={h2}>
-            Zuletzt aktive Konten
+            {t('admin.recentPlayers')}
           </h2>
           <KontenListe players={stats.recentPlayers} />
         </section>
 
         <section aria-labelledby="admin-letzte-partien">
           <h2 id="admin-letzte-partien" className={h2}>
-            Zuletzt aktualisierte Partien
+            {t('admin.recentMatches')}
           </h2>
           <PartienListe matches={stats.recentMatches} />
         </section>

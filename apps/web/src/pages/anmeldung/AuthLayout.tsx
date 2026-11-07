@@ -4,6 +4,7 @@ import { LegalLinks, type LegalPageId } from '../rechtliches/LegalLinks'
 import { AppVersion } from '../../shell/AppVersion'
 import { NewsLink } from '../../shell/NewsLink'
 import { LanguageSwitch } from '../../shell/LanguageSwitch'
+import { useT } from '../../i18n'
 
 /**
  * Full-page frame of the login, register and legal pages: wordmark, a riveted brass card and
@@ -23,6 +24,7 @@ export function AuthLayout({
   /** The legal page being shown: its own link is rendered as plain text */
   legalPage?: LegalPageId
 }) {
+  const t = useT()
   return (
     <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-stone-100 px-4 py-10 font-['Barlow'] text-stone-900 dark:bg-stone-950 dark:text-stone-100">
       {/* Hintergrund: warmes Messinglicht und feine Diagonalschraffur */}
@@ -46,7 +48,7 @@ export function AuthLayout({
             Dominion of Steam
           </p>
           <p className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
-            Eroberung im Dieselzeitalter
+            {t('auth.tagline')}
           </p>
         </div>
 
@@ -98,6 +100,7 @@ type FieldProps = {
 } & InputHTMLAttributes<HTMLInputElement>
 
 export function Field({ id, label, error, hint, type, ...input }: FieldProps) {
+  const t = useT()
   const [visible, setVisible] = useState(false)
   const isPassword = type === 'password'
   const describedBy = error ? `${id}-fehler` : hint ? `${id}-hinweis` : undefined
@@ -121,7 +124,7 @@ export function Field({ id, label, error, hint, type, ...input }: FieldProps) {
           <button
             type="button"
             onClick={() => setVisible((v) => !v)}
-            aria-label={visible ? 'Passwort verbergen' : 'Passwort anzeigen'}
+            aria-label={visible ? t('auth.hidePassword') : t('auth.showPassword')}
             aria-pressed={visible}
             className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-md text-stone-500 hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-teal-500 dark:text-stone-400 dark:hover:text-teal-300"
           >

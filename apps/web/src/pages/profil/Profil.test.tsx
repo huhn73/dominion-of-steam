@@ -351,7 +351,7 @@ describe('Einstellungen', () => {
   })
 
   it('übernimmt nach der Anmeldung die gespeicherte Sprache des Profils', async () => {
-    mockApi()
+    mockApi({})
     renderApp('/', { user: { ...testUser, locale: 'en' } })
     await waitFor(() => expect(document.documentElement.lang).toBe('en'))
     expect(localStorage.getItem('dos.locale')).toBe('en')

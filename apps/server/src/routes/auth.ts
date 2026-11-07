@@ -2,8 +2,7 @@ import type { FastifyInstance, FastifyReply } from 'fastify'
 import { API_PREFIX } from '@dos/shared'
 import { validateEmail, validatePassword, validateRegistration } from '@dos/shared/account'
 import { isLocale } from '@dos/shared/i18n'
-import { requestLocale } from '../locale'
-import type { ApiError } from '@dos/shared/game'
+import { requestLocale, sendError } from '../locale'
 import { AccountError, type AccountService, toMe } from '../auth/accounts'
 import {
   clearSessionCookie,
@@ -18,12 +17,8 @@ import { requestOrigin } from './setup'
 /** Per-IP limits (plugin registered in app.ts when enabled) */
 const limit = (max: number, timeWindow: string) => ({ config: { rateLimit: { max, timeWindow } } })
 
-function sendError(reply: FastifyReply, status: number, code: string, message: string) {
-  return reply.status(status).send({ error: { code, message } } satisfies ApiError)
-}
-
 function handleAccountError(err: unknown, reply: FastifyReply) {
-  if (err instanceof AccountError) return sendError(reply, err.status, err.code, err.message)
+  if (err instanceof AccountError) return sendError(reply, err.status, err.code, err.text)
   throw err
 }
 

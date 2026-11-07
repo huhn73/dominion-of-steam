@@ -2,13 +2,14 @@ import { useEffect, useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type Command, type CommandResponse, matchOutcome, type PlayerView } from '@dos/shared/game'
 import type { GameHeader } from '../shell'
+import { INTL_LOCALE, translator, type Locale, type Translate } from '@dos/shared/i18n'
+import { isTutorialMatchId } from '@dos/shared/engine'
 import { api, ApiRequestError } from './api'
 import { useServerEventsConnected } from './events'
 
 /** Without event stream: poll while others are on the move */
 export const POLL_WHILE_WAITING_MS = 5000
 
-const OUTCOME_LABEL = { victory: 'Sieg', defeat: 'Niederlage', surrendered: 'Aufgegeben' } as const
 
 export const matchKey = (matchId: string) => ['match', matchId] as const
 
@@ -74,28 +75,34 @@ export function useMatchCommand(
   })
 }
 
-const deadlineFormat = new Intl.DateTimeFormat('de-DE', {
-  weekday: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-})
-
-export function formatDeadline(iso: string) {
-  // „So., 19:00“
-  const parts = deadlineFormat.formatToParts(new Date(iso))
+export function formatDeadline(locale: Locale, iso: string) {
+  // „So., 19:00“ / „Sun, 19:00“
+  const parts = new Intl.DateTimeFormat(INTL_LOCALE[locale], {
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(new Date(iso))
   const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
   return `${get('weekday')}, ${get('hour')}:${get('minute')}`
 }
 
-export function gameHeaderFor(view: PlayerView | undefined): GameHeader {
-  if (!view) return { title: 'Lade Partie …' }
+/** Name of a match; the tutorial's stored German name is shown in the player's language */
+export const matchName = (t: Translate, match: { id: string; name: string }) =>
+  isTutorialMatchId(match.id) ? t('match.tutorialName') : match.name
+
+export function gameHeaderFor(view: PlayerView | undefined, locale: Locale): GameHeader {
+  const t = translator(locale)
+  if (!view) return { title: t('match.header.loading') }
   const { match } = view
-  const title = `${match.name} · Runde ${match.round}`
+  const title = t('match.header.title', { name: matchName(t, match), round: match.round })
   if (view.result) {
     const outcome = matchOutcome(view)
     return {
       title,
-      status: outcome ? `Beendet · ${OUTCOME_LABEL[outcome]}` : 'Beendet',
+      status: outcome
+        ? t('match.header.endedWith', { outcome: t(`match.outcome.${outcome}`) })
+        : t('match.header.ended'),
       isYourTurn: false,
     }
   }
@@ -103,8 +110,8 @@ export function gameHeaderFor(view: PlayerView | undefined): GameHeader {
     return {
       title,
       status: match.turnDeadline
-        ? `Dein Zug · Frist ${formatDeadline(match.turnDeadline)}`
-        : 'Dein Zug',
+        ? t('match.header.yourTurnUntil', { deadline: formatDeadline(locale, match.turnDeadline) })
+        : t('match.header.yourTurn'),
       isYourTurn: true,
     }
   // The AIs move in the background: name the one on the move (changes with every signal)
@@ -113,10 +120,10 @@ export function gameHeaderFor(view: PlayerView | undefined): GameHeader {
     title,
     status:
       match.phase === 'replay'
-        ? 'Gegnerzüge'
+        ? t('match.header.replay')
         : current?.isAI
-          ? `${current.name} (KI) zieht …`
-          : 'Warte auf Gegner',
+          ? t('match.header.aiMoving', { name: current.name })
+          : t('match.header.waiting'),
     isYourTurn: false,
   }
 }

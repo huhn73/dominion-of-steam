@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { useT } from '../i18n'
 
 export interface NavigationItem {
   label: string
@@ -28,10 +29,11 @@ function Badge({ count, className = '' }: { count: number; className?: string })
 }
 
 export function MainNav({ items, onNavigate, variant = 'top', className = '' }: MainNavProps) {
+  const t = useT()
   if (variant === 'tabbar') {
     return (
       <nav
-        aria-label="Hauptnavigation"
+        aria-label={t('shell.mainNav')}
         className={`fixed inset-x-0 bottom-0 z-20 border-t-4 border-double border-stone-300 bg-stone-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur dark:border-stone-700 dark:bg-stone-900/95 ${className}`}
       >
         <ul className="flex h-16">
@@ -66,7 +68,7 @@ export function MainNav({ items, onNavigate, variant = 'top', className = '' }: 
   }
 
   return (
-    <nav aria-label="Hauptnavigation" className={className}>
+    <nav aria-label={t('shell.mainNav')} className={className}>
       <ul className="flex h-full items-stretch gap-1">
         {items.map(({ label, href, isActive, icon: Icon, badge }) => (
           <li key={href}>

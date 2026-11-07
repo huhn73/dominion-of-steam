@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { PushPermission } from '@dos/shared/lobby'
 import type { PushKeyResponse } from '@dos/shared/notifications'
+import type { MessageKey } from '@dos/shared/i18n'
 import { api } from './api'
 
 const SW_URL = '/sw.js'
 /** Shown when the browser answers the request without a decision (prompt blocked or closed) */
-export const PUSH_NO_PROMPT_HINT =
-  'Dein Browser hat keine Abfrage gezeigt. Erlaube Benachrichtigungen über das Symbol links in der Adressleiste.'
+export const PUSH_NO_PROMPT_HINT = 'common.pushNoPrompt' satisfies MessageKey
 /** "Später" hides the banner for this long (per player and browser) */
 export const PUSH_BANNER_SNOOZE_MS = 7 * 24 * 3600_000
 

@@ -1,0 +1,19 @@
+{
+  "tutorialName": "Tutorial: First Steps",
+  "outcome": {
+    "victory": "Victory",
+    "defeat": "Defeat",
+    "surrendered": "Surrendered"
+  },
+  "header": {
+    "loading": "Loading match …",
+    "title": "{name} · Round {round}",
+    "ended": "Ended",
+    "endedWith": "Ended · {outcome}",
+    "yourTurn": "Your turn",
+    "yourTurnUntil": "Your turn · due {deadline}",
+    "replay": "Enemy moves",
+    "aiMoving": "{name} (AI) is moving …",
+    "waiting": "Waiting for opponents"
+  }
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import type { Faction } from '../types'
 import { FACTION_HEX } from './format'
+import { useT } from '../../../i18n'
 
 // Mirrors the controls of the other sections so this section stays exportable on its own.
 
@@ -93,6 +94,7 @@ function useDialogFocus(ref: React.RefObject<HTMLDivElement | null>) {
 }
 
 export function Sheet({ title, onClose, children, footer }: { title: string; onClose: () => void; children: ReactNode; footer?: ReactNode }) {
+  const t = useT()
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -114,7 +116,7 @@ export function Sheet({ title, onClose, children, footer }: { title: string; onC
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-stone-300 sm:hidden dark:bg-stone-600" />
         <header className="flex items-center justify-between gap-4 border-b-4 border-double border-stone-200 px-5 py-3 dark:border-stone-700">
           <h2 className="truncate font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Schließen" className="flex size-11 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800">
+          <button type="button" onClick={onClose} aria-label={t('profile.close')} className="flex size-11 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800">
             <X className="size-5" />
           </button>
         </header>

@@ -10,9 +10,12 @@ import { SurrenderSheet } from '../sections/lobby/components'
 import type { Match } from '../sections/lobby/types'
 import { Toast, useToast } from '../pages/shared/toast'
 import { MuteButton } from '../settings/MuteButton'
+import { useLocale, useT } from '../i18n'
 
 export function GameLayout() {
   const navigate = useNavigate()
+  const t = useT()
+  const { locale } = useLocale()
   const { matchId = '' } = useParams()
   const user = useCurrentUser()
   const logout = useLogout()
@@ -32,7 +35,7 @@ export function GameLayout() {
       mode="game"
       navigationItems={[]}
       user={user}
-      gameHeader={gameHeaderFor(view)}
+      gameHeader={gameHeaderFor(view, locale)}
       onExitGame={exitGame}
       onOpenGameMenu={() => setMenuOpen((open) => !open)}
       onOpenProfile={() => navigate(routes.profile)}
@@ -60,12 +63,12 @@ export function GameLayout() {
             surrender.mutate(undefined, {
               onSuccess: () =>
                 void navigate(routes.lobby, {
-                  state: { notice: 'Du hast aufgegeben. Eine KI führt deine Fraktion weiter.' },
+                  state: { notice: t('shell.surrendered') },
                 }),
               onError: (e) =>
                 toast.error(
                   e instanceof ApiRequestError ? e : null,
-                  'Aufgeben hat nicht geklappt.',
+                  t('shell.surrenderFailed'),
                 ),
             })
           }}

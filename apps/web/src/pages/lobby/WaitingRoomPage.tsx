@@ -6,6 +6,7 @@ import { useLobbyActions, useWaitingRoom } from '../../data/lobby'
 import { routes } from '../../routes'
 import { PlaceholderPage } from '../PlaceholderPage'
 import { shareLink, Toast, useToast } from '../shared/toast'
+import { useT } from '../../i18n'
 
 const linkClass = 'font-semibold text-teal-700 underline dark:text-teal-300'
 
@@ -13,6 +14,7 @@ const linkClass = 'font-semibold text-teal-700 underline dark:text-teal-300'
 export function WaitingRoomPage() {
   const { matchId = '' } = useParams()
   const navigate = useNavigate()
+  const t = useT()
   const { data, error, isPending } = useWaitingRoom(matchId)
   const actions = useLobbyActions()
   const toast = useToast()
@@ -38,24 +40,24 @@ export function WaitingRoomPage() {
 
   if (isPending || started)
     return (
-      <PlaceholderPage title="Warteraum">
-        <p className="animate-pulse">{started ? 'Die Partie beginnt …' : 'Lade Warteraum …'}</p>
+      <PlaceholderPage title={t('lobby.room.title')}>
+        <p className="animate-pulse">{started ? t('lobby.room.starting') : t('lobby.room.loading')}</p>
       </PlaceholderPage>
     )
   if (error || !data) {
     const status = error instanceof ApiRequestError ? error.status : 0
     return (
-      <PlaceholderPage title="Warteraum">
+      <PlaceholderPage title={t('lobby.room.title')}>
         <p role="alert">
           {status === 404
-            ? 'Diese Partie gibt es nicht mehr. Vielleicht hat der Ersteller sie aufgelöst.'
+            ? t('lobby.room.gone')
             : error instanceof ApiRequestError
               ? error.message
-              : 'Der Warteraum ist gerade nicht erreichbar.'}
+              : t('lobby.room.unavailable')}
         </p>
         <p className="mt-4">
           <Link to={routes.lobby} className={linkClass}>
-            Zur Lobby
+            {t('lobby.toLobby')}
           </Link>
         </p>
       </PlaceholderPage>
@@ -92,15 +94,15 @@ export function WaitingRoomPage() {
           void actions.leave(matchId).then(
             ({ dissolved }) =>
               navigate(routes.lobby, {
-                state: { notice: dissolved ? 'Partie aufgelöst' : 'Warteraum verlassen' },
+                state: { notice: dissolved ? t('lobby.room.dissolved') : t('lobby.room.left') },
               }),
             (e: unknown) => toast.error(e),
           )
         }
-        onCopyInviteLink={() => toast.info('Link kopiert')}
+        onCopyInviteLink={() => toast.info(t('lobby.room.linkCopied'))}
         onShareInviteLink={(link) =>
           void shareLink(link, {
-            onCopied: () => toast.info('Link kopiert'),
+            onCopied: () => toast.info(t('lobby.room.linkCopied')),
             onError: (text) => toast.setToast({ kind: 'error', text }),
           })
         }

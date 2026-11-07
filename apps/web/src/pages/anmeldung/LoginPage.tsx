@@ -5,6 +5,7 @@ import { ApiRequestError } from '../../data/api'
 import { safeNext, useAuthActions, useMe } from '../../data/session'
 import { routes } from '../../routes'
 import { AuthLayout, Field, FormError, linkClass, SubmitButton } from './AuthLayout'
+import { useT } from '../../i18n'
 
 type Errors = { email?: string; password?: string }
 
@@ -12,6 +13,7 @@ export function LoginPage() {
   const [params] = useSearchParams()
   const next = safeNext(params.get('weiter'))
   const navigate = useNavigate()
+  const t = useT()
   // Hinweis nach „Konto löschen“ oder „Auf allen Geräten abmelden“
   const notice = (useLocation().state as { notice?: string } | null)?.notice
   const { data: me } = useMe()
@@ -32,8 +34,8 @@ export function LoginPage() {
     e.preventDefault()
     const found: Errors = {}
     const emailError = validateEmail(form.email)
-    if (emailError) found.email = emailError
-    if (!form.password) found.password = 'Bitte gib dein Passwort ein.'
+    if (emailError) found.email = t(emailError.key, emailError.params)
+    if (!form.password) found.password = t('auth.login.passwordMissing')
     setErrors(found)
     setServerError(null)
     if (Object.keys(found).length) return
@@ -42,7 +44,7 @@ export function LoginPage() {
       await login(form)
       await navigate(next, { replace: true })
     } catch (err) {
-      setServerError(err instanceof ApiRequestError ? err.message : 'Unbekannter Fehler.')
+      setServerError(err instanceof ApiRequestError ? err.message : t('common.api.unknown'))
       setBusy(false)
     }
   }
@@ -54,12 +56,12 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      title="Anmelden"
+      title={t('auth.login.title')}
       footer={
         <>
-          Noch kein Konto?{' '}
+          {t('auth.login.noAccount')}{' '}
           <Link to={registerHref} className={linkClass}>
-            Jetzt registrieren
+            {t('auth.login.register')}
           </Link>
         </>
       }
@@ -76,7 +78,7 @@ export function LoginPage() {
         <FormError message={serverError} />
         <Field
           id="email"
-          label="E-Mail-Adresse"
+          label={t('auth.email')}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -87,7 +89,7 @@ export function LoginPage() {
         />
         <Field
           id="password"
-          label="Passwort"
+          label={t('auth.password')}
           type="password"
           autoComplete="current-password"
           value={form.password}
@@ -96,10 +98,10 @@ export function LoginPage() {
         />
         <div className="-mt-2 text-right text-sm">
           <Link to={routes.forgotPassword} state={{ email: form.email }} className={linkClass}>
-            Passwort vergessen?
+            {t('auth.login.forgot')}
           </Link>
         </div>
-        <SubmitButton busy={busy} label="Anmelden" busyLabel="Melde an …" />
+        <SubmitButton busy={busy} label={t('auth.login.submit')} busyLabel={t('auth.login.busy')} />
       </form>
     </AuthLayout>
   )

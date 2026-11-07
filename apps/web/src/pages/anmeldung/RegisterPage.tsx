@@ -11,6 +11,7 @@ import { ApiRequestError } from '../../data/api'
 import { safeNext, useAuthActions, useMe } from '../../data/session'
 import { routes } from '../../routes'
 import { AuthLayout, Field, FormError, linkClass, SubmitButton } from './AuthLayout'
+import { useT } from '../../i18n'
 
 type Errors = Partial<Record<keyof RegisterRequest, string>>
 
@@ -24,6 +25,7 @@ export function RegisterPage() {
   const [params] = useSearchParams()
   const next = safeNext(params.get('weiter'))
   const navigate = useNavigate()
+  const t = useT()
   const { data: me } = useMe()
   const { register } = useAuthActions()
   const [form, setForm] = useState<RegisterRequest>({ displayName: '', email: '', password: '' })
@@ -40,7 +42,9 @@ export function RegisterPage() {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
-    const found = validateRegistration(form)
+    const found: Errors = Object.fromEntries(
+      Object.entries(validateRegistration(form)).map(([field, m]) => [field, t(m.key, m.params)]),
+    )
     setErrors(found)
     setServerError(null)
     if (Object.keys(found).length) return
@@ -52,13 +56,13 @@ export function RegisterPage() {
         state: me.emailVerified
           ? null
           : {
-              notice: `Konto angelegt. Wir haben dir eine Bestätigungsmail an ${me.email} geschickt.`,
+              notice: t('auth.register.created', { email: me.email }),
             },
       })
     } catch (err) {
       const field = err instanceof ApiRequestError ? FIELD_OF_CODE[err.code] : undefined
       if (field) setErrors({ [field]: (err as ApiRequestError).message })
-      else setServerError(err instanceof ApiRequestError ? err.message : 'Unbekannter Fehler.')
+      else setServerError(err instanceof ApiRequestError ? err.message : t('common.api.unknown'))
       setBusy(false)
     }
   }
@@ -68,12 +72,12 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Konto anlegen"
+      title={t('auth.register.title')}
       footer={
         <>
-          Schon registriert?{' '}
+          {t('auth.register.haveAccount')}{' '}
           <Link to={loginHref} className={linkClass}>
-            Zur Anmeldung
+            {t('auth.register.toLogin')}
           </Link>
         </>
       }
@@ -82,18 +86,18 @@ export function RegisterPage() {
         <FormError message={serverError} />
         <Field
           id="displayName"
-          label="Name"
+          label={t('auth.name')}
           autoComplete="nickname"
           autoFocus
           maxLength={DISPLAY_NAME_MAX + 10}
           value={form.displayName}
           onChange={update('displayName')}
           error={errors.displayName}
-          hint={`So sehen dich deine Mitspieler; ${DISPLAY_NAME_MIN} bis ${DISPLAY_NAME_MAX} Zeichen.`}
+          hint={t('auth.register.nameHint', { min: DISPLAY_NAME_MIN, max: DISPLAY_NAME_MAX })}
         />
         <Field
           id="email"
-          label="E-Mail-Adresse"
+          label={t('auth.email')}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -103,15 +107,15 @@ export function RegisterPage() {
         />
         <Field
           id="password"
-          label="Passwort"
+          label={t('auth.password')}
           type="password"
           autoComplete="new-password"
           value={form.password}
           onChange={update('password')}
           error={errors.password}
-          hint={`Mindestens ${PASSWORD_MIN} Zeichen.`}
+          hint={t('auth.register.passwordHint', { min: PASSWORD_MIN })}
         />
-        <SubmitButton busy={busy} label="Registrieren" busyLabel="Lege Konto an …" />
+        <SubmitButton busy={busy} label={t('auth.register.submit')} busyLabel={t('auth.register.busy')} />
       </form>
     </AuthLayout>
   )

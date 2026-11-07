@@ -1,18 +1,13 @@
 import type { ReactNode } from 'react'
 import type { AdminMatchRow, AdminPlayerRow } from '@dos/shared/admin'
 import { Avatar, formatDate } from '../../profil/components'
+import type { Locale } from '@dos/shared/i18n'
+import { useLocale, useT } from '../../../i18n'
 
-const when = (iso: string | null) =>
+const when = (locale: Locale, iso: string | null) =>
   iso
-    ? formatDate(iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+    ? formatDate(locale, iso, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
     : '–'
-
-const STATUS: Record<AdminMatchRow['status'], string> = {
-  waiting: 'Wartet',
-  running: 'Läuft',
-  finished: 'Beendet',
-}
-const MODE: Record<AdminMatchRow['mode'], string> = { live: 'Live', async: 'Async' }
 
 const th =
   'px-3 py-2 text-left text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400'
@@ -60,11 +55,13 @@ function Tabelle({
 }
 
 export function KontenListe({ players }: { players: AdminPlayerRow[] }) {
+  const t = useT()
+  const { locale } = useLocale()
   return (
     <Tabelle
-      caption="Zuletzt aktive Konten"
-      head={['Name', 'Registriert', 'Zuletzt gesehen', 'Bestätigt', 'Partien']}
-      empty="Noch keine Konten."
+      caption={t('admin.recentPlayers')}
+      head={[t('admin.col.name'), t('admin.col.registered'), t('admin.col.lastSeen'), t('admin.col.verified'), t('admin.col.matches')]}
+      empty={t('admin.noPlayers')}
     >
       {players.map((p) => (
         <tr key={p.id}>
@@ -74,10 +71,10 @@ export function KontenListe({ players }: { players: AdminPlayerRow[] }) {
               <span className="font-semibold">{p.name}</span>
             </span>
           </td>
-          <td className={`${td} ${mono}`}>{formatDate(p.createdAt)}</td>
-          <td className={`${td} ${mono}`}>{when(p.lastSeenAt)}</td>
+          <td className={`${td} ${mono}`}>{formatDate(locale, p.createdAt)}</td>
+          <td className={`${td} ${mono}`}>{when(locale, p.lastSeenAt)}</td>
           <td className={td}>
-            {p.emailVerified ? 'Ja' : <span className="text-stone-500">Nein</span>}
+            {p.emailVerified ? t('admin.yes') : <span className="text-stone-500">{t('admin.no')}</span>}
           </td>
           <td className={`${td} ${mono}`}>{p.matches}</td>
         </tr>
@@ -87,22 +84,24 @@ export function KontenListe({ players }: { players: AdminPlayerRow[] }) {
 }
 
 export function PartienListe({ matches }: { matches: AdminMatchRow[] }) {
+  const t = useT()
+  const { locale } = useLocale()
   return (
     <Tabelle
-      caption="Zuletzt aktualisierte Partien"
-      head={['Partie', 'Modus', 'Status', 'Runde', 'Menschen / KI', 'Aktualisiert']}
-      empty="Noch keine Partien."
+      caption={t('admin.recentMatches')}
+      head={[t('admin.col.match'), t('admin.col.mode'), t('admin.col.status'), t('admin.col.round'), t('admin.col.humansAi'), t('admin.col.updated')]}
+      empty={t('admin.noMatches')}
     >
       {matches.map((m) => (
         <tr key={m.id}>
           <td className={`${td} font-semibold`}>{m.name}</td>
-          <td className={td}>{MODE[m.mode]}</td>
-          <td className={td}>{STATUS[m.status]}</td>
+          <td className={td}>{t(`admin.mode.${m.mode}`)}</td>
+          <td className={td}>{t(`admin.status.${m.status}`)}</td>
           <td className={`${td} ${mono}`}>{m.round}</td>
           <td className={`${td} ${mono}`}>
             {m.humans} / {m.ais}
           </td>
-          <td className={`${td} ${mono}`}>{when(m.updatedAt)}</td>
+          <td className={`${td} ${mono}`}>{when(locale, m.updatedAt)}</td>
         </tr>
       ))}
     </Tabelle>

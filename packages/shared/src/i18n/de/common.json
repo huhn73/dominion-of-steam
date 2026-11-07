@@ -1,0 +1,49 @@
+{
+  "appName": "Dominion of Steam",
+  "language": {
+    "label": "Sprache",
+    "hint": "Gilt für das Spiel, E-Mails und Benachrichtigungen.",
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "api": {
+    "network": "Der Server ist nicht erreichbar.",
+    "unknown": "Unbekannter Fehler."
+  },
+  "retry": "Erneut versuchen",
+  "loading": "Lade …",
+  "failed": "Das hat nicht geklappt. Versuche es noch einmal.",
+  "closeMessage": "Meldung schließen",
+  "shareTitle": "Einladung zu Dominion of Steam",
+  "shareFailed": "Teilen ist fehlgeschlagen. Kopiere den Link stattdessen.",
+  "copyFailed": "Der Link konnte nicht kopiert werden.",
+  "pushNoPrompt": "Dein Browser hat keine Abfrage gezeigt. Erlaube Benachrichtigungen über das Symbol links in der Adressleiste.",
+  "imageTooLarge": "Das Bild ist zu groß (höchstens {mb} MB).",
+  "soundOn": "Ton an",
+  "soundOff": "Ton aus",
+  "soundOffHint": "Ton aus (Lautstärke in den Einstellungen)",
+  "verify": {
+    "region": "E-Mail-Adresse bestätigen",
+    "text": "Bitte bestätige deine E-Mail-Adresse {email}. Bis dahin bekommst du keine E-Mails von uns.",
+    "sending": "Schicke …",
+    "resend": "Erneut senden",
+    "change": "Adresse ändern",
+    "already": "Deine E-Mail-Adresse ist schon bestätigt.",
+    "sent": "Wir haben dir eine neue Bestätigungsmail geschickt."
+  },
+  "difficulty": {
+    "easy": "Leicht",
+    "normal": "Normal",
+    "hard": "Schwer"
+  },
+  "time": {
+    "expired": "Frist abgelaufen",
+    "leftMin": "noch {m} Min.",
+    "leftHoursMin": "noch {h} Std. {m} Min.",
+    "leftHours": "noch {h} Std.",
+    "agoMin": "vor {m} Min.",
+    "agoHours": "vor {h} Std.",
+    "yesterday": "gestern",
+    "agoDays": "vor {d} Tagen"
+  }
+}

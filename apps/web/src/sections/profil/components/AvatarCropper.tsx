@@ -11,6 +11,7 @@ import {
   type Crop,
   type CropView,
 } from './cropMath'
+import { useT } from '../../../i18n'
 
 /**
  * Choose the round cut-out of a new avatar: drag (mouse, touch), zoom (slider, wheel, pinch,
@@ -26,6 +27,7 @@ export function AvatarCropper({
   onCancel: () => void
 }) {
   // Created in the effect: StrictMode runs cleanups once on mount, a memoised URL would be revoked
+  const t = useT()
   const [url, setUrl] = useState<string | null>(null)
   useEffect(() => {
     const objectUrl = URL.createObjectURL(file)
@@ -115,7 +117,7 @@ export function AvatarCropper({
 
   return (
     <Sheet
-      title="Bildausschnitt"
+      title={t('profile.crop.title')}
       onClose={onCancel}
       footer={
         <div className="flex justify-end gap-2">
@@ -134,18 +136,18 @@ export function AvatarCropper({
             }
             className="min-h-11 rounded-lg bg-amber-500 px-5 font-semibold text-stone-950 hover:bg-amber-400 disabled:opacity-40"
           >
-            Übernehmen
+            {t('profile.crop.apply')}
           </button>
         </div>
       }
     >
       <p className="mb-3 text-sm text-stone-600 dark:text-stone-400">
-        Verschiebe das Bild und zoome, bis der Kreis passt.
+        {t('profile.crop.hint')}
       </p>
       <div
         ref={stageRef}
         role="application"
-        aria-label="Bildausschnitt verschieben (Pfeiltasten) und zoomen (Plus und Minus)"
+        aria-label={t('profile.crop.area')}
         tabIndex={0}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -157,7 +159,7 @@ export function AvatarCropper({
         {url && (
           <img
             src={url}
-            alt="Vorschau des neuen Profilbilds"
+            alt={t('profile.crop.preview')}
             draggable={false}
             onLoad={(e) => {
               const { naturalWidth: width, naturalHeight: height } = e.currentTarget
@@ -178,21 +180,21 @@ export function AvatarCropper({
       </div>
       {failed && (
         <p className="mt-3 text-sm font-semibold text-rose-600">
-          Das Bild lässt sich nicht anzeigen. Bitte wähle ein anderes.
+          {t('profile.crop.broken')}
         </p>
       )}
       <div className="mx-auto mt-4 flex max-w-72 items-center gap-3">
         <button
           type="button"
           onClick={() => zoomBy(1 / 1.25)}
-          aria-label="Verkleinern"
+          aria-label={t('profile.crop.zoomOut')}
           className="flex size-11 shrink-0 items-center justify-center rounded-md text-stone-600 hover:bg-stone-200 dark:text-stone-300 dark:hover:bg-stone-800"
         >
           <ZoomOut className="size-5" />
         </button>
         <input
           type="range"
-          aria-label="Zoom"
+          aria-label={t('profile.crop.zoom')}
           min={1}
           max={MAX_ZOOM}
           step={0.01}
@@ -204,7 +206,7 @@ export function AvatarCropper({
         <button
           type="button"
           onClick={() => zoomBy(1.25)}
-          aria-label="Vergrößern"
+          aria-label={t('profile.crop.zoomIn')}
           className="flex size-11 shrink-0 items-center justify-center rounded-md text-stone-600 hover:bg-stone-200 dark:text-stone-300 dark:hover:bg-stone-800"
         >
           <ZoomIn className="size-5" />

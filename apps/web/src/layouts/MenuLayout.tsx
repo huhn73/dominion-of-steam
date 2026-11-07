@@ -8,6 +8,7 @@ import { MuteButton } from '../settings/MuteButton'
 import { MenuFooter } from '../shell/MenuFooter'
 import { NewsDialog } from '../shell/NewsDialog'
 import { routes } from '../routes'
+import { useT } from '../i18n'
 
 function isActive(pathname: string, href: string) {
   if (href === routes.lobby) return pathname === href
@@ -18,6 +19,7 @@ function isActive(pathname: string, href: string) {
 
 export function MenuLayout() {
   const navigate = useNavigate()
+  const t = useT()
   const { pathname } = useLocation()
   const user = useCurrentUser()
   const logout = useLogout()
@@ -26,9 +28,9 @@ export function MenuLayout() {
   useLobbySounds(useLobby().data)
 
   const navigationItems: NavigationItem[] = [
-    { label: 'Lobby', href: routes.lobby, icon: Castle, badge: yourTurnCount },
-    { label: 'Neue Partie', href: routes.newMatch, icon: Swords },
-    { label: 'Fraktionen', href: routes.factions, icon: Flag },
+    { label: t('shell.nav.lobby'), href: routes.lobby, icon: Castle, badge: yourTurnCount },
+    { label: t('shell.nav.newMatch'), href: routes.newMatch, icon: Swords },
+    { label: t('shell.nav.factions'), href: routes.factions, icon: Flag },
   ].map((item) => ({ ...item, isActive: isActive(pathname, item.href) }))
 
   return (

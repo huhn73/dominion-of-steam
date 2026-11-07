@@ -5,9 +5,11 @@ import { routes } from '../routes'
 import { ApplyPlayerSettings } from '../settings/ApplyPlayerSettings'
 import { SignedInAudio } from '../audio/AudioProvider'
 import { ServerEvents } from '../data/events'
+import { useT } from '../i18n'
 
 /** Route guard: without a logged-in player go to the login page and come back afterwards */
 export function RequireAuth() {
+  const t = useT()
   const { data: me, isError, refetch } = useMe()
   const { pathname, search, hash } = useLocation()
 
@@ -32,17 +34,17 @@ export function RequireAuth() {
       <Cog className="size-10 animate-spin text-amber-600 [animation-duration:3s] dark:text-amber-500" />
       {isError ? (
         <div role="alert" className="text-center">
-          <p>Der Server ist nicht erreichbar.</p>
+          <p>{t('common.api.network')}</p>
           <button
             type="button"
             onClick={() => void refetch()}
             className="mt-3 min-h-11 rounded-md border border-stone-300 px-4 font-['IBM_Plex_Mono'] text-xs uppercase hover:border-teal-500 hover:text-teal-700 dark:border-stone-700 dark:hover:text-teal-300"
           >
-            Erneut versuchen
+            {t('common.retry')}
           </button>
         </div>
       ) : (
-        <p className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest">Lade …</p>
+        <p className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest">{t('common.loading')}</p>
       )}
     </div>
   )

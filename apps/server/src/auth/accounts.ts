@@ -1,3 +1,4 @@
+import { LocalizedError } from '../locale'
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@dos/shared/i18n'
 import { randomUUID } from 'node:crypto'
 import { eq, lt, sql } from 'drizzle-orm'
@@ -26,15 +27,8 @@ export const TOUCH_INTERVAL_MS = 60_000
 
 export type Player = typeof players.$inferSelect
 
-export class AccountError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-  ) {
-    super(message)
-  }
-}
+/** Errors of registration, login and account changes */
+export class AccountError extends LocalizedError {}
 
 export const toMe = (p: Player): Me => ({
   id: p.id,

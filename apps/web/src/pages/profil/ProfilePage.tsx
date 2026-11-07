@@ -2,9 +2,11 @@ import { Profil } from '../../sections/profil/components'
 import { useProfile, useProfileActions } from '../../data/profile'
 import { Toast, useToast } from '../shared/toast'
 import { PageState } from './PageState'
+import { useT } from '../../i18n'
 
 /** Profil („Dienstakte“) mit Daten aus GET /api/profile; der Verlauf wird seitenweise geladen */
 export function ProfilePage() {
+  const t = useT()
   const { data, error, isPending, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useProfile()
   const actions = useProfileActions()
@@ -21,8 +23,8 @@ export function ProfilePage() {
   if (isPending)
     content = (
       <PageState
-        title="Profil"
-        loadingText="Lade Dienstakte …"
+        title={t('shell.profile')}
+        loadingText={t('profile.loading')}
         fallback=""
         onRetry={() => undefined}
       />
@@ -30,10 +32,10 @@ export function ProfilePage() {
   else if (!data)
     content = (
       <PageState
-        title="Profil"
+        title={t('shell.profile')}
         loadingText=""
         error={error}
-        fallback="Das Profil konnte nicht geladen werden."
+        fallback={t('profile.loadFailed')}
         onRetry={() => void refetch()}
       />
     )
@@ -50,20 +52,20 @@ export function ProfilePage() {
         onLoadMoreHistory={() => {
           if (isFetchingNextPage) return
           void fetchNextPage().then((r) => {
-            if (r.isError) toast.error(r.error, 'Ältere Partien konnten nicht geladen werden.')
+            if (r.isError) toast.error(r.error, t('profile.olderFailed'))
           })
         }}
         onUpdateDisplayName={(name) =>
-          run(actions.updateDisplayName(name), 'Anzeigename gespeichert')
+          run(actions.updateDisplayName(name), t('profile.nameSaved'))
         }
         onUploadAvatar={(file, crop) =>
           run(
             actions.uploadAvatar(file, crop),
-            'Bild gespeichert',
-            'Das Bild konnte nicht hochgeladen werden.',
+            t('profile.imageSaved'),
+            t('profile.imageUploadFailed'),
           )
         }
-        onRemoveAvatar={() => run(actions.removeAvatar(), 'Bild entfernt')}
+        onRemoveAvatar={() => run(actions.removeAvatar(), t('profile.imageRemoved'))}
       />
     )
   }

@@ -6,11 +6,12 @@ import { MatchDetailsSheet, SurrenderSheet } from './MatchDialogs'
 import { timeAgo } from './format'
 import { Avatar, Chip, FactionEmblem, SectionHeading } from './shared'
 import { TutorialCard, TutorialOffer } from './TutorialCard'
+import { Rich, useLocale, useT } from '../../../i18n'
 
 const RESULT_STAMP = {
-  victory: { label: 'Sieg', className: 'border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300' },
-  defeat: { label: 'Niederlage', className: 'border-rose-600 text-rose-600 dark:border-rose-400 dark:text-rose-400' },
-  surrendered: { label: 'Aufgegeben', className: 'border-stone-400 text-stone-500' },
+  victory: { label: 'lobby.result.victory', className: 'border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300' },
+  defeat: { label: 'lobby.result.defeat', className: 'border-rose-600 text-rose-600 dark:border-rose-400 dark:text-rose-400' },
+  surrendered: { label: 'lobby.result.surrendered', className: 'border-stone-400 text-stone-500' },
 } as const
 
 export function Lobby({
@@ -38,6 +39,9 @@ export function Lobby({
   onStartTutorial,
   onDismissTutorial,
 }: LobbyProps) {
+  const t = useT()
+  const { locale } = useLocale()
+  const ago = (iso: string) => timeAgo(t, locale, iso, now)
   const [tab, setTab] = useState<'open' | 'finished'>('open')
   const [bannerHidden, setBannerHidden] = useState(false)
   const [details, setDetails] = useState<Match | null>(null)
@@ -89,18 +93,18 @@ export function Lobby({
           {pushPermission === 'denied' ? <BellOff className="size-6 shrink-0 text-stone-500" /> : <Bell className="size-6 shrink-0 text-amber-600" />}
           <div className="flex-1">
             <p className="font-semibold">
-              {pushPermission === 'denied' ? 'Benachrichtigungen sind im Browser blockiert' : 'Benachrichtige mich, wenn ich am Zug bin'}
+              {pushPermission === 'denied' ? t('lobby.push.blockedTitle') : t('lobby.push.askTitle')}
             </p>
             <p className="text-sm text-stone-600 dark:text-stone-400">
               {pushPermission === 'denied'
-                ? 'Erlaube sie über das Schloss-Symbol in der Adressleiste. E-Mail-Benachrichtigungen findest du unter Profil & Einstellungen.'
-                : 'Verpasse keine Frist, auch wenn die App geschlossen ist. E-Mail-Benachrichtigungen findest du unter Profil & Einstellungen.'}
+                ? t('lobby.push.blockedText')
+                : t('lobby.push.askText')}
             </p>
           </div>
           <div className="flex gap-2">
             {pushPermission === 'default' && (
               <button type="button" onClick={onEnablePush} className="min-h-11 flex-1 rounded-lg bg-amber-500 px-4 font-semibold text-stone-950 hover:bg-amber-400 sm:flex-none">
-                Aktivieren
+                {t('lobby.push.enable')}
               </button>
             )}
             <button
@@ -111,7 +115,7 @@ export function Lobby({
               }}
               className="min-h-11 flex-1 rounded-lg px-4 font-semibold text-stone-600 hover:bg-stone-200 sm:flex-none dark:text-stone-300 dark:hover:bg-stone-800"
             >
-              {pushPermission === 'denied' ? 'Ausblenden' : 'Später'}
+              {pushPermission === 'denied' ? t('lobby.push.hide') : t('lobby.push.later')}
             </button>
           </div>
         </div>
@@ -121,15 +125,15 @@ export function Lobby({
       <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="mb-2 flex items-center gap-3 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-teal-700 dark:text-teal-400">
-            <span className="h-px w-8 bg-current" /> Lagezentrum
+            <span className="h-px w-8 bg-current" /> {t('lobby.kicker')}
           </p>
           <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-[0.9] tracking-wide sm:text-7xl">
-            Lagebericht
+            {t('lobby.title')}
           </h1>
           <p className="mt-3 text-lg text-stone-600 dark:text-stone-400">
             {yourTurn.length > 0
-              ? `${you.name}, ${yourTurn.length} ${yourTurn.length === 1 ? 'Front wartet' : 'Fronten warten'} auf deinen Befehl.`
-              : `${you.name}, an allen Fronten ist es ruhig.`}
+              ? t('lobby.greetingBusy', { name: you.name, count: yourTurn.length })
+              : t('lobby.greetingQuiet', { name: you.name })}
           </p>
         </div>
         <button
@@ -137,7 +141,7 @@ export function Lobby({
           onClick={onNewMatch}
           className="flex min-h-12 items-center gap-2 rounded-lg bg-stone-900 px-5 font-['Big_Shoulders_Display'] text-lg font-black uppercase tracking-widest text-amber-300 hover:bg-stone-800 dark:bg-stone-800 dark:hover:bg-stone-700"
         >
-          <Plus className="size-5" /> Neue Partie
+          <Plus className="size-5" /> {t('lobby.newMatch')}
         </button>
       </header>
 
@@ -156,14 +160,14 @@ export function Lobby({
       )}
 
       {/* Your turn */}
-      <section aria-label="Du bist am Zug" className="mb-12">
-        <SectionHeading title="Du bist am Zug" count={yourTurn.length} />
+      <section aria-label={t('lobby.yourTurn')} className="mb-12">
+        <SectionHeading title={t('lobby.yourTurn')} count={yourTurn.length} />
         {yourTurn.length === 0 ? (
           <div className="flex flex-col items-center rounded-xl border-2 border-dashed border-stone-300 px-6 py-12 text-center dark:border-stone-700">
-            <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">Du bist nirgends am Zug</p>
-            <p className="mt-1 text-sm text-stone-500">Zeit für eine neue Partie?</p>
+            <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">{t('lobby.noTurn')}</p>
+            <p className="mt-1 text-sm text-stone-500">{t('lobby.noTurnHint')}</p>
             <button type="button" onClick={onNewMatch} className="mt-5 flex min-h-11 items-center gap-2 rounded-lg bg-amber-500 px-4 font-semibold text-stone-950 hover:bg-amber-400">
-              <Plus className="size-4" /> Neue Partie
+              <Plus className="size-4" /> {t('lobby.newMatch')}
             </button>
           </div>
         ) : (
@@ -179,11 +183,11 @@ export function Lobby({
 
       <div className="mb-12 grid gap-10 lg:grid-cols-[1fr_24rem]">
         {/* Other matches */}
-        <section aria-label="Weitere Partien">
-          <SectionHeading title="Weitere Partien" count={others.length} />
+        <section aria-label={t('lobby.others')}>
+          <SectionHeading title={t('lobby.others')} count={others.length} />
           {others.length === 0 ? (
             <p className="rounded-xl border-2 border-dashed border-stone-300 px-4 py-8 text-center text-sm text-stone-500 dark:border-stone-700">
-              Keine weiteren laufenden Partien.
+              {t('lobby.noOthers')}
             </p>
           ) : (
             <div className="space-y-3">
@@ -195,11 +199,11 @@ export function Lobby({
         </section>
 
         {/* Invitations */}
-        <section aria-label="Einladungen">
-          <SectionHeading title="Einladungen" count={invitations.length} />
+        <section aria-label={t('lobby.invitations')}>
+          <SectionHeading title={t('lobby.invitations')} count={invitations.length} />
           {invitations.length === 0 ? (
             <p className="rounded-xl border-2 border-dashed border-stone-300 px-4 py-8 text-center text-sm text-stone-500 dark:border-stone-700">
-              Keine offenen Einladungen.
+              {t('lobby.noInvitations')}
             </p>
           ) : (
             <ul className="space-y-3">
@@ -210,7 +214,10 @@ export function Lobby({
                     <Avatar name={inv.from.name} url={inv.from.avatarUrl} />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-stone-500">
-                        <strong className="text-stone-700 dark:text-stone-300">{inv.from.name}</strong> lädt dich ein · {timeAgo(inv.sentAt, now)}
+                        <Rich
+                          text={t('lobby.invitedBy', { when: ago(inv.sentAt) })}
+                          name={<strong className="text-stone-700 dark:text-stone-300">{inv.from.name}</strong>}
+                        />
                       </p>
                       <p className="line-clamp-2 font-['Big_Shoulders_Display'] text-xl font-black uppercase leading-tight tracking-wide">{inv.matchName}</p>
                     </div>
@@ -218,13 +225,13 @@ export function Lobby({
                   <div className="mt-2 flex flex-wrap gap-1.5 pl-1">
                     <Chip>
                       {inv.mode === 'live' ? <Radio className="size-3" /> : <Clock className="size-3" />}
-                      {inv.mode === 'live' ? 'Live' : 'Asynchron'} · {inv.turnLimitLabel}
+                      {inv.mode === 'live' ? t('lobby.live') : t('lobby.async')} · {inv.turnLimitLabel}
                     </Chip>
                     <Chip>
                       <MapIcon className="size-3" /> {inv.mapSizeLabel}
                     </Chip>
                     <Chip>
-                      {inv.seatsTaken}/{inv.seatsTotal} Plätze
+                      {t('lobby.seats', { taken: inv.seatsTaken, total: inv.seatsTotal })}
                     </Chip>
                   </div>
                   {inv.message && <p className="mt-2 pl-1 text-sm italic text-stone-600 dark:text-stone-400">„{inv.message}“</p>}
@@ -234,14 +241,14 @@ export function Lobby({
                       onClick={() => onAcceptInvitation?.(inv.id)}
                       className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-500 font-semibold text-stone-950 hover:bg-amber-400"
                     >
-                      <Check className="size-4" /> Annehmen
+                      <Check className="size-4" /> {t('lobby.accept')}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDeclineInvitation?.(inv.id)}
                       className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg border-2 border-stone-300 px-4 font-semibold hover:border-rose-400 hover:text-rose-600 dark:border-stone-700"
                     >
-                      <X className="size-4" /> Ablehnen
+                      <X className="size-4" /> {t('lobby.decline')}
                     </button>
                   </div>
                 </li>
@@ -252,12 +259,12 @@ export function Lobby({
       </div>
 
       {/* Tabs: open / finished */}
-      <section aria-label="Offene und beendete Partien">
+      <section aria-label={t('lobby.openAndFinished')}>
         <div role="tablist" className="mb-4 flex gap-1 border-b-4 border-double border-stone-300 dark:border-stone-700">
           {(
             [
-              ['open', 'Offene Partien', openMatches.length],
-              ['finished', 'Beendet', finishedMatches.length],
+              ['open', t('lobby.openTab'), openMatches.length],
+              ['finished', t('lobby.finishedTab'), finishedMatches.length],
             ] as const
           ).map(([id, label, count]) => (
             <button
@@ -278,18 +285,18 @@ export function Lobby({
 
         {tab === 'open' &&
           (openMatches.length === 0 ? (
-            <p className="py-10 text-center text-sm text-stone-500">Gerade sucht niemand Mitspieler. Erstelle selbst eine offene Partie.</p>
+            <p className="py-10 text-center text-sm text-stone-500">{t('lobby.noOpen')}</p>
           ) : (
             <ul className="divide-y divide-stone-200 rounded-xl border border-stone-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
               {openMatches.map((o) => (
                 <li key={o.id} className="flex flex-col gap-3 p-4 md:flex-row md:items-center">
                   <div className="min-w-0 flex-1">
                     <p className="font-['Big_Shoulders_Display'] text-xl font-black uppercase tracking-wide">{o.name}</p>
-                    <p className="text-sm text-stone-500">von {o.host}</p>
+                    <p className="text-sm text-stone-500">{t('lobby.host', { name: o.host })}</p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       <Chip>
                         {o.mode === 'live' ? <Radio className="size-3" /> : <Clock className="size-3" />}
-                        {o.mode === 'live' ? 'Live' : 'Asynchron'} · {o.turnLimitLabel}
+                        {o.mode === 'live' ? t('lobby.live') : t('lobby.async')} · {o.turnLimitLabel}
                       </Chip>
                       <Chip>
                         <MapIcon className="size-3" /> {o.mapSizeLabel}
@@ -301,7 +308,7 @@ export function Lobby({
                   </div>
                   <div className="flex items-center gap-4">
                     <div>
-                      <div className="flex gap-1" aria-label={`${o.seatsTaken} von ${o.seatsTotal} Plätzen belegt`}>
+                      <div className="flex gap-1" aria-label={t('lobby.seatsTaken', { taken: o.seatsTaken, total: o.seatsTotal })}>
                         {Array.from({ length: o.seatsTotal }, (_, i) => (
                           <span key={i} className={`h-3 w-4 rounded-sm ${i < o.seatsTaken ? 'bg-stone-700 dark:bg-stone-400' : 'border-2 border-dashed border-teal-500'}`} />
                         ))}
@@ -313,7 +320,7 @@ export function Lobby({
                             return f ? <FactionEmblem key={id} faction={f} className="size-5" /> : null
                           })
                         ) : (
-                          <span className="text-[11px] text-stone-500">Alle Fraktionen vergeben · doppelte erlaubt</span>
+                          <span className="text-[11px] text-stone-500">{t('lobby.allFactionsTaken')}</span>
                         )}
                       </div>
                     </div>
@@ -322,7 +329,7 @@ export function Lobby({
                       onClick={() => onJoinOpenMatch?.(o.id)}
                       className="ml-auto flex min-h-11 items-center gap-1.5 rounded-lg bg-teal-600 px-4 font-semibold text-white hover:bg-teal-500"
                     >
-                      <Swords className="size-4" /> Beitreten
+                      <Swords className="size-4" /> {t('lobby.join')}
                     </button>
                   </div>
                 </li>
@@ -332,7 +339,7 @@ export function Lobby({
 
         {tab === 'finished' &&
           (finishedMatches.length === 0 ? (
-            <p className="py-10 text-center text-sm text-stone-500">Noch keine beendeten Partien.</p>
+            <p className="py-10 text-center text-sm text-stone-500">{t('lobby.noFinished')}</p>
           ) : (
             <ul className="grid gap-3 md:grid-cols-2">
               {finishedMatches.map((fm) => {
@@ -344,14 +351,22 @@ export function Lobby({
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-['Big_Shoulders_Display'] text-xl font-black uppercase tracking-wide">{fm.name}</p>
                       <p className="text-sm text-stone-500">
-                        Platz {fm.placement} von {fm.playerCount} · {fm.rounds} Runden · {timeAgo(fm.endedAt, now)}
+                        {t('lobby.finishedLine', {
+                          placement: fm.placement,
+                          players: fm.playerCount,
+                          rounds: fm.rounds,
+                          when: ago(fm.endedAt),
+                        })}
                       </p>
                       <p className="text-xs text-stone-500">
-                        Sieger: <span className="font-semibold text-stone-700 dark:text-stone-300">{fm.winner}</span>
+                        <Rich
+                          text={t('lobby.winner')}
+                          name={<span className="font-semibold text-stone-700 dark:text-stone-300">{fm.winner}</span>}
+                        />
                       </p>
                     </div>
                     <span className={`shrink-0 rotate-[-6deg] rounded border-[3px] border-double px-2 py-1 font-['Big_Shoulders_Display'] text-sm font-black uppercase tracking-[0.2em] ${stamp.className}`}>
-                      {stamp.label}
+                      {t(stamp.label)}
                     </span>
                   </li>
                 )

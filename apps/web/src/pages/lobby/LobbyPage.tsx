@@ -10,6 +10,7 @@ import { PlaceholderPage } from '../PlaceholderPage'
 import { EmailVerifyNotice } from '../shared/EmailVerifyNotice'
 import { Toast, useToast } from '../shared/toast'
 import { DevBar, devToolsEnabled } from './DevBar'
+import { useT } from '../../i18n'
 
 /** Lobby („Lagebericht“) mit Daten aus GET /api/lobby; Startseite der App */
 export function LobbyPage() {
@@ -21,6 +22,7 @@ export function LobbyPage() {
   const banner = usePushBannerDismissed(me?.id)
   const actions = useLobbyActions()
   const toast = useToast()
+  const t = useT()
 
   // Hinweis von einer anderen Seite (z. B. „Warteraum verlassen“, „aufgegeben“)
   const location = useLocation()
@@ -43,24 +45,24 @@ export function LobbyPage() {
   let content
   if (isPending)
     content = (
-      <PlaceholderPage title="Lagebericht">
-        <p className="animate-pulse">Lade Lagebericht …</p>
+      <PlaceholderPage title={t('lobby.title')}>
+        <p className="animate-pulse">{t('lobby.loading')}</p>
       </PlaceholderPage>
     )
   else if (error || !data || !now)
     content = (
-      <PlaceholderPage title="Lagebericht">
+      <PlaceholderPage title={t('lobby.title')}>
         <p role="alert">
           {error instanceof ApiRequestError
             ? error.message
-            : 'Der Lagebericht konnte nicht geladen werden.'}
+            : t('lobby.loadFailed')}
         </p>
         <button
           type="button"
           onClick={() => void refetch()}
           className="mt-6 min-h-11 rounded-md bg-gradient-to-b from-amber-400 to-amber-600 px-4 font-['Big_Shoulders_Display'] font-bold uppercase tracking-widest text-stone-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
         >
-          Erneut versuchen
+          {t('common.retry')}
         </button>
       </PlaceholderPage>
     )
@@ -74,22 +76,22 @@ export function LobbyPage() {
         onPlay={(id) => void navigate(routes.match(id))}
         onOpenWaitingRoom={(id) => void navigate(routes.waitingRoom(id))}
         onRemind={(id, participantId) =>
-          run(actions.remind(id, participantId), 'Erinnerung verschickt')
+          run(actions.remind(id, participantId), t('lobby.reminderSent'))
         }
         onSurrender={(id) =>
-          run(actions.surrender(id), 'Du hast aufgegeben. Eine KI führt deine Fraktion weiter.')
+          run(actions.surrender(id), t('shell.surrendered'))
         }
         // Der Dialog öffnet sich in der Komponente; frische Daten schaden nicht
         onShowDetails={() => void refetch()}
         onAcceptInvitation={(id) => run(actions.acceptInvitation(id), toRoom)}
-        onDeclineInvitation={(id) => run(actions.declineInvitation(id), 'Einladung abgelehnt')}
+        onDeclineInvitation={(id) => run(actions.declineInvitation(id), t('lobby.invitationDeclined'))}
         onJoinOpenMatch={(id) => run(actions.joinOpenMatch(id), toRoom)}
         onEnablePush={() =>
           void push
             .enable()
-            .then((result) => result === 'default' && toast.info(PUSH_NO_PROMPT_HINT))
+            .then((result) => result === 'default' && toast.info(t(PUSH_NO_PROMPT_HINT)))
             .catch((e: unknown) =>
-              toast.error(e, 'Push-Benachrichtigungen konnten nicht aktiviert werden.'),
+              toast.error(e, t('lobby.pushFailed')),
             )
         }
         onDismissPushBanner={banner.dismiss}
@@ -98,7 +100,7 @@ export function LobbyPage() {
           run(actions.startTutorial(restart), ({ matchId }) => void navigate(routes.match(matchId)))
         }
         onDismissTutorial={() =>
-          run(actions.dismissTutorial(), 'Du findest das Tutorial jederzeit hier im Lagebericht.')
+          run(actions.dismissTutorial(), t('lobby.tutorialLater'))
         }
       />
     )

@@ -1,6 +1,7 @@
 import { CheckCircle2, GraduationCap, Play, RotateCcw } from 'lucide-react'
 import type { LobbyTutorial } from '@dos/shared/lobby'
 import { Sheet } from './shared'
+import { useT } from '../../../i18n'
 
 const primary =
   'flex min-h-11 items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 font-semibold text-stone-950 hover:bg-amber-400'
@@ -15,10 +16,11 @@ export function TutorialCard({
   tutorial: LobbyTutorial
   onStart: (restart: boolean) => void
 }) {
+  const t = useT()
   const running = tutorial.status === 'running'
   return (
     <section
-      aria-label="Tutorial"
+      aria-label={t('lobby.tutorial.region')}
       className="mb-10 flex flex-col gap-3 rounded-xl border border-teal-600/40 bg-teal-50 p-4 sm:flex-row sm:items-center dark:border-teal-700/60 dark:bg-teal-950/30"
     >
       {tutorial.completed ? (
@@ -28,28 +30,28 @@ export function TutorialCard({
       )}
       <div className="flex-1">
         <p className="font-['Big_Shoulders_Display'] text-xl font-black uppercase tracking-wide">
-          Tutorial: Erste Schritte
+          {t('match.tutorialName')}
           {tutorial.completed && (
             <span className="ml-2 align-middle font-['Barlow'] text-sm font-semibold normal-case tracking-normal text-teal-700 dark:text-teal-300">
-              abgeschlossen
+              {t('lobby.tutorial.completed')}
             </span>
           )}
         </p>
         <p className="text-sm text-stone-600 dark:text-stone-400">
           {running
-            ? `Weiter bei Schritt ${Math.min(tutorial.step + 1, tutorial.total)} von ${tutorial.total}.`
-            : 'Eine kurze Partie gegen die Manöverleitung: Bedienung, Städte, Produktion, Frachter, Flugzeuge und das Ziel des Spiels in zwölf Schritten.'}
+            ? t('lobby.tutorial.continueAt', { step: Math.min(tutorial.step + 1, tutorial.total), total: tutorial.total })
+            : t('lobby.tutorial.pitch')}
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
         {running && (
           <button type="button" onClick={() => onStart(true)} className={secondary}>
-            <RotateCcw className="size-4" /> Neu beginnen
+            <RotateCcw className="size-4" /> {t('lobby.tutorial.restart')}
           </button>
         )}
         <button type="button" onClick={() => onStart(false)} className={primary}>
           <Play className="size-4" />
-          {running ? 'Fortsetzen' : tutorial.completed ? 'Nochmal spielen' : 'Tutorial starten'}
+          {running ? t('lobby.tutorial.resume') : tutorial.completed ? t('lobby.tutorial.again') : t('lobby.tutorial.start')}
         </button>
       </div>
     </section>
@@ -58,28 +60,27 @@ export function TutorialCard({
 
 /** One-time offer for accounts without matches */
 export function TutorialOffer({ onStart, onLater }: { onStart: () => void; onLater: () => void }) {
+  const t = useT()
   return (
     <Sheet
-      title="Neu hier?"
+      title={t('lobby.tutorial.offerTitle')}
       onClose={onLater}
       footer={
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onLater} className={secondary}>
-            Später
+            {t('lobby.tutorial.later')}
           </button>
           <button type="button" onClick={onStart} className={primary}>
-            <Play className="size-4" /> Tutorial starten
+            <Play className="size-4" /> {t('lobby.tutorial.start')}
           </button>
         </div>
       }
     >
       <p>
-        Das Tutorial führt dich in einer kurzen Partie durch die Bedienung und das Ziel von Dominion of
-        Steam: Einheiten ziehen, Städte erobern, Produktion, Frachter, Flugzeuge und Kampf. Es dauert etwa
-        zehn Minuten, und du kannst jederzeit aufhören.
+        {t('lobby.tutorial.offerText')}
       </p>
       <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
-        Du findest es später jederzeit oben im Lagebericht.
+        {t('lobby.tutorial.offerHint')}
       </p>
     </Sheet>
   )

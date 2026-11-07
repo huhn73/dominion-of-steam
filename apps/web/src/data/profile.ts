@@ -9,6 +9,8 @@ import {
 import { api, ApiRequestError } from './api'
 import { lobbyKey } from './lobby'
 import { meKey } from './session'
+import { translate } from '@dos/shared/i18n'
+import { activeLocale } from '../i18n/locale'
 
 export const profileKey = ['profile'] as const
 export const settingsKey = ['settings'] as const
@@ -54,7 +56,7 @@ export function useProfileActions() {
         throw new ApiRequestError(
           413,
           'IMAGE_TOO_LARGE',
-          `Das Bild ist zu groß (höchstens ${AVATAR_MAX_BYTES / 1024 / 1024} MB).`,
+          translate(activeLocale(), 'common.imageTooLarge', { mb: AVATAR_MAX_BYTES / 1024 / 1024 }),
         )
       const body = new FormData()
       if (crop) {

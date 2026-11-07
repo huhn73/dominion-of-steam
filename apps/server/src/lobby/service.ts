@@ -1,3 +1,4 @@
+import { LocalizedError } from '../locale'
 import { isWaterCode, mapSize, mapSizeLabel } from '@dos/shared/game'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import {
@@ -47,15 +48,7 @@ import { inviteLink, launchMatch } from '../setup/service'
 import { signal, signalMatch, signalRoom } from '../realtime/signals'
 
 /** German message for the client with HTTP status and code */
-export class LobbyError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-  ) {
-    super(message)
-  }
-}
+export class LobbyError extends LocalizedError {}
 
 const notFound = () => new LobbyError(404, 'MATCH_NOT_FOUND', 'Partie nicht gefunden.')
 const matchFull = () =>

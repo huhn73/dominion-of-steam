@@ -1,0 +1,19 @@
+{
+  "tutorialName": "Tutorial: Erste Schritte",
+  "outcome": {
+    "victory": "Sieg",
+    "defeat": "Niederlage",
+    "surrendered": "Aufgegeben"
+  },
+  "header": {
+    "loading": "Lade Partie …",
+    "title": "{name} · Runde {round}",
+    "ended": "Beendet",
+    "endedWith": "Beendet · {outcome}",
+    "yourTurn": "Dein Zug",
+    "yourTurnUntil": "Dein Zug · Frist {deadline}",
+    "replay": "Gegnerzüge",
+    "aiMoving": "{name} (KI) zieht …",
+    "waiting": "Warte auf Gegner"
+  }
+}

@@ -1,3 +1,4 @@
+import { LocalizedError } from '../locale'
 import { randomBytes } from 'node:crypto'
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -37,15 +38,7 @@ import { LOBBY_FACTIONS, type LobbyService } from '../lobby/service'
 import type { Mailer } from '../notifications/channels'
 
 /** German message for the client with HTTP status and code */
-export class ProfileError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-  ) {
-    super(message)
-  }
-}
+export class ProfileError extends LocalizedError {}
 
 /** Default folder for uploads (avatars): `apps/server/uploads`; Docker sets `UPLOADS_DIR` */
 export const defaultUploadsDir = () =>
@@ -551,7 +544,13 @@ export function createProfileService(
       throw new ProfileError(
         422,
         'INVALID_INPUT',
-        invalid.replace('Das Passwort', 'Das neue Passwort'),
+        {
+          ...invalid,
+          key:
+            invalid.key === 'account.passwordShort'
+              ? 'account.newPasswordShort'
+              : 'account.newPasswordLong',
+        },
       )
     await checkPassword(player, input.currentPassword)
     const passwordHash = await hashPassword(input.newPassword)

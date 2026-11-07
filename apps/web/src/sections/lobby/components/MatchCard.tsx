@@ -3,6 +3,7 @@ import { BellRing, Check, Clock, DoorOpen, Flag, Hourglass, Info, MoreVertical, 
 import type { Faction, Match } from '../types'
 import { hoursSince, timeLeft } from './format'
 import { MiniMap, ParticipantChip } from './shared'
+import { useT } from '../../../i18n'
 
 interface MatchCardProps {
   match: Match
@@ -21,6 +22,7 @@ interface MatchCardProps {
 const REMIND_COOLDOWN_HOURS = 12
 
 function MatchMenu({ onShowDetails, onSurrender, canSurrender }: { onShowDetails?: () => void; onSurrender?: () => void; canSurrender: boolean }) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -48,7 +50,7 @@ function MatchMenu({ onShowDetails, onSurrender, canSurrender }: { onShowDetails
       <button
         type="button"
         ref={triggerRef}
-        aria-label="Weitere Aktionen"
+        aria-label={t('lobby.card.moreActions')}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
@@ -59,11 +61,11 @@ function MatchMenu({ onShowDetails, onSurrender, canSurrender }: { onShowDetails
       {open && (
         <div role="menu" className="absolute right-0 top-full z-20 mt-1 w-52 overflow-hidden rounded-lg border border-stone-200 bg-white py-1 shadow-xl dark:border-stone-700 dark:bg-stone-900">
           <button type="button" role="menuitem" className={item} onClick={() => choose(onShowDetails)}>
-            <Info className="size-4 text-stone-400" /> Partie-Details
+            <Info className="size-4 text-stone-400" /> {t('lobby.card.details')}
           </button>
           {canSurrender && (
             <button type="button" role="menuitem" className={`${item} text-rose-600 dark:text-rose-400`} onClick={() => choose(onSurrender)}>
-              <Flag className="size-4" /> Aufgeben
+              <Flag className="size-4" /> {t('lobby.card.surrender')}
             </button>
           )}
         </div>
@@ -84,9 +86,10 @@ export function MatchCard({
   onShowDetails,
   onSurrender,
 }: MatchCardProps) {
+  const t = useT()
   const factionOf = (id: string) => factions.find((f) => f.id === id)
   const current = match.participants.find((p) => p.id === match.currentParticipantId)
-  const deadline = match.turnDeadline ? timeLeft(match.turnDeadline, now) : null
+  const deadline = match.turnDeadline ? timeLeft(t, match.turnDeadline, now) : null
   const urgent = match.status === 'yourTurn' && !!deadline && deadline.hours < deadlineWarningHours
   const waiting = match.status === 'waitingForPlayers'
   const canRemind = match.status === 'othersTurn' && match.rules.mode === 'async' && !!current && !current.isAI
@@ -95,7 +98,9 @@ export function MatchCard({
   const modeLine = (
     <span className="flex items-center gap-1.5">
       {match.rules.mode === 'live' ? <Radio className="size-3.5" /> : <Clock className="size-3.5" />}
-      {match.rules.mode === 'live' ? `Live · ${match.rules.turnLimitLabel} pro Zug` : `Asynchron · ${match.rules.turnLimitLabel}`}
+      {match.rules.mode === 'live'
+        ? t('lobby.card.liveLine', { limit: match.rules.turnLimitLabel })
+        : t('lobby.card.asyncLine', { limit: match.rules.turnLimitLabel })}
     </span>
   )
 
@@ -122,7 +127,7 @@ export function MatchCard({
           <MiniMap rows={match.miniMap} participants={match.participants} factions={factions} className="size-full transition-transform duration-700 group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/10 to-transparent" />
           <span className="absolute left-3 top-3 rounded bg-stone-950/80 px-2 py-1 font-['IBM_Plex_Mono'] text-xs font-semibold uppercase tracking-widest text-amber-300">
-            Runde {match.round}
+            {t('lobby.card.round', { round: match.round })}
           </span>
           <h3 className="absolute inset-x-4 bottom-3 truncate font-['Big_Shoulders_Display'] text-3xl font-black uppercase leading-none tracking-wide text-white drop-shadow">
             {match.name}
@@ -148,7 +153,7 @@ export function MatchCard({
               onClick={onPlay}
               className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-amber-400 to-amber-600 font-['Big_Shoulders_Display'] text-lg font-black uppercase tracking-[0.15em] text-stone-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition hover:from-amber-300 hover:to-amber-500"
             >
-              <Play className="size-5" fill="currentColor" /> Weiterspielen
+              <Play className="size-5" fill="currentColor" /> {t('lobby.card.continue')}
             </button>
             <MatchMenu onShowDetails={onShowDetails} onSurrender={onSurrender} canSurrender />
           </div>
@@ -171,12 +176,14 @@ export function MatchCard({
           <h3 className="truncate font-['Big_Shoulders_Display'] text-xl font-black uppercase tracking-wide">{match.name}</h3>
           <p className="text-sm font-semibold text-teal-700 dark:text-teal-400">
             {waiting
-              ? `Wartet auf ${match.waitingFor} Spieler`
-              : `${current?.isAI ? `${current.name} (KI)` : current?.name} ist am Zug`}
+              ? t('lobby.card.waitingFor', { count: match.waitingFor ?? 0 })
+              : t('lobby.card.onTurn', {
+                  name: current?.isAI ? t('lobby.card.aiName', { name: current.name }) : (current?.name ?? ''),
+                })}
           </p>
           <p className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-stone-500 dark:text-stone-400">
             {modeLine}
-            {!waiting && <span className="font-['IBM_Plex_Mono']">Runde {match.round}</span>}
+            {!waiting && <span className="font-['IBM_Plex_Mono']">{t('lobby.card.round', { round: match.round })}</span>}
             {deadline && <span>{deadline.label}</span>}
           </p>
         </div>
@@ -190,7 +197,7 @@ export function MatchCard({
               onClick={onOpenWaitingRoom}
               className="flex min-h-11 items-center gap-2 rounded-lg bg-stone-900 px-4 text-sm font-semibold text-amber-300 hover:bg-stone-800 dark:bg-stone-800 dark:hover:bg-stone-700"
             >
-              <DoorOpen className="size-4" /> Warteraum
+              <DoorOpen className="size-4" /> {t('lobby.card.waitingRoom')}
             </button>
           ) : (
             canRemind && (
@@ -201,7 +208,7 @@ export function MatchCard({
                 className="flex min-h-11 items-center gap-1.5 rounded-lg border-2 border-teal-600 px-3 text-sm font-semibold text-teal-700 hover:bg-teal-50 disabled:border-stone-300 disabled:text-stone-400 disabled:hover:bg-transparent dark:text-teal-300 dark:hover:bg-teal-950 dark:disabled:border-stone-700 dark:disabled:text-stone-500"
               >
                 {reminded ? <Check className="size-4" /> : <BellRing className="size-4" />}
-                {reminded ? 'Erinnert' : 'Erinnern'}
+                {reminded ? t('lobby.card.reminded') : t('lobby.card.remind')}
               </button>
             )
           )}

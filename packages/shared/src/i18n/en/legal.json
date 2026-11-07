@@ -1,0 +1,13 @@
+{
+  "imprint": "Imprint",
+  "privacy": "Privacy",
+  "licenses": "Licences",
+  "nav": "Legal",
+  "toLogin": "To the login",
+  "toLobby": "To the lobby",
+  "stand": "As of: {date}",
+  "newsTitle": "News",
+  "newsIntro": "What each version of Dominion of Steam has brought.",
+  "notFound": "Not found",
+  "notFoundText": "This page does not exist."
+}

@@ -1,0 +1,61 @@
+{
+  "status": {
+    "waiting": "Waiting",
+    "running": "Running",
+    "finished": "Finished"
+  },
+  "mode": {
+    "live": "Live",
+    "async": "Async"
+  },
+  "recentPlayers": "Recently active accounts",
+  "col": {
+    "name": "Name",
+    "registered": "Registered",
+    "lastSeen": "Last seen",
+    "verified": "Confirmed",
+    "matches": "Matches",
+    "match": "Match",
+    "mode": "Mode",
+    "status": "Status",
+    "round": "Round",
+    "humansAi": "Humans / AI",
+    "updated": "Updated"
+  },
+  "noPlayers": "No accounts yet.",
+  "yes": "Yes",
+  "no": "No",
+  "recentMatches": "Recently updated matches",
+  "noMatches": "No matches yet.",
+  "days": "{count} days",
+  "lastDays": "last {count} days",
+  "tile": {
+    "accounts": "Accounts",
+    "verified": "Confirmed",
+    "new": "New",
+    "active24": "Active 24 h",
+    "active": "Active",
+    "running": "Running",
+    "waiting": "{count} waiting for players",
+    "finished": "Finished",
+    "avgRounds": "Ø {rounds} rounds",
+    "liveAsync": "Live / async",
+    "soloMulti": "Solo / multiplayer"
+  },
+  "kicker": "Administration",
+  "title": "Usage",
+  "excluded": "Without dev accounts and the demo match.",
+  "range": "Period",
+  "accounts": "Accounts",
+  "matches": "Matches",
+  "history": "History",
+  "series": {
+    "registrations": "Sign-ups",
+    "matchesStarted": "New matches",
+    "turns": "Turns (humans)"
+  },
+  "today": "today",
+  "loading": "Loading usage figures …",
+  "loadFailed": "The usage figures could not be loaded.",
+  "perDay": "{label} per day, {total} in total"
+}

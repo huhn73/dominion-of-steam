@@ -1,5 +1,6 @@
 export { LocaleProvider, useFormat, useLocale, useT } from './LocaleProvider'
 export { activeLocale } from './locale'
+export { Rich } from './Rich'
 
 /**
  * Language choice in the settings and on the login card; stays hidden in production until

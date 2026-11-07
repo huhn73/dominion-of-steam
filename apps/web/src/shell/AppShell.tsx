@@ -2,6 +2,7 @@ import type { ComponentType, ReactNode } from 'react'
 import { ArrowLeft, Cog, Menu } from 'lucide-react'
 import { MainNav, type NavigationItem } from './MainNav'
 import { UserMenu, type ShellUser } from './UserMenu'
+import { useT } from '../i18n'
 
 export interface GameHeader {
   /** e.g. "Runde 14" */
@@ -51,6 +52,7 @@ export function AppShell({
   headerExtra,
   footer,
 }: AppShellProps) {
+  const t = useT()
   const userMenu = user && (
     <UserMenu
       user={user}
@@ -69,7 +71,7 @@ export function AppShell({
           <button
             type="button"
             onClick={onExitGame}
-            aria-label="Zurück zur Lobby"
+            aria-label={t('shell.backToLobby')}
             className="flex size-9 items-center justify-center rounded-md text-stone-600 transition-colors hover:bg-teal-50 hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-teal-500 dark:text-stone-300 dark:hover:bg-teal-950 dark:hover:text-teal-300"
           >
             <ArrowLeft className="size-5" />
@@ -98,7 +100,7 @@ export function AppShell({
           <button
             type="button"
             onClick={onOpenGameMenu}
-            aria-label="Spielmenü"
+            aria-label={t('shell.gameMenu')}
             className="flex size-9 items-center justify-center rounded-md text-stone-600 transition-colors hover:bg-teal-50 hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-teal-500 dark:text-stone-300 dark:hover:bg-teal-950 dark:hover:text-teal-300"
           >
             <Menu className="size-5" />

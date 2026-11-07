@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { DoorOpen, Flag, Info, Settings } from 'lucide-react'
+import { useT } from '../i18n'
 
 export interface GameMenuProps {
   open: boolean
@@ -21,6 +22,7 @@ export function GameMenu({
   onExitGame,
   onSurrender,
 }: GameMenuProps) {
+  const t = useT()
   useEffect(() => {
     if (!open) return
     const onKeyDown = (e: KeyboardEvent) => {
@@ -41,14 +43,14 @@ export function GameMenu({
     <div className="fixed inset-0 z-30" onClick={onClose} data-testid="game-menu-backdrop">
       <div
         role="menu"
-        aria-label="Spielmenü"
+        aria-label={t('shell.gameMenu')}
         onClick={(e) => e.stopPropagation()}
         className="absolute right-2 top-[calc(3.5rem+env(safe-area-inset-top))] w-60 overflow-hidden rounded-lg border border-stone-200 bg-white shadow-xl shadow-stone-900/10 animate-in fade-in slide-in-from-top-2 sm:right-4 sm:top-[calc(4rem+env(safe-area-inset-top))] dark:border-stone-700 dark:bg-stone-900 dark:shadow-black/40"
       >
         <div className="py-1">
           <button type="button" role="menuitem" disabled className={itemClass}>
-            <Info className="size-4" /> Partie-Details
-            <span className="ml-auto font-['IBM_Plex_Mono'] text-[10px] uppercase">folgt</span>
+            <Info className="size-4" /> {t('shell.matchDetails')}
+            <span className="ml-auto font-['IBM_Plex_Mono'] text-[10px] uppercase">{t('shell.comingSoon')}</span>
           </button>
           <button
             type="button"
@@ -56,7 +58,7 @@ export function GameMenu({
             onClick={select(onOpenSettings)}
             className={itemClass}
           >
-            <Settings className="size-4" /> Einstellungen
+            <Settings className="size-4" /> {t('shell.settings')}
           </button>
           <button
             type="button"
@@ -65,12 +67,12 @@ export function GameMenu({
             onClick={select(onSurrender)}
             className={`${itemClass} text-rose-700 dark:text-rose-400`}
           >
-            <Flag className="size-4" /> Aufgeben
+            <Flag className="size-4" /> {t('shell.surrender')}
           </button>
         </div>
         <div className="border-t border-stone-200 py-1 dark:border-stone-700">
           <button type="button" role="menuitem" onClick={select(onExitGame)} className={itemClass}>
-            <DoorOpen className="size-4" /> Zurück zur Lobby
+            <DoorOpen className="size-4" /> {t('shell.backToLobby')}
           </button>
         </div>
       </div>

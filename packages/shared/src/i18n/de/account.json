@@ -1,0 +1,9 @@
+{
+  "nameLength": "Der Name muss {min} bis {max} Zeichen lang sein.",
+  "passwordShort": "Das Passwort muss mindestens {min} Zeichen lang sein.",
+  "passwordLong": "Das Passwort ist zu lang.",
+  "emailMissing": "Bitte gib deine E-Mail-Adresse ein.",
+  "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+  "newPasswordShort": "Das neue Passwort muss mindestens {min} Zeichen lang sein.",
+  "newPasswordLong": "Das neue Passwort ist zu lang."
+}

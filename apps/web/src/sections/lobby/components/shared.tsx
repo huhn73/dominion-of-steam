@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import type { Faction, Participant } from '../types'
 import { FACTION_HEX } from './format'
+import { useT } from '../../../i18n'
 
 // Typography: Big Shoulders Display (headings), Barlow (body), IBM Plex Mono (numbers, codes)
 // Emblem, avatar and sheet mirror the ones in the other sections so each section stays exportable on its own.
@@ -21,13 +22,14 @@ function useImageLoaded(url: string | null) {
 }
 
 export function FactionEmblem({ faction, className = 'size-6' }: { faction: Faction; className?: string }) {
+  const t = useT()
   const hasImage = useImageLoaded(faction.emblemUrl)
   if (hasImage && faction.emblemUrl) {
-    return <img src={faction.emblemUrl} alt={`Wappen ${faction.name}`} className={`${className} object-contain`} />
+    return <img src={faction.emblemUrl} alt={t('lobby.emblem', { name: faction.name })} className={`${className} object-contain`} />
   }
   const c = FACTION_HEX[faction.color]
   return (
-    <svg viewBox="0 0 64 72" className={className} role="img" aria-label={`Wappen ${faction.name}`}>
+    <svg viewBox="0 0 64 72" className={className} role="img" aria-label={t('lobby.emblem', { name: faction.name })}>
       <path d="M32 2 L60 10 V34 C60 52 47 64 32 70 C17 64 4 52 4 34 V10 Z" fill="#b45309" />
       <path d="M32 6 L56 13 V34 C56 49 45 59 32 65 C19 59 8 49 8 34 V13 Z" fill={c.base} />
       <path d="M8 40 L32 26 L56 40 V46 L32 32 L8 46 Z" fill="#1c1917" opacity="0.28" />
@@ -70,14 +72,15 @@ export function ParticipantChip({
   isCurrent?: boolean
   size?: string
 }) {
+  const t = useT()
   const color = faction ? FACTION_HEX[faction.color].base : undefined
   const out = participant.status !== 'active'
   return (
-    <span className={`relative inline-flex ${out ? 'opacity-40 grayscale' : ''}`} title={`${participant.name}${faction ? ` · ${faction.shortName}` : ''}${out ? ' · ausgeschieden' : ''}`}>
+    <span className={`relative inline-flex ${out ? 'opacity-40 grayscale' : ''}`} title={`${participant.name}${faction ? ` · ${faction.shortName}` : ''}${out ? ` · ${t('lobby.eliminated')}` : ''}`}>
       <Avatar name={participant.name} url={participant.avatarUrl} color={color} className={size} />
       {participant.isAI && (
         <span className="absolute -bottom-1 -right-1 rounded-sm bg-stone-700 px-1 font-['IBM_Plex_Mono'] text-[8px] font-bold leading-tight text-stone-100 ring-2 ring-white dark:ring-stone-900">
-          KI
+          {t('lobby.aiBadge')}
         </span>
       )}
       {isCurrent && <span className="absolute -inset-1 animate-pulse rounded-full border-2 border-amber-400" />}
@@ -155,6 +158,7 @@ function useDialogFocus(ref: React.RefObject<HTMLDivElement | null>) {
 }
 
 export function Sheet({ title, onClose, children, footer }: { title: string; onClose: () => void; children: ReactNode; footer?: ReactNode }) {
+  const t = useT()
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -176,7 +180,7 @@ export function Sheet({ title, onClose, children, footer }: { title: string; onC
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-stone-300 sm:hidden dark:bg-stone-600" />
         <header className="flex items-center justify-between gap-4 border-b-4 border-double border-stone-200 px-5 py-3 dark:border-stone-700">
           <h2 className="truncate font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Schließen" className="flex size-11 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800">
+          <button type="button" onClick={onClose} aria-label={t('lobby.close')} className="flex size-11 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800">
             <X className="size-5" />
           </button>
         </header>

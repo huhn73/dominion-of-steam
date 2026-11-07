@@ -6,11 +6,13 @@ import { useMe } from '../../data/session'
 import { Nutzungsuebersicht } from '../../sections/admin/components'
 import { NotFoundPage } from '../pages'
 import { PageState } from '../profil/PageState'
+import { useT } from '../../i18n'
 
 /** Nutzungsübersicht aus GET /api/admin/stats; für Nicht-Admins gibt es die Seite nicht */
 export function AdminPage() {
   const me = useMe().data
   const isAdmin = me?.isAdmin === true
+  const t = useT()
   const [range, setRange] = useState<AdminRange>(DEFAULT_ADMIN_RANGE)
   const { data, error, isPending, isFetching, refetch } = useAdminStats(range, isAdmin)
 
@@ -19,8 +21,8 @@ export function AdminPage() {
   if (isPending)
     return (
       <PageState
-        title="Verwaltung"
-        loadingText="Lade Nutzungszahlen …"
+        title={t('admin.kicker')}
+        loadingText={t('admin.loading')}
         fallback=""
         onRetry={() => undefined}
       />
@@ -28,10 +30,10 @@ export function AdminPage() {
   if (!data)
     return (
       <PageState
-        title="Verwaltung"
+        title={t('admin.kicker')}
         loadingText=""
         error={error}
-        fallback="Die Nutzungszahlen konnten nicht geladen werden."
+        fallback={t('admin.loadFailed')}
         onRetry={() => void refetch()}
       />
     )

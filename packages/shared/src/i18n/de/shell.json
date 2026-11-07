@@ -1,0 +1,33 @@
+{
+  "backToLobby": "Zurück zur Lobby",
+  "gameMenu": "Spielmenü",
+  "mainNav": "Hauptnavigation",
+  "matchDetails": "Partie-Details",
+  "comingSoon": "folgt",
+  "settings": "Einstellungen",
+  "surrender": "Aufgeben",
+  "profile": "Profil",
+  "legal": "Rechtliches",
+  "admin": "Verwaltung",
+  "logout": "Abmelden",
+  "userMenu": "Benutzermenü für {name}",
+  "nav": {
+    "lobby": "Lobby",
+    "newMatch": "Neue Partie",
+    "factions": "Fraktionen"
+  },
+  "surrendered": "Du hast aufgegeben. Eine KI führt deine Fraktion weiter.",
+  "surrenderFailed": "Aufgeben hat nicht geklappt.",
+  "news": {
+    "title": "Neu in Dominion of Steam",
+    "all": "Alle Neuigkeiten",
+    "ok": "Verstanden",
+    "link": "Neuigkeiten",
+    "version": "Version {version}",
+    "fixesOnly": "Fehlerbehebungen und kleine Verbesserungen."
+  },
+  "version": {
+    "built": "gebaut am {date}",
+    "dev": "Entwicklungsstand"
+  }
+}

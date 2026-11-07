@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, Check, X } from 'lucide-react'
 import { ApiRequestError } from '../../data/api'
 import { useAudio } from '../../audio/AudioProvider'
+import { translate } from '@dos/shared/i18n'
+import { activeLocale, useT } from '../../i18n'
 
 const INFO_TOAST_MS = 2500
 
@@ -11,6 +13,7 @@ export type ToastMessage = { kind: 'info' | 'error'; text: string }
 export function useToast() {
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const { sfx } = useAudio()
+  const t = useT()
   useEffect(() => {
     if (toast?.kind !== 'info') return
     const timer = setTimeout(() => setToast(null), INFO_TOAST_MS)
@@ -19,11 +22,11 @@ export function useToast() {
   const info = useCallback((text: string) => setToast({ kind: 'info', text }), [])
   /** Server message of an API error, otherwise `fallback` */
   const error = useCallback(
-    (e: unknown, fallback = 'Das hat nicht geklappt. Versuche es noch einmal.') => {
+    (e: unknown, fallback = t('common.failed')) => {
       sfx('ui-error')
       setToast({ kind: 'error', text: e instanceof ApiRequestError ? e.message : fallback })
     },
-    [sfx],
+    [sfx, t],
   )
   return { toast, setToast, info, error, close: () => setToast(null) }
 }
@@ -38,10 +41,10 @@ export async function shareLink(
 ) {
   if (typeof navigator.share === 'function') {
     try {
-      await navigator.share({ title: 'Einladung zu Dominion of Steam', url: link })
+      await navigator.share({ title: translate(activeLocale(), 'common.shareTitle'), url: link })
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return
-      onError('Teilen ist fehlgeschlagen. Kopiere den Link stattdessen.')
+      onError(translate(activeLocale(), 'common.shareFailed'))
     }
     return
   }
@@ -49,11 +52,12 @@ export async function shareLink(
     await navigator.clipboard.writeText(link)
     onCopied()
   } catch {
-    onError('Der Link konnte nicht kopiert werden.')
+    onError(translate(activeLocale(), 'common.copyFailed'))
   }
 }
 
 export function Toast({ toast, onClose }: { toast: ToastMessage; onClose: () => void }) {
+  const t = useT()
   const error = toast.kind === 'error'
   return (
     <div
@@ -74,7 +78,7 @@ export function Toast({ toast, onClose }: { toast: ToastMessage; onClose: () => 
         <button
           type="button"
           onClick={onClose}
-          aria-label="Meldung schließen"
+          aria-label={t('common.closeMessage')}
           className="-m-1 rounded p-1 hover:bg-red-100 focus-visible:outline-2 focus-visible:outline-teal-500 dark:hover:bg-red-900"
         >
           <X aria-hidden className="size-4" />

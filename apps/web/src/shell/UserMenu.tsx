@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { BarChart3, ChevronDown, LogOut, Scale, Settings, User } from 'lucide-react'
+import { useT } from '../i18n'
 
 export interface ShellUser {
   name: string
@@ -36,6 +37,7 @@ export function UserMenu({
   onOpenLegal,
   onOpenAdmin,
 }: UserMenuProps) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -70,7 +72,7 @@ export function UserMenu({
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={`Benutzermenü für ${user.name}`}
+        aria-label={t('shell.userMenu', { name: user.name })}
         className="flex items-center gap-1.5 rounded-full p-0.5 focus-visible:outline-2 focus-visible:outline-teal-500"
       >
         <span className="flex size-9 items-center justify-center overflow-hidden rounded-full border-2 border-amber-600 bg-stone-200 font-['Big_Shoulders_Display'] text-sm font-bold text-stone-700 dark:border-amber-500 dark:bg-stone-800 dark:text-amber-200">
@@ -97,25 +99,25 @@ export function UserMenu({
           </div>
           <div className="py-1">
             <button type="button" role="menuitem" onClick={select(onOpenProfile)} className={itemClass}>
-              <User className="size-4" /> Profil
+              <User className="size-4" /> {t('shell.profile')}
             </button>
             <button type="button" role="menuitem" onClick={select(onOpenSettings)} className={itemClass}>
-              <Settings className="size-4" /> Einstellungen
+              <Settings className="size-4" /> {t('shell.settings')}
             </button>
             {onOpenLegal && (
               <button type="button" role="menuitem" onClick={select(onOpenLegal)} className={itemClass}>
-                <Scale className="size-4" /> Rechtliches
+                <Scale className="size-4" /> {t('shell.legal')}
               </button>
             )}
             {onOpenAdmin && (
               <button type="button" role="menuitem" onClick={select(onOpenAdmin)} className={itemClass}>
-                <BarChart3 className="size-4" /> Verwaltung
+                <BarChart3 className="size-4" /> {t('shell.admin')}
               </button>
             )}
           </div>
           <div className="border-t border-stone-200 py-1 dark:border-stone-700">
             <button type="button" role="menuitem" onClick={select(onLogout)} className={itemClass}>
-              <LogOut className="size-4" /> Abmelden
+              <LogOut className="size-4" /> {t('shell.logout')}
             </button>
           </div>
         </div>

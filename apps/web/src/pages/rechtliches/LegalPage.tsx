@@ -5,6 +5,7 @@ import { useMe } from '../../data/session'
 import { routes } from '../../routes'
 import { STAND } from './anbieter'
 import type { LegalPageId } from './LegalLinks'
+import { useT } from '../../i18n'
 
 /** Frame of the legal pages: the wide brass card with a back link and the date of the text */
 export function LegalPage({
@@ -23,11 +24,12 @@ export function LegalPage({
   // A fixed way out instead of the history: moving between the legal pages would otherwise
   // lead back through all of them. While the session loads the lobby is the target, signed
   // out `RequireAuth` sends it on to the login anyway.
+  const t = useT()
   const { data: me } = useMe()
   const exit =
     me === null
-      ? { to: routes.login, label: 'Zur Anmeldung' }
-      : { to: routes.lobby, label: 'Zur Lobby' }
+      ? { to: routes.login, label: t('legal.toLogin') }
+      : { to: routes.lobby, label: t('legal.toLobby') }
   return (
     <AuthLayout
       title={title}
@@ -41,7 +43,7 @@ export function LegalPage({
     >
       <div className="space-y-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
         {children}
-        {stand && <p className="text-xs text-stone-500 dark:text-stone-400">Stand: {stand}</p>}
+        {stand && <p className="text-xs text-stone-500 dark:text-stone-400">{t('legal.stand', { date: stand })}</p>}
       </div>
     </AuthLayout>
   )

@@ -1,4 +1,5 @@
 // Spielerprofil & Einstellungen: Datentypen der Übergabe, Vorgaben, Prüfregeln und API-Formen
+import type { Message } from '../i18n'
 import { DISPLAY_NAME_MAX, DISPLAY_NAME_MIN } from '../account'
 import {
   DEFAULT_NOTIFICATION_SETTINGS,
@@ -131,10 +132,10 @@ export function validateSettings(input: unknown): { settings: Settings } | { err
 // =============================================================================
 
 /** Same rule as the dialog „Profil bearbeiten“ (after trim) */
-export function validateDisplayName(name: string): string | null {
+export function validateDisplayName(name: string): Message | null {
   const n = name.trim()
   if (n.length < DISPLAY_NAME_MIN || n.length > DISPLAY_NAME_MAX)
-    return `Der Name muss ${DISPLAY_NAME_MIN} bis ${DISPLAY_NAME_MAX} Zeichen lang sein.`
+    return { key: 'account.nameLength', params: { min: DISPLAY_NAME_MIN, max: DISPLAY_NAME_MAX } }
   return null
 }
 

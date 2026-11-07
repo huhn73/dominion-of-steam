@@ -1,0 +1,49 @@
+{
+  "appName": "Dominion of Steam",
+  "language": {
+    "label": "Language",
+    "hint": "Applies to the game, e-mails and notifications.",
+    "de": "Deutsch",
+    "en": "English"
+  },
+  "api": {
+    "network": "The server cannot be reached.",
+    "unknown": "Unknown error."
+  },
+  "retry": "Try again",
+  "loading": "Loading …",
+  "failed": "That did not work. Please try again.",
+  "closeMessage": "Close message",
+  "shareTitle": "Invitation to Dominion of Steam",
+  "shareFailed": "Sharing failed. Copy the link instead.",
+  "copyFailed": "The link could not be copied.",
+  "pushNoPrompt": "Your browser did not ask. Allow notifications via the icon on the left of the address bar.",
+  "imageTooLarge": "The image is too large (at most {mb} MB).",
+  "soundOn": "Sound on",
+  "soundOff": "Sound off",
+  "soundOffHint": "Sound off (volume in the settings)",
+  "verify": {
+    "region": "Confirm your e-mail address",
+    "text": "Please confirm your e-mail address {email}. Until then we will not send you any e-mails.",
+    "sending": "Sending …",
+    "resend": "Send again",
+    "change": "Change address",
+    "already": "Your e-mail address is already confirmed.",
+    "sent": "We have sent you a new confirmation e-mail."
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "normal": "Normal",
+    "hard": "Hard"
+  },
+  "time": {
+    "expired": "Deadline passed",
+    "leftMin": "{m} min left",
+    "leftHoursMin": "{h} h {m} min left",
+    "leftHours": "{h} h left",
+    "agoMin": "{m} min ago",
+    "agoHours": "{h} h ago",
+    "yesterday": "yesterday",
+    "agoDays": "{d} days ago"
+  }
+}

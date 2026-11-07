@@ -1,3 +1,4 @@
+import { formatDate, type Locale, type Translate } from '@dos/shared/i18n'
 import type { FactionColor } from '../types'
 
 export const FACTION_HEX: Record<FactionColor, { base: string; deep: string }> = {
@@ -9,30 +10,33 @@ export const FACTION_HEX: Record<FactionColor, { base: string; deep: string }> =
   orange: { base: '#f97316', deep: '#7c2d12' },
 }
 
-export const DIFFICULTY_LABEL = { easy: 'Leicht', normal: 'Normal', hard: 'Schwer' } as const
-
 const HOUR = 3_600_000
 
 /** "noch 22 Std.", "noch 1 Std. 40 Min." or "Frist abgelaufen" */
-export function timeLeft(deadline: string, now: string) {
+export function timeLeft(t: Translate, deadline: string, now: string) {
   const ms = new Date(deadline).getTime() - new Date(now).getTime()
-  if (ms <= 0) return { label: 'Frist abgelaufen', hours: 0 }
+  if (ms <= 0) return { label: t('common.time.expired'), hours: 0 }
   const h = Math.floor(ms / HOUR)
   const m = Math.round((ms % HOUR) / 60_000)
-  const label = h === 0 ? `noch ${m} Min.` : h < 6 && m > 0 ? `noch ${h} Std. ${m} Min.` : `noch ${h} Std.`
+  const label =
+    h === 0
+      ? t('common.time.leftMin', { m })
+      : h < 6 && m > 0
+        ? t('common.time.leftHoursMin', { h, m })
+        : t('common.time.leftHours', { h })
   return { label, hours: ms / HOUR }
 }
 
 /** "vor 19 Min.", "vor 2 Tagen", or a date for older events */
-export function timeAgo(iso: string, now: string) {
+export function timeAgo(t: Translate, locale: Locale, iso: string, now: string) {
   const ms = new Date(now).getTime() - new Date(iso).getTime()
   const min = Math.round(ms / 60_000)
-  if (min < 60) return `vor ${Math.max(1, min)} Min.`
+  if (min < 60) return t('common.time.agoMin', { m: Math.max(1, min) })
   const h = Math.round(min / 60)
-  if (h < 24) return `vor ${h} Std.`
+  if (h < 24) return t('common.time.agoHours', { h })
   const d = Math.round(h / 24)
-  if (d < 7) return d === 1 ? 'gestern' : `vor ${d} Tagen`
-  return new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' }).format(new Date(iso))
+  if (d < 7) return d === 1 ? t('common.time.yesterday') : t('common.time.agoDays', { d })
+  return formatDate(locale, iso, { day: 'numeric', month: 'short' })
 }
 
 export function hoursSince(iso: string, now: string) {

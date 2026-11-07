@@ -6,21 +6,22 @@ import { Einstellungen } from '../../sections/profil/components'
 import { settingsKey, useAccountActions, useSettings, useSettingsActions } from '../../data/profile'
 import { PUSH_NO_PROMPT_HINT, unsubscribePush, usePushPermission } from '../../data/push'
 import { meKey, useChangeLocale, useLogout, useSignOut } from '../../data/session'
-import { languageChoiceEnabled, useLocale } from '../../i18n'
+import { languageChoiceEnabled, useLocale, useT } from '../../i18n'
 import { routes } from '../../routes'
 import { Toast, useToast } from '../shared/toast'
 import { useAudio } from '../../audio/AudioProvider'
 import { PageState } from './PageState'
+import type { MessageKey } from '@dos/shared/i18n'
 
 /** Sliders report every step; the request waits until the player pauses */
 export const SETTINGS_SAVE_DELAY_MS = 400
 
 /** Result of the e-mail confirmation link (`?email=…`, set by the server redirect) */
-const EMAIL_RESULT: Record<string, { kind: 'info' | 'error'; text: string }> = {
-  bestaetigt: { kind: 'info', text: 'Deine neue E-Mail-Adresse ist bestätigt.' },
-  verifiziert: { kind: 'info', text: 'Deine E-Mail-Adresse ist bestätigt.' },
-  ungueltig: { kind: 'error', text: 'Der Bestätigungslink ist ungültig oder abgelaufen.' },
-  vergeben: { kind: 'error', text: 'Diese E-Mail-Adresse ist inzwischen vergeben.' },
+const EMAIL_RESULT: Record<string, { kind: 'info' | 'error'; text: MessageKey }> = {
+  bestaetigt: { kind: 'info', text: 'settings.emailConfirmed' },
+  verifiziert: { kind: 'info', text: 'settings.emailVerified' },
+  ungueltig: { kind: 'error', text: 'settings.linkInvalid' },
+  vergeben: { kind: 'error', text: 'settings.emailTaken' },
 }
 
 /** Einstellungen („Maschinenraum“) mit Daten aus GET /api/settings */
@@ -32,6 +33,7 @@ export function SettingsPage() {
   const logout = useLogout()
   const signOut = useSignOut()
   const toast = useToast()
+  const t = useT()
   const { sfx } = useAudio()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -46,13 +48,13 @@ export function SettingsPage() {
   const { setToast } = toast
   useEffect(() => {
     if (!emailResult) return
-    setToast(emailResult)
+    setToast({ kind: emailResult.kind, text: t(emailResult.text) })
     if (emailResult.kind === 'info') {
       void queryClient.invalidateQueries({ queryKey: settingsKey })
       void queryClient.invalidateQueries({ queryKey: meKey })
     }
     void navigate(routes.settings, { replace: true })
-  }, [emailResult, setToast, queryClient, navigate])
+  }, [emailResult, setToast, queryClient, navigate, t])
 
   // Debounced saving; pending changes are sent when the page is left
   const pending = useRef<Settings | null>(null)
@@ -73,7 +75,7 @@ export function SettingsPage() {
     return save(settings).then(
       () => sfx('ui-saved'),
       async (e: unknown) => {
-        toast.error(e, 'Die Einstellung konnte nicht gespeichert werden.')
+        toast.error(e, t('settings.saveFailed'))
         await reload().catch(() => undefined)
         setEpoch((n) => n + 1)
       },
@@ -114,8 +116,8 @@ export function SettingsPage() {
   if (isPending)
     content = (
       <PageState
-        title="Einstellungen"
-        loadingText="Lade Einstellungen …"
+        title={t('settings.title')}
+        loadingText={t('settings.loading')}
         fallback=""
         onRetry={() => undefined}
       />
@@ -123,10 +125,10 @@ export function SettingsPage() {
   else if (!data)
     content = (
       <PageState
-        title="Einstellungen"
+        title={t('settings.title')}
         loadingText=""
         error={error}
-        fallback="Die Einstellungen konnten nicht geladen werden."
+        fallback={t('settings.loadFailed')}
         onRetry={() => void refetch()}
       />
     )
@@ -144,43 +146,43 @@ export function SettingsPage() {
         onEnablePush={() =>
           void push
             .enable()
-            .then((result) => result === 'default' && toast.info(PUSH_NO_PROMPT_HINT))
+            .then((result) => result === 'default' && toast.info(t(PUSH_NO_PROMPT_HINT)))
             .catch((e: unknown) =>
-              toast.error(e, 'Push-Benachrichtigungen konnten nicht aktiviert werden.'),
+              toast.error(e, t('lobby.pushFailed')),
             )
         }
         onResendVerification={() =>
           run(account.resendVerification(), (r) =>
             r.alreadyVerified
-              ? 'Deine E-Mail-Adresse ist schon bestätigt.'
-              : 'Wir haben dir eine neue Bestätigungsmail geschickt.',
+              ? t('common.verify.already')
+              : t('common.verify.sent'),
           )
         }
         onChangeEmail={(email, currentPassword) =>
           run(
             account.changeEmail(email, currentPassword),
-            (r) => `Wir haben dir einen Bestätigungslink an ${r.pendingEmail} geschickt.`,
+            (r) => t('settings.linkSent', { email: r.pendingEmail }),
           )
         }
         onChangePassword={(currentPassword, newPassword) =>
           run(
             account.changePassword(currentPassword, newPassword),
-            'Passwort geändert. Andere Geräte wurden abgemeldet.',
+            t('settings.passwordChanged'),
           )
         }
         onLogout={() => void flush().finally(() => void logout())}
         onLogoutEverywhere={() =>
           endSessions(
             account.logoutEverywhere,
-            'Du wurdest auf allen Geräten abgemeldet.',
-            'Die Abmeldung auf allen Geräten hat nicht geklappt.',
+            t('settings.loggedOutEverywhere'),
+            t('settings.logoutEverywhereFailed'),
           )
         }
         onDeleteAccount={(currentPassword) =>
           endSessions(
             () => account.deleteAccount(currentPassword),
-            'Dein Konto wurde gelöscht. Laufende Partien führt eine KI weiter.',
-            'Das Konto konnte nicht gelöscht werden.',
+            t('settings.accountDeleted'),
+            t('settings.deleteFailed'),
           )
         }
       />

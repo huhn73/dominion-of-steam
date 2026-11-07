@@ -1,0 +1,33 @@
+{
+  "backToLobby": "Back to the lobby",
+  "gameMenu": "Game menu",
+  "mainNav": "Main navigation",
+  "matchDetails": "Match details",
+  "comingSoon": "soon",
+  "settings": "Settings",
+  "surrender": "Surrender",
+  "profile": "Profile",
+  "legal": "Legal",
+  "admin": "Administration",
+  "logout": "Log out",
+  "userMenu": "User menu for {name}",
+  "nav": {
+    "lobby": "Lobby",
+    "newMatch": "New match",
+    "factions": "Factions"
+  },
+  "surrendered": "You have surrendered. An AI commands your faction from here on.",
+  "surrenderFailed": "Surrendering did not work.",
+  "news": {
+    "title": "New in Dominion of Steam",
+    "all": "All news",
+    "ok": "Understood",
+    "link": "News",
+    "version": "Version {version}",
+    "fixesOnly": "Bug fixes and small improvements."
+  },
+  "version": {
+    "built": "built on {date}",
+    "dev": "Development build"
+  }
+}

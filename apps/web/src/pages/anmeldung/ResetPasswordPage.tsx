@@ -5,12 +5,14 @@ import { ApiRequestError } from '../../data/api'
 import { useAuthActions } from '../../data/session'
 import { routes } from '../../routes'
 import { AuthLayout, Field, FormError, linkClass, SubmitButton } from './AuthLayout'
+import { useT } from '../../i18n'
 
 /** Target of the reset link (`?token=`): sets a new password and logs the player in */
 export function ResetPasswordPage() {
   const [params] = useSearchParams()
   const token = params.get('token') ?? ''
   const navigate = useNavigate()
+  const t = useT()
   const { resetPassword } = useAuthActions()
   const [form, setForm] = useState({ password: '', repeat: '' })
   const [errors, setErrors] = useState<{ password?: string; repeat?: string }>({})
@@ -26,8 +28,8 @@ export function ResetPasswordPage() {
     e.preventDefault()
     const found: typeof errors = {}
     const invalid = validatePassword(form.password)
-    if (invalid) found.password = invalid
-    else if (form.repeat !== form.password) found.repeat = 'Die Passwörter stimmen nicht überein.'
+    if (invalid) found.password = t(invalid.key, invalid.params)
+    else if (form.repeat !== form.password) found.repeat = t('auth.reset.mismatch')
     setErrors(found)
     setServerError(null)
     if (Object.keys(found).length) return
@@ -37,33 +39,33 @@ export function ResetPasswordPage() {
       await navigate(routes.lobby, {
         replace: true,
         state: {
-          notice: 'Passwort geändert. Du bist angemeldet, andere Geräte wurden abgemeldet.',
+          notice: t('auth.reset.done'),
         },
       })
     } catch (err) {
-      setServerError(err instanceof ApiRequestError ? err.message : 'Unbekannter Fehler.')
+      setServerError(err instanceof ApiRequestError ? err.message : t('common.api.unknown'))
       setBusy(false)
     }
   }
 
   const requestAgain = (
     <Link to={routes.forgotPassword} className={linkClass}>
-      Neuen Link anfordern
+      {t('auth.reset.requestAgain')}
     </Link>
   )
 
   return (
     <AuthLayout
-      title="Neues Passwort"
+      title={t('auth.reset.title')}
       footer={
         <Link to={routes.login} className={linkClass}>
-          Zurück zur Anmeldung
+          {t('auth.backToLogin')}
         </Link>
       }
     >
       {!token ? (
         <div className="space-y-4">
-          <FormError message="Der Link ist unvollständig. Fordere einen neuen an." />
+          <FormError message={t('auth.reset.incomplete')} />
           {requestAgain}
         </div>
       ) : (
@@ -72,25 +74,25 @@ export function ResetPasswordPage() {
           {serverError && requestAgain}
           <Field
             id="password"
-            label="Neues Passwort"
+            label={t('auth.reset.newPassword')}
             type="password"
             autoComplete="new-password"
             autoFocus
             value={form.password}
             onChange={update('password')}
             error={errors.password}
-            hint={`Mindestens ${PASSWORD_MIN} Zeichen.`}
+            hint={t('auth.register.passwordHint', { min: PASSWORD_MIN })}
           />
           <Field
             id="repeat"
-            label="Passwort wiederholen"
+            label={t('auth.reset.repeat')}
             type="password"
             autoComplete="new-password"
             value={form.repeat}
             onChange={update('repeat')}
             error={errors.repeat}
           />
-          <SubmitButton busy={busy} label="Passwort speichern" busyLabel="Speichere …" />
+          <SubmitButton busy={busy} label={t('auth.reset.submit')} busyLabel={t('auth.reset.busy')} />
         </form>
       )}
     </AuthLayout>

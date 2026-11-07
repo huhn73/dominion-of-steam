@@ -1,18 +1,21 @@
 import { useState } from 'react'
 import { ArrowLeft, Bot, Check, Clock, Copy, Crown, DoorOpen, Hourglass, LogOut, Mail, Share2, Swords } from 'lucide-react'
 import type { WaitingSeat, WarteraumProps } from '../types'
-import { DIFFICULTY_LABEL, FACTION_HEX } from './format'
+import { FACTION_HEX } from './format'
+import type { Translate } from '@dos/shared/i18n'
 import { Avatar, FactionEmblem, Sheet } from './shared'
+import { useT } from '../../../i18n'
 
-function seatStatus(seat: WaitingSeat) {
-  if (seat.kind === 'ai') return { label: `KI · ${DIFFICULTY_LABEL[seat.aiDifficulty]}`, className: 'bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300', icon: Bot }
-  if (seat.kind === 'invited') return { label: 'Eingeladen', className: 'bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400', icon: Mail }
-  if (seat.kind === 'open') return { label: 'Offen', className: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300', icon: DoorOpen }
-  if (seat.status === 'ready') return { label: 'Bereit', className: 'bg-teal-600 text-white', icon: Check }
-  return { label: 'Nicht bereit', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300', icon: Hourglass }
+function seatStatus(t: Translate, seat: WaitingSeat) {
+  if (seat.kind === 'ai') return { label: t('lobby.room.seat.ai', { difficulty: t(`common.difficulty.${seat.aiDifficulty}`) }), className: 'bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300', icon: Bot }
+  if (seat.kind === 'invited') return { label: t('lobby.room.seat.invited'), className: 'bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400', icon: Mail }
+  if (seat.kind === 'open') return { label: t('lobby.room.seat.open'), className: 'bg-teal-50 text-teal-700 dark:bg-teal-950 dark:text-teal-300', icon: DoorOpen }
+  if (seat.status === 'ready') return { label: t('lobby.room.seat.ready'), className: 'bg-teal-600 text-white', icon: Check }
+  return { label: t('lobby.room.seat.notReady'), className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300', icon: Hourglass }
 }
 
 export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave, onCopyInviteLink, onShareInviteLink, onBack }: WarteraumProps) {
+  const t = useT()
   const ownSeat = room.seats.find((s) => s.isYou)
   const [ready, setReady] = useState(ownSeat?.kind === 'player' && ownSeat.status === 'ready')
   const [fill, setFill] = useState(room.fillEmptyWithAI)
@@ -25,7 +28,7 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
   const freeSeats = seats.filter((s) => s.kind === 'invited' || s.kind === 'open').length
   const filled = seats.length - freeSeats
   const canStart = room.isHost && notReady.length === 0
-  const startBlocker = notReady.length > 0 ? `Warte auf ${notReady.map((s) => s.name).join(', ')}` : null
+  const startBlocker = notReady.length > 0 ? t('lobby.room.waitFor', { names: notReady.map((s) => s.name).join(', ') }) : null
 
   return (
     <div className="font-['Barlow'] text-stone-900 dark:text-stone-100">
@@ -35,27 +38,27 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
           onClick={onBack}
           className="mb-6 flex min-h-11 items-center gap-2 text-sm font-semibold uppercase tracking-widest text-stone-500 hover:text-teal-700 dark:text-stone-400 dark:hover:text-teal-300"
         >
-          <ArrowLeft className="size-4" /> Lobby
+          <ArrowLeft className="size-4" /> {t('lobby.room.back')}
         </button>
 
         <header className="mb-8">
           <p className="mb-2 flex items-center gap-3 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-teal-700 dark:text-teal-400">
-            <span className="h-px w-8 bg-current" /> Warteraum
+            <span className="h-px w-8 bg-current" /> {t('lobby.room.title')}
           </p>
           <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-[0.9] tracking-wide sm:text-6xl">{room.matchName}</h1>
           <p className="mt-3 font-['IBM_Plex_Mono'] text-sm text-stone-500">
-            {filled} von {seats.length} Plätzen besetzt · {seats.filter((s) => s.status === 'ready').length} bereit
+            {t('lobby.room.seatsLine', { filled, total: seats.length, ready: seats.filter((s) => s.status === 'ready').length })}
           </p>
         </header>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
           {/* Seats */}
-          <section aria-label="Plätze">
+          <section aria-label={t('lobby.room.seats')}>
             <ol className="space-y-3">
               {seats.map((seat, i) => {
                 const faction = factions.find((f) => f.id === seat.factionId)
                 const color = faction ? FACTION_HEX[faction.color].base : undefined
-                const st = seatStatus(seat)
+                const st = seatStatus(t, seat)
                 const empty = seat.kind === 'open'
                 return (
                   <li
@@ -78,9 +81,9 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="flex items-center gap-1.5 truncate font-['Big_Shoulders_Display'] text-xl font-extrabold uppercase tracking-wide">
-                        {empty ? 'Offener Platz' : seat.name}
-                        {seat.isYou && <span className="font-['Barlow'] text-sm font-normal normal-case tracking-normal text-stone-500">(du)</span>}
-                        {seat.isHost && <Crown className="size-4 text-amber-500" aria-label="Ersteller" />}
+                        {empty ? t('lobby.room.openSeat') : seat.name}
+                        {seat.isYou && <span className="font-['Barlow'] text-sm font-normal normal-case tracking-normal text-stone-500">{t('lobby.room.you')}</span>}
+                        {seat.isHost && <Crown className="size-4 text-amber-500" aria-label={t('lobby.room.host')} />}
                       </p>
                       <p className="flex items-center gap-1.5 text-sm text-stone-500 dark:text-stone-400">
                         {faction ? (
@@ -88,9 +91,9 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
                             <FactionEmblem faction={faction} className="size-5" /> {faction.shortName}
                           </>
                         ) : empty ? (
-                          'Jeder aus der Lobby kann beitreten'
+                          t('lobby.room.anyoneCanJoin')
                         ) : (
-                          'Hat noch nicht zugesagt'
+                          t('lobby.room.notAccepted')
                         )}
                       </p>
                     </div>
@@ -106,8 +109,8 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
           {/* Side: invite, rules */}
           <aside className="space-y-4">
             <div className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-              <h2 className="mb-1 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">Einladungslink</h2>
-              <p className="mb-3 text-sm text-stone-500">Wer den Link öffnet, besetzt einen freien Platz.</p>
+              <h2 className="mb-1 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">{t('lobby.room.inviteLink')}</h2>
+              <p className="mb-3 text-sm text-stone-500">{t('lobby.room.inviteHint')}</p>
               <code className="mb-3 block truncate rounded-lg border-2 border-dashed border-stone-300 bg-stone-100 px-3 py-2 font-['IBM_Plex_Mono'] text-xs dark:border-stone-700 dark:bg-stone-950">
                 {room.inviteLink}
               </code>
@@ -120,37 +123,45 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
                   }}
                   className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 border-stone-300 font-semibold hover:border-teal-500 dark:border-stone-700"
                 >
-                  <Copy className="size-4" /> Kopieren
+                  <Copy className="size-4" /> {t('lobby.room.copy')}
                 </button>
                 <button
                   type="button"
                   onClick={() => onShareInviteLink?.(room.inviteLink)}
                   className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-teal-600 font-semibold text-white hover:bg-teal-500"
                 >
-                  <Share2 className="size-4" /> Teilen
+                  <Share2 className="size-4" /> {t('lobby.room.share')}
                 </button>
               </div>
             </div>
 
             <div className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-              <h2 className="mb-2 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">Regeln</h2>
+              <h2 className="mb-2 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">{t('lobby.details.rules')}</h2>
               <dl className="space-y-1.5 text-sm">
                 {[
-                  ['Modus', room.rules.mode === 'live' ? 'Live' : 'Asynchron'],
-                  [room.rules.mode === 'live' ? 'Zeitlimit' : 'Frist pro Zug', room.rules.turnLimitLabel],
-                  ['Siegbedingung', room.rules.victoryCondition],
-                  ['Karte', `${room.map.sizeLabel} · ${room.map.width}×${room.map.height} · ${room.map.landShare} % Land${room.map.worldShape === 'islands' ? ' · Inseln' : room.map.worldShape === 'archipelago' ? ' · Archipel' : ''}`],
-                  ['Kartencode', room.map.seed],
+                  [t('lobby.details.mode'), room.rules.mode === 'live' ? t('lobby.live') : t('lobby.async')],
+                  [room.rules.mode === 'live' ? t('lobby.details.timeLimit') : t('lobby.details.deadline'), room.rules.turnLimitLabel],
+                  [t('lobby.details.victory'), room.rules.victoryCondition],
+                  [
+                    t('lobby.details.map'),
+                    t('lobby.room.mapLine', { size: room.map.sizeLabel, width: room.map.width, height: room.map.height, land: room.map.landShare }) +
+                      (room.map.worldShape === 'islands'
+                        ? ` · ${t('lobby.details.islands')}`
+                        : room.map.worldShape === 'archipelago'
+                          ? ` · ${t('lobby.details.archipelago')}`
+                          : ''),
+                  ],
+                  [t('lobby.details.seed'), room.map.seed],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between gap-3">
                     <dt className="text-stone-500">{k}</dt>
-                    <dd className={`text-right font-semibold ${k === 'Kartencode' ? "font-['IBM_Plex_Mono'] tracking-widest" : ''}`}>{v}</dd>
+                    <dd className={`text-right font-semibold ${k === t('lobby.details.seed') ? "font-['IBM_Plex_Mono'] tracking-widest" : ''}`}>{v}</dd>
                   </div>
                 ))}
               </dl>
               {room.rules.mode === 'async' && (
                 <p className="mt-3 flex items-center gap-1.5 text-xs text-stone-500">
-                  <Clock className="size-3.5" /> Nach dem Start bekommt jeder Bescheid, wenn er am Zug ist.
+                  <Clock className="size-3.5" /> {t('lobby.room.asyncHint')}
                 </p>
               )}
             </div>
@@ -164,16 +175,16 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
           <button
             type="button"
             onClick={() => setConfirmLeave(true)}
-            aria-label="Verlassen"
+            aria-label={t('lobby.room.leave')}
             className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-stone-500 hover:bg-stone-200 hover:text-rose-600 dark:hover:bg-stone-800"
           >
-            <LogOut className="size-4" /> <span className="hidden sm:inline">Verlassen</span>
+            <LogOut className="size-4" /> <span className="hidden sm:inline">{t('lobby.room.leave')}</span>
           </button>
 
           {room.isHost && freeSeats > 0 && (
             <label className="flex cursor-pointer items-center gap-2 text-sm">
               <input type="checkbox" checked={fill} onChange={(e) => setFill(e.target.checked)} className="size-5 accent-amber-500" />
-              {freeSeats === 1 ? '1 freien Platz' : `${freeSeats} freie Plätze`} mit KI auffüllen
+              {t('lobby.room.fill', { count: freeSeats })}
             </label>
           )}
 
@@ -190,7 +201,7 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
                   ready ? 'border-teal-600 bg-teal-600 text-white hover:bg-teal-500' : 'border-stone-300 hover:border-teal-500 dark:border-stone-700'
                 }`}
               >
-                <Check className="size-4" /> {ready ? 'Bereit' : 'Bereit melden'}
+                <Check className="size-4" /> {ready ? t('lobby.room.ready') : t('lobby.room.reportReady')}
               </button>
             )}
             {room.isHost && (
@@ -201,7 +212,7 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
                 title={startBlocker ?? undefined}
                 className="flex min-h-12 items-center gap-2 rounded-lg bg-gradient-to-b from-amber-400 to-amber-600 px-5 font-['Big_Shoulders_Display'] text-lg font-black uppercase tracking-[0.15em] text-stone-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition hover:from-amber-300 hover:to-amber-500 disabled:from-stone-300 disabled:to-stone-400 disabled:text-stone-600 dark:disabled:from-stone-700 dark:disabled:to-stone-800 dark:disabled:text-stone-500"
               >
-                <Swords className="size-5" /> Starten
+                <Swords className="size-5" /> {t('lobby.room.start')}
               </button>
             )}
           </div>
@@ -209,8 +220,8 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
             <p className="w-full text-right text-xs text-stone-500">
               {startBlocker ??
                 (freeSeats > 0 && !fill
-                  ? `Freie Plätze bleiben leer, die Partie startet mit ${filled} Spielern.`
-                  : 'Alle sind bereit. Die Partie kann beginnen.')}
+                  ? t('lobby.room.emptyStays', { count: filled })
+                  : t('lobby.room.allReady'))}
             </p>
           )}
         </div>
@@ -218,12 +229,12 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
 
       {confirmLeave && (
         <Sheet
-          title="Warteraum verlassen?"
+          title={t('lobby.room.leaveTitle')}
           onClose={() => setConfirmLeave(false)}
           footer={
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setConfirmLeave(false)} className="min-h-11 rounded-lg border-2 border-stone-300 px-4 font-semibold dark:border-stone-700">
-                Bleiben
+                {t('lobby.room.stay')}
               </button>
               <button
                 type="button"
@@ -233,15 +244,15 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
                 }}
                 className="min-h-11 rounded-lg bg-rose-600 px-4 font-semibold text-white hover:bg-rose-500"
               >
-                Verlassen
+                {t('lobby.room.leave')}
               </button>
             </div>
           }
         >
           <p className="text-stone-700 dark:text-stone-300">
             {room.isHost
-              ? `Du hast „${room.matchName}“ erstellt. Wenn du gehst, wird die Partie aufgelöst und alle Mitspieler werden benachrichtigt.`
-              : `Du gibst deinen Platz in „${room.matchName}“ frei.`}
+              ? t('lobby.room.leaveHost', { name: room.matchName })
+              : t('lobby.room.leaveSeat', { name: room.matchName })}
           </p>
         </Sheet>
       )}

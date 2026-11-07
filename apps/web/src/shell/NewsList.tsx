@@ -1,11 +1,14 @@
 import type { ReleaseNotes } from '@dos/shared/news'
+import { formatDate, type Locale } from '@dos/shared/i18n'
+import { useLocale, useT } from '../i18n'
 
-const dateFormat = new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' })
-
-export const releaseDate = (iso: string) => dateFormat.format(new Date(`${iso}T12:00:00`))
+export const releaseDate = (locale: Locale, iso: string) =>
+  formatDate(locale, `${iso}T12:00:00`, { dateStyle: 'long' })
 
 /** The releases with their new features, one sentence each (hint and page „Neuigkeiten“) */
 export function NewsList({ releases }: { releases: readonly ReleaseNotes[] }) {
+  const t = useT()
+  const { locale } = useLocale()
   return (
     <div className="space-y-6">
       {releases.map((release) => (
@@ -15,10 +18,10 @@ export function NewsList({ releases }: { releases: readonly ReleaseNotes[] }) {
             className="flex flex-wrap items-baseline gap-x-3 border-b border-stone-200 pb-1 dark:border-stone-700"
           >
             <span className="font-['Big_Shoulders_Display'] text-xl font-bold uppercase tracking-wider text-stone-900 dark:text-amber-50">
-              Version {release.version}
+              {t('shell.news.version', { version: release.version })}
             </span>
             <span className="font-['IBM_Plex_Mono'] text-xs text-stone-500 dark:text-stone-400">
-              {releaseDate(release.date)}
+              {releaseDate(locale, release.date)}
             </span>
           </h3>
           {release.items.length ? (
@@ -34,7 +37,7 @@ export function NewsList({ releases }: { releases: readonly ReleaseNotes[] }) {
             </ul>
           ) : (
             <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
-              Fehlerbehebungen und kleine Verbesserungen.
+              {t('shell.news.fixesOnly')}
             </p>
           )}
         </section>

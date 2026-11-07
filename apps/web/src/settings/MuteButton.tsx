@@ -2,6 +2,7 @@ import { Volume2, VolumeX } from 'lucide-react'
 import { DEFAULT_SETTINGS } from '@dos/shared/profile'
 import { useAudio } from '../audio/AudioProvider'
 import { useSettings, useSettingsActions } from '../data/profile'
+import { useT } from '../i18n'
 
 /**
  * Quick mute in the header: flips `sound.muted` (saved like the settings page does). The
@@ -11,6 +12,7 @@ export function MuteButton({ className = '' }: { className?: string }) {
   const { data } = useSettings()
   const { setLocal, save, reload } = useSettingsActions()
   const { sfx } = useAudio()
+  const t = useT()
   const settings = data?.settings
   const muted = settings?.sound.muted ?? DEFAULT_SETTINGS.sound.muted
 
@@ -28,9 +30,9 @@ export function MuteButton({ className = '' }: { className?: string }) {
       type="button"
       onClick={toggle}
       disabled={!settings}
-      aria-label={muted ? 'Ton an' : 'Ton aus'}
+      aria-label={muted ? t('common.soundOn') : t('common.soundOff')}
       aria-pressed={muted}
-      title={muted ? 'Ton an' : 'Ton aus (Lautstärke in den Einstellungen)'}
+      title={muted ? t('common.soundOn') : t('common.soundOffHint')}
       data-sound="none"
       className={`flex size-9 items-center justify-center rounded-md text-stone-600 transition-colors hover:bg-teal-50 hover:text-teal-700 focus-visible:outline-2 focus-visible:outline-teal-500 disabled:opacity-40 dark:text-stone-300 dark:hover:bg-teal-950 dark:hover:text-teal-300 ${className}`}
     >

@@ -1,5 +1,6 @@
 // Konten, Anmeldung und Freunde: gemeinsame Typen und Regeln für Client und Server
 import type { Locale } from '../i18n/locale'
+import type { Message } from '../i18n'
 
 /** Logged-in player as returned by `GET /api/me` */
 export interface Me {
@@ -69,16 +70,19 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase()
 
-/** German validation messages per field; empty object when valid */
+/** Validation messages per field; empty object when valid */
 export function validateRegistration(input: {
   displayName: string
   email: string
   password: string
-}): Partial<Record<keyof RegisterRequest, string>> {
-  const errors: Partial<Record<keyof RegisterRequest, string>> = {}
+}): Partial<Record<'displayName' | 'email' | 'password', Message>> {
+  const errors: Partial<Record<'displayName' | 'email' | 'password', Message>> = {}
   const name = input.displayName.trim()
   if (name.length < DISPLAY_NAME_MIN || name.length > DISPLAY_NAME_MAX)
-    errors.displayName = `Der Name muss ${DISPLAY_NAME_MIN} bis ${DISPLAY_NAME_MAX} Zeichen lang sein.`
+    errors.displayName = {
+      key: 'account.nameLength',
+      params: { min: DISPLAY_NAME_MIN, max: DISPLAY_NAME_MAX },
+    }
   const emailError = validateEmail(input.email)
   if (emailError) errors.email = emailError
   const passwordError = validatePassword(input.password)
@@ -86,16 +90,16 @@ export function validateRegistration(input: {
   return errors
 }
 
-export function validatePassword(password: string): string | null {
+export function validatePassword(password: string): Message | null {
   if (password.length < PASSWORD_MIN)
-    return `Das Passwort muss mindestens ${PASSWORD_MIN} Zeichen lang sein.`
-  if (password.length > PASSWORD_MAX) return 'Das Passwort ist zu lang.'
+    return { key: 'account.passwordShort', params: { min: PASSWORD_MIN } }
+  if (password.length > PASSWORD_MAX) return { key: 'account.passwordLong' }
   return null
 }
 
-export function validateEmail(email: string): string | null {
+export function validateEmail(email: string): Message | null {
   const e = normalizeEmail(email)
-  if (!e) return 'Bitte gib deine E-Mail-Adresse ein.'
-  if (e.length > 254 || !EMAIL_PATTERN.test(e)) return 'Bitte gib eine gültige E-Mail-Adresse ein.'
+  if (!e) return { key: 'account.emailMissing' }
+  if (e.length > 254 || !EMAIL_PATTERN.test(e)) return { key: 'account.emailInvalid' }
   return null
 }

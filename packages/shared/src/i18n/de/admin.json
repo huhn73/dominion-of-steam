@@ -1,0 +1,61 @@
+{
+  "status": {
+    "waiting": "Wartet",
+    "running": "Läuft",
+    "finished": "Beendet"
+  },
+  "mode": {
+    "live": "Live",
+    "async": "Async"
+  },
+  "recentPlayers": "Zuletzt aktive Konten",
+  "col": {
+    "name": "Name",
+    "registered": "Registriert",
+    "lastSeen": "Zuletzt gesehen",
+    "verified": "Bestätigt",
+    "matches": "Partien",
+    "match": "Partie",
+    "mode": "Modus",
+    "status": "Status",
+    "round": "Runde",
+    "humansAi": "Menschen / KI",
+    "updated": "Aktualisiert"
+  },
+  "noPlayers": "Noch keine Konten.",
+  "yes": "Ja",
+  "no": "Nein",
+  "recentMatches": "Zuletzt aktualisierte Partien",
+  "noMatches": "Noch keine Partien.",
+  "days": "{count} Tage",
+  "lastDays": "letzte {count} Tage",
+  "tile": {
+    "accounts": "Konten",
+    "verified": "Bestätigt",
+    "new": "Neu",
+    "active24": "Aktiv 24 h",
+    "active": "Aktiv",
+    "running": "Laufend",
+    "waiting": "{count} warten auf Spieler",
+    "finished": "Beendet",
+    "avgRounds": "Ø {rounds} Runden",
+    "liveAsync": "Live / Async",
+    "soloMulti": "Solo / Mehrspieler"
+  },
+  "kicker": "Verwaltung",
+  "title": "Nutzung",
+  "excluded": "Ohne Dev-Konten und Demo-Partie.",
+  "range": "Zeitraum",
+  "accounts": "Konten",
+  "matches": "Partien",
+  "history": "Verlauf",
+  "series": {
+    "registrations": "Anmeldungen",
+    "matchesStarted": "Neue Partien",
+    "turns": "Züge (Menschen)"
+  },
+  "today": "heute",
+  "loading": "Lade Nutzungszahlen …",
+  "loadFailed": "Die Nutzungszahlen konnten nicht geladen werden.",
+  "perDay": "{label} pro Tag, insgesamt {total}"
+}

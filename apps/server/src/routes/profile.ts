@@ -1,18 +1,15 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { API_PREFIX } from '@dos/shared'
-import type { ApiError } from '@dos/shared/game'
 import { AVATAR_MAX_BYTES, validateSettings } from '@dos/shared/profile'
 import { AccountError, toMe } from '../auth/accounts'
 import { LobbyError } from '../lobby/service'
 import { ProfileError, type ProfileService } from '../profile/service'
 import { clearSessionCookie, loadSession, requireAuth } from '../session'
 import { requestOrigin } from './setup'
+import { sendError } from '../locale'
 
 /** Per-IP limits of the account routes (plugin registered in app.ts when enabled) */
 const limit = (max: number, timeWindow = '1 hour') => ({ rateLimit: { max, timeWindow } })
-
-const sendError = (reply: FastifyReply, status: number, code: string, message: string) =>
-  reply.status(status).send({ error: { code, message } } satisfies ApiError)
 
 const str = (v: unknown) => (typeof v === 'string' ? v : '')
 const body = (v: unknown) =>
@@ -46,7 +43,7 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
         return await fn(req, reply)
       } catch (err) {
         if (err instanceof ProfileError || err instanceof LobbyError)
-          return sendError(reply, err.status, err.code, err.message)
+          return sendError(reply, err.status, err.code, err.text)
         throw err
       }
     }
@@ -162,7 +159,7 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
           requestOrigin(req),
         )
       } catch (err) {
-        if (err instanceof AccountError) return sendError(reply, err.status, err.code, err.message)
+        if (err instanceof AccountError) return sendError(reply, err.status, err.code, err.text)
         throw err
       }
     }),

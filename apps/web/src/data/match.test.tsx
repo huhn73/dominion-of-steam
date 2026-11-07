@@ -76,10 +76,10 @@ describe('Kopfzeile', () => {
   }
 
   it('nennt die KI, die gerade im Hintergrund zieht', () => {
-    expect(gameHeaderFor(waiting('p2')).status).toBe('Admiral Kessler (KI) zieht …')
+    expect(gameHeaderFor(waiting('p2'), 'de').status).toBe('Admiral Kessler (KI) zieht …')
   })
 
   it('wartet ohne Namen auf menschliche Mitspieler', () => {
-    expect(gameHeaderFor(waiting('p3')).status).toBe('Warte auf Gegner')
+    expect(gameHeaderFor(waiting('p3'), 'de').status).toBe('Warte auf Gegner')
   })
 })
