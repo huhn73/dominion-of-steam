@@ -15,5 +15,10 @@
     "replay": "Gegnerzüge",
     "aiMoving": "{name} (KI) zieht …",
     "waiting": "Warte auf Gegner"
-  }
+  },
+  "notFound": "Partie nicht gefunden",
+  "loadFailed": "Partie konnte nicht geladen werden",
+  "gone": "Diese Partie gibt es nicht oder nicht mehr.",
+  "rejected": "Aktion abgelehnt:",
+  "closeHint": "Hinweis schließen"
 }

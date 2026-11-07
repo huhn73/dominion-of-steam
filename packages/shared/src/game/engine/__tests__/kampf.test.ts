@@ -318,8 +318,8 @@ describe('Kampfregeln: Gelände- und Stadtbonus', () => {
     const [t] = targetsOf(s, 'a')
     expect(t!.odds.hitChance).toBeCloseTo(combatChance(s, 'a', { unitId: 'd' }))
     expect(defenseModifiers(unitType('grenadiere'), 'hills', true)).toEqual([
-      { label: 'Hügel', value: 1 },
-      { label: 'Stadt', value: 1 },
+      { label: 'game.terrain.hills', value: 1 },
+      { label: 'game.city', value: 1 },
     ])
     expect(defenseModifiers(unitType('kanonenboot'), 'shallows', false)).toEqual([])
   })

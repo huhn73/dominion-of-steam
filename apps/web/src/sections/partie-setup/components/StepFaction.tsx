@@ -2,6 +2,7 @@ import { Bot, Check } from 'lucide-react'
 import type { AiPersonality, Faction, MatchDraft } from '../types'
 import { FACTION_HEX, aiFactions } from './setup'
 import { FactionEmblem } from './ui'
+import { useT } from '../../../i18n'
 
 interface StepFactionProps {
   draft: MatchDraft
@@ -11,10 +12,11 @@ interface StepFactionProps {
 }
 
 export function StepFaction({ draft, factions, aiPersonalities, onChange }: StepFactionProps) {
+  const t = useT()
   const taken = aiFactions(draft.seats, aiPersonalities)
 
   return (
-    <div role="radiogroup" aria-label="Deine Fraktion" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div role="radiogroup" aria-label={t('partieSetup.yourFaction')} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {factions.map((f) => {
         const c = FACTION_HEX[f.color]
         const ai = taken.get(f.id)
@@ -50,7 +52,7 @@ export function StepFaction({ draft, factions, aiPersonalities, onChange }: Step
               {ai && (
                 <span className="mt-3 flex items-center gap-1.5 rounded-md bg-stone-100 px-2 py-1.5 text-xs font-semibold text-stone-600 dark:bg-stone-800 dark:text-stone-300">
                   <Bot className="size-3.5" />
-                  {locked ? `Geführt von ${ai.name}, ändere die KI unter „Gegner & Mitspieler“` : `Auch ${ai.name} führt diese Fraktion`}
+                  {locked ? t('partieSetup.aiLocked', { name: ai.name }) : t('partieSetup.aiAlso', { name: ai.name })}
                 </span>
               )}
             </span>

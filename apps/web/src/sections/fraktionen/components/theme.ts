@@ -1,3 +1,4 @@
+import type { MessageKey } from '@dos/shared/i18n'
 import type { Faction, FactionColor, UnitDomain, UnitType } from '../types'
 
 // Typography: Big Shoulders Display (headings), Barlow (body), IBM Plex Mono (numbers)
@@ -11,7 +12,11 @@ export const FACTION_HEX: Record<FactionColor, { base: string; deep: string; lig
   orange: { base: '#f97316', deep: '#7c2d12', light: '#ffedd5' },
 }
 
-export const DOMAIN_LABEL: Record<UnitDomain, string> = { land: 'Land', sea: 'See', air: 'Luft' }
+export const DOMAIN_LABEL = {
+  land: 'compendium.domain.land',
+  sea: 'compendium.domain.sea',
+  air: 'compendium.domain.air',
+} as const satisfies Record<UnitDomain, MessageKey>
 
 export interface BonusEffect {
   stat: NonNullable<Faction['bonus']['stat']>

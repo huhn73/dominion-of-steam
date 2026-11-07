@@ -24,6 +24,7 @@ import { type Ghost, HexMap, type PathMarker } from './HexMap'
 import { centerCamera, clampCamera, fitCamera, scaleBounds, zoomAt, zoomSpeed } from './camera'
 import { createCameraStore } from './cameraStore'
 import { OUTCOME_STYLE, Partieabschluss } from './Partieabschluss'
+import { formatNumber, type Translate } from '@dos/shared/i18n'
 import { matchOutcome } from '@dos/shared/game'
 import {
   combatTimeline,
@@ -39,6 +40,7 @@ import { Rundenbericht, type ReportFooter } from './Rundenbericht'
 import { buildTurnReport, type ReportEntry, type TurnReport } from './report'
 import { MiniMap } from './MiniMap'
 import { TutorialPanel } from './TutorialPanel'
+import { useLocale, useT } from '../../../i18n'
 
 // Typography: Big Shoulders Display (headings), Barlow (UI), IBM Plex Mono (numbers)
 
@@ -51,12 +53,10 @@ const KEY_ZOOM_FACTOR = 1.25
 const DRAG_PREVIEW_MAX_NODES = 2500
 const DRAG_PREVIEW_MAX_DISTANCE = 25
 
-function noReturnText(m: { pathLength: number; fuelAfter: number; returnDist: number }) {
-  if (m.fuelAfter < 0)
-    return `Der Treibstoff reicht nicht bis zum Ziel: ${m.pathLength} Felder, aber nur ${m.pathLength + m.fuelAfter} Treibstoff.`
-  if (!Number.isFinite(m.returnDist))
-    return `Nach diesem Zug bleiben ${m.fuelAfter} Treibstoff, aber es gibt keine eigene Stadt und keinen Träger zum Landen.`
-  return `Nach diesem Zug bleiben ${m.fuelAfter} Treibstoff, die nächste Basis ist ${m.returnDist} ${m.returnDist === 1 ? 'Feld' : 'Felder'} entfernt.`
+function noReturnText(t: Translate, m: { pathLength: number; fuelAfter: number; returnDist: number }) {
+  if (m.fuelAfter < 0) return t('board.fuel.short', { path: m.pathLength, fuel: m.pathLength + m.fuelAfter })
+  if (!Number.isFinite(m.returnDist)) return t('board.fuel.noBase', { fuel: m.fuelAfter })
+  return t('board.fuel.far', { fuel: m.fuelAfter, count: m.returnDist })
 }
 
 export function Spielfeld({
@@ -99,6 +99,8 @@ export function Spielfeld({
   onTutorialSkip,
   onNewMatch,
 }: SpielfeldUndZuegeProps) {
+  const t = useT()
+  const { locale } = useLocale()
   const youId = match.youId
   const focusUi = tutorial?.current?.focus?.ui ?? null
   const you = participants.find((p) => p.id === youId)
@@ -475,7 +477,7 @@ export function Spielfeld({
       // storage unavailable: the report may show again after a reload
     }
   }
-  const reportInput = { events, replay, participants, unitTypes, round: match.round }
+  const reportInput = { events, replay, participants, unitTypes, round: match.round, t }
   const reportInputRef = useRef(reportInput)
   reportInputRef.current = reportInput
   const prevPhaseRef = useRef<string | null>(null)
@@ -977,8 +979,8 @@ export function Spielfeld({
         <button
           type="button"
           onClick={fitMap}
-          aria-label="Karte einpassen"
-          title="Karte einpassen (F)"
+          aria-label={t('board.fit')}
+          title={t('board.fitKey')}
           className="pointer-events-auto flex size-11 items-center justify-center rounded-lg border border-stone-300 bg-white/90 shadow-lg backdrop-blur dark:border-stone-700 dark:bg-stone-900/90"
         >
           <Maximize2 className="size-5" />
@@ -986,7 +988,7 @@ export function Spielfeld({
         <button
           type="button"
           onClick={() => setMinimapOpen((o) => !o)}
-          aria-label="Minikarte ein- oder ausblenden"
+          aria-label={t('board.minimap')}
           aria-pressed={minimapOpen}
           className="pointer-events-auto flex size-11 items-center justify-center rounded-lg border border-stone-300 bg-white/90 shadow-lg backdrop-blur md:hidden dark:border-stone-700 dark:bg-stone-900/90"
         >
@@ -1066,12 +1068,12 @@ export function Spielfeld({
             <Play className="size-4 shrink-0 text-rose-400" />
             <div className="min-w-0">
               <p className="font-['Big_Shoulders_Display'] text-sm font-bold uppercase leading-tight tracking-widest">
-                Gegnerzug ·{' '}
+                {t('board.replay.title')} ·{' '}
                 <span style={{ color: replayActor ? PARTICIPANT_HEX[replayActor.color].base : undefined }}>{replayActor?.name}</span>
               </p>
               <p className="truncate text-xs text-stone-400">
                 {typeById.get(replayAction.unitTypeId)?.name}{' '}
-                {replayAction.action === 'move' ? 'bewegt sich' : replayAction.action === 'attack' ? 'greift an' : 'erobert'}
+                {t(`board.replay.${replayAction.action}`)}
                 {replayAction.result && ` · ${replayAction.result}`}
               </p>
             </div>
@@ -1083,7 +1085,7 @@ export function Spielfeld({
               onClick={() => onSkipReplay?.()}
               className="flex min-h-10 items-center gap-1 rounded-full bg-stone-800 px-3 text-xs font-semibold uppercase tracking-wide hover:bg-stone-700"
             >
-              <SkipForward className="size-4" /> Überspringen
+              <SkipForward className="size-4" /> {t('board.replay.skip')}
             </button>
           </div>
         </div>
@@ -1104,15 +1106,14 @@ export function Spielfeld({
             )}
             <div className="min-w-0">
               <p className="font-['Big_Shoulders_Display'] text-lg font-black uppercase leading-tight tracking-widest">
-                {toast.defenderDestroyed || toast.captured ? 'Sieg' : 'Niederlage'}
+                {toast.defenderDestroyed || toast.captured ? t('board.toast.win') : t('board.toast.loss')}
               </p>
               <p className="text-sm text-stone-300">{toast.message}</p>
               <p className="mt-0.5 font-['IBM_Plex_Mono'] text-[11px] text-stone-400">
-                Schaden: eigene −{toast.attackerDamage} · Gegner −{toast.defenderDamage} TP · {toast.hits.length}{' '}
-                {toast.hits.length === 1 ? 'Runde' : 'Runden'}
+                {t('board.toast.damage', { own: toast.attackerDamage, enemy: toast.defenderDamage, count: toast.hits.length })}
               </p>
             </div>
-            <button type="button" onClick={() => setToast(null)} aria-label="Schließen" className="flex size-9 items-center justify-center rounded text-stone-400 hover:text-stone-100">
+            <button type="button" onClick={() => setToast(null)} aria-label={t('board.close')} className="flex size-9 items-center justify-center rounded text-stone-400 hover:text-stone-100">
               <X className="size-4" />
             </button>
           </div>
@@ -1124,13 +1125,13 @@ export function Spielfeld({
         <div className="absolute inset-x-0 top-16 z-20 flex justify-center px-3 sm:top-4">
           <div className="flex items-center gap-2 rounded-full bg-stone-950/90 py-1 pl-4 pr-1 text-sm text-stone-200 shadow-xl">
             <Trophy className={`size-4 ${outcome === 'victory' ? 'text-teal-400' : outcome === 'defeat' ? 'text-rose-400' : 'text-stone-400'}`} />
-            Beendet · {OUTCOME_STYLE[outcome].label}
+            {t('board.endedPill', { outcome: { key: OUTCOME_STYLE[outcome].label } })}
             <button
               type="button"
               onClick={() => setResultOpen(true)}
               className="ml-1 rounded-full bg-stone-800 px-3 py-1.5 font-['Big_Shoulders_Display'] text-xs font-bold uppercase tracking-widest text-amber-300 hover:bg-stone-700"
             >
-              Ergebnis
+              {t('board.result')}
             </button>
           </div>
         </div>
@@ -1142,7 +1143,7 @@ export function Spielfeld({
           {match.phase === 'waiting' && (
             <div className="flex items-center gap-2 rounded-full bg-stone-950/90 px-4 py-2 text-sm text-stone-200 shadow-xl">
               <Hourglass className="size-4 animate-pulse text-amber-400" />
-              Warte auf {waitingFor.join(' & ')} …
+              {t('board.waitingFor', { names: waitingFor.join(' & ') })}
             </div>
           )}
           {dominance && (
@@ -1155,12 +1156,11 @@ export function Spielfeld({
               }`}
             >
               <Crown className="size-4 text-amber-400" />
-              Vorherrschaft:{' '}
+              {t('board.dominance')}{' '}
               {dominance.participantId === youId
-                ? 'du'
-                : (participantById.get(dominance.participantId)?.name ?? 'Unbekannt')}{' '}
-              · {Math.floor(dominance.share * 100)} % der Städte · noch{' '}
-              {dominance.turnsLeft === 1 ? '1 Runde' : `${dominance.turnsLeft} Runden`}
+                ? t('board.you')
+                : (participantById.get(dominance.participantId)?.name ?? t('board.unknown'))}{' '}
+              · {t('board.dominanceShare', { share: Math.floor(dominance.share * 100), count: dominance.turnsLeft })}
             </div>
           )}
         </div>
@@ -1244,22 +1244,22 @@ export function Spielfeld({
       {pendingMove && (
         <div className="absolute inset-x-0 bottom-24 z-30 flex justify-center px-3 md:bottom-28">
           <div role="alertdialog" aria-labelledby="dos-fuel-title" className="w-full max-w-sm rounded-xl border border-rose-500/60 bg-stone-950/95 p-4 text-stone-100 shadow-2xl">
-            <p id="dos-fuel-title" className="font-['Big_Shoulders_Display'] text-xs font-bold uppercase tracking-[0.25em] text-rose-400">Kein Rückweg</p>
-            <p className="mt-1 text-sm">{noReturnText(pendingMove)}</p>
+            <p id="dos-fuel-title" className="font-['Big_Shoulders_Display'] text-xs font-bold uppercase tracking-[0.25em] text-rose-400">{t('board.noReturn')}</p>
+            <p className="mt-1 text-sm">{noReturnText(t, pendingMove)}</p>
             <div className="mt-3 flex gap-2">
               <button
                 type="button"
                 onClick={() => setPendingMove(null)}
                 className="min-h-11 flex-1 rounded-md border border-stone-600 text-sm font-semibold hover:bg-stone-800"
               >
-                Abbrechen
+                {t('board.cancel')}
               </button>
               <button
                 type="button"
                 onClick={() => sendMove(pendingMove.unitId, pendingMove.target, pendingMove.inReach)}
                 className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-md bg-rose-600 text-sm font-bold uppercase tracking-wider text-white hover:bg-rose-500"
               >
-                <Fuel className="size-4" /> Trotzdem fliegen
+                <Fuel className="size-4" /> {t('board.flyAnyway')}
               </button>
             </div>
           </div>
@@ -1270,7 +1270,7 @@ export function Spielfeld({
       {pendingAttack && attacker && (
         <div className="absolute inset-x-0 bottom-24 z-30 flex justify-center px-3 md:bottom-28">
           <div className="w-full max-w-sm rounded-xl border border-rose-500/60 bg-stone-950/95 p-4 text-stone-100 shadow-2xl">
-            <p className="font-['Big_Shoulders_Display'] text-xs font-bold uppercase tracking-[0.25em] text-rose-400">Angriff</p>
+            <p className="font-['Big_Shoulders_Display'] text-xs font-bold uppercase tracking-[0.25em] text-rose-400">{t('board.attack.title')}</p>
             <p className="mt-0.5 text-sm">
               {typeById.get(attacker.unitTypeId)?.name} → <strong>{defenderName}</strong>
             </p>
@@ -1283,31 +1283,33 @@ export function Spielfeld({
               </div>
               <span className="font-['IBM_Plex_Mono'] text-lg font-semibold">{Math.round(pendingAttack.target.odds.killChance * 100)} %</span>
             </div>
-            <p className="text-xs text-stone-400">{pendingAttack.target.cityId ? 'Eroberungschance' : 'Siegchance'}</p>
+            <p className="text-xs text-stone-400">{pendingAttack.target.cityId ? t('board.attack.captureChance') : t('board.attack.winChance')}</p>
             {pendingAttack.target.defender ? (
               <p className="mt-1 font-['IBM_Plex_Mono'] text-[11px] text-stone-400">
-                Trefferchance je Runde {Math.round(pendingAttack.target.odds.hitChance * 100)} % · Schaden je Treffer: eigene{' '}
-                {pendingAttack.target.attacker.damage}, Gegner {pendingAttack.target.defender.damage} TP · Erwarteter eigener Verlust −
-                {pendingAttack.target.odds.expectedDamageTaken.toFixed(1)} TP
+                {t('board.attack.details', {
+                  hit: Math.round(pendingAttack.target.odds.hitChance * 100),
+                  own: pendingAttack.target.attacker.damage,
+                  enemy: pendingAttack.target.defender.damage,
+                  loss: formatNumber(locale, pendingAttack.target.odds.expectedDamageTaken, { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+                })}
               </p>
             ) : (
               <p className="mt-1 text-xs text-amber-300">
-                Die Einheit wird dabei verbraucht
                 {typeById.get(attacker.unitTypeId)!.hitPoints > 1 && attacker.hp === typeById.get(attacker.unitTypeId)!.hitPoints
-                  ? ' und hinterlässt bei Erfolg Grenadiere in der Stadt.'
-                  : '.'}
+                  ? t('board.attack.spentGarrison')
+                  : t('board.attack.spent')}
               </p>
             )}
             {(attackDetails.modifiers.length > 0 || attackDetails.approach > 0) && (
               <p className="mt-1 text-xs text-stone-400">
                 {attackDetails.modifiers.length > 0 && (
                   <>
-                    Verteidiger: {attackDetails.modifiers.map((m) => `${m.label} +${m.value}`).join(' · ')}
+                    {t('board.attack.defender', { mods: attackDetails.modifiers.map((m) => `${t(m.label)} +${m.value}`).join(' · ') })}
                   </>
                 )}
                 {attackDetails.modifiers.length > 0 && attackDetails.approach > 0 && ' · '}
                 {attackDetails.approach > 0 &&
-                  `Fährt ${attackDetails.approach} ${attackDetails.approach === 1 ? 'Feld' : 'Felder'} heran`}
+                  t('board.attack.approach', { count: attackDetails.approach })}
               </p>
             )}
             <div className="mt-3 flex gap-2">
@@ -1316,14 +1318,14 @@ export function Spielfeld({
                 onClick={() => setPendingAttack(null)}
                 className="min-h-11 flex-1 rounded-md border border-stone-600 text-sm font-semibold hover:bg-stone-800"
               >
-                Abbrechen
+                {t('board.cancel')}
               </button>
               <button
                 type="button"
                 onClick={confirmAttack}
                 className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-md bg-rose-600 text-sm font-bold uppercase tracking-wider text-white hover:bg-rose-500"
               >
-                <Swords className="size-4" /> Angreifen
+                <Swords className="size-4" /> {t('board.attack.confirm')}
               </button>
             </div>
           </div>
@@ -1339,13 +1341,13 @@ export function Spielfeld({
         <button
           type="button"
           onClick={nextUnit}
-          title="Nächste Einheit (N oder Leertaste)"
+          title={t('board.nextUnit')}
           disabled={!canAct || pendingOrders.length === 0}
           className="flex min-h-12 items-center gap-2 rounded-lg px-3 text-stone-200 transition-colors hover:bg-stone-800 disabled:opacity-40"
         >
           <Crosshair className="size-5" />
           <span className="whitespace-nowrap font-['Big_Shoulders_Display'] text-sm font-bold uppercase tracking-widest">
-            Nächste<span className="hidden sm:inline"> Einheit</span>
+            {t('board.next')}<span className="hidden sm:inline">{t('board.unitSuffix')}</span>
           </span>
           <span className="rounded bg-stone-800 px-1.5 font-['IBM_Plex_Mono'] text-xs text-amber-300">{pendingOrders.length}</span>
         </button>
@@ -1356,7 +1358,7 @@ export function Spielfeld({
           data-tutorial-focus={focusUi === 'endTurn' ? '' : undefined}
           className="min-h-12 whitespace-nowrap rounded-lg bg-gradient-to-b from-amber-400 to-amber-600 px-5 font-['Big_Shoulders_Display'] text-base font-black uppercase tracking-[0.18em] text-stone-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition hover:from-amber-300 hover:to-amber-500 disabled:from-stone-600 disabled:to-stone-700 disabled:text-stone-400"
         >
-          {result ? 'Partie beendet' : 'Zug beenden'}
+          {result ? t('board.matchEnded') : t('board.endTurn')}
         </button>
       </div>
 
@@ -1365,23 +1367,29 @@ export function Spielfeld({
         <div className="absolute inset-0 z-40 flex items-end justify-center bg-stone-950/50 p-3 sm:items-center">
           <div role="alertdialog" aria-labelledby="dos-end-title" className="w-full max-w-sm rounded-xl border border-stone-300 bg-white p-5 shadow-2xl dark:border-stone-700 dark:bg-stone-900">
             <h2 id="dos-end-title" className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wider">
-              Zug beenden?
+              {t('board.endTurnQ')}
             </h2>
             {askPending && (
               <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
-                {pendingOrders.length} {pendingOrders.length === 1 ? 'Einheit hat' : 'Einheiten haben'} in dieser Runde noch keine Befehle.
+                {t('board.pendingOrders', { count: pendingOrders.length })}
               </p>
             )}
             {stranded.length > 0 && (
               <p className="mt-1 text-sm text-rose-700 dark:text-rose-300">
-                {stranded.length === 1 ? 'Ein Flugzeug erreicht' : `${stranded.length} Flugzeuge erreichen`} mit dem Treibstoff keine Basis mehr:{' '}
-                {stranded
-                  .map(
-                    ({ unit: u, returnDist }) =>
-                      `${typeById.get(u.unitTypeId)?.name ?? u.unitTypeId} bei ${u.col},${u.row} (Treibstoff ${u.fuel}, Basis ${Number.isFinite(returnDist) ? `${returnDist} Felder` : 'unerreichbar'})`,
-                  )
-                  .join(', ')}
-                .
+                {t('board.stranded', {
+                  count: stranded.length,
+                  list: stranded
+                    .map(({ unit: u, returnDist }) =>
+                      t('board.strandedUnit', {
+                        name: typeById.get(u.unitTypeId)?.name ?? u.unitTypeId,
+                        col: u.col,
+                        row: u.row,
+                        fuel: u.fuel ?? 0,
+                        base: Number.isFinite(returnDist) ? t('board.baseTiles', { count: returnDist }) : t('board.unreachable'),
+                      }),
+                    )
+                    .join(', '),
+                })}
               </p>
             )}
             <div className="mt-4 flex gap-2">
@@ -1397,14 +1405,14 @@ export function Spielfeld({
                 }}
                 className="min-h-11 flex-1 rounded-md border border-stone-300 text-sm font-semibold hover:border-teal-500 dark:border-stone-600"
               >
-                Zu den Einheiten
+                {t('board.toUnits')}
               </button>
               <button
                 type="button"
                 onClick={handleEndTurn}
                 className="min-h-11 flex-1 rounded-md bg-amber-500 text-sm font-bold uppercase tracking-wider text-stone-950 hover:bg-amber-400"
               >
-                Trotzdem beenden
+                {t('board.endAnyway')}
               </button>
             </div>
           </div>

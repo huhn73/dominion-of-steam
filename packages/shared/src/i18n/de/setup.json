@@ -1,0 +1,144 @@
+{
+  "size": {
+    "small": "Klein",
+    "medium": "Mittel",
+    "large": "Groß",
+    "huge": "Riesig",
+    "empire": "Imperium"
+  },
+  "sizeDims": "{width}×{height}",
+  "shape": {
+    "continent": {
+      "label": "Kontinent",
+      "description": "Eine große Landmasse mit Buchten und ein paar vorgelagerten Inseln."
+    },
+    "islands": {
+      "label": "Inseln",
+      "description": "Jede Hauptstadt auf einer eigenen Insel, dazwischen neutrale Inseln."
+    },
+    "archipelago": {
+      "label": "Archipel",
+      "description": "Viele kleine Inseln, Seewege entscheiden; am besten mit 20 bis 30 % Land."
+    }
+  },
+  "land": {
+    "min": "Wenig Land",
+    "max": "Viel Land"
+  },
+  "level": {
+    "low": "Wenig",
+    "normal": "Normal",
+    "high": "Viel"
+  },
+  "hours": "{count} Stunden",
+  "minutes": "{count} Minuten",
+  "off": "Aus",
+  "noTimeLimit": "Ohne Zeitlimit",
+  "rounds": "{count} Runden",
+  "noRoundLimit": "Ohne Limit",
+  "victory": {
+    "elimination": {
+      "label": "Alle Gegner besiegen",
+      "description": "Gewonnen hat, wer als Letzter noch Städte besitzt."
+    },
+    "capitals": {
+      "label": "Hauptstädte erobern",
+      "description": "Gewonnen hat, wer alle gegnerischen Hauptstädte hält."
+    },
+    "dominance": {
+      "label": "Vorherrschaft",
+      "description": "Gewonnen hat, wer fünf eigene Runden in Folge die Mehrheit aller Städte hält: 60 % auf dem Kontinent, 50 % auf Inseln und Archipel. Passt zu Inselwelten, wo kaum jemand ganz ausgeschaltet wird."
+    },
+    "roundLimit": {
+      "label": "Rundenlimit",
+      "description": "Nach der letzten Runde gewinnt, wer die meisten Punkte für Städte und Einheiten hat."
+    }
+  },
+  "victoryWithRounds": "Rundenlimit · {count} Runden",
+  "style": {
+    "Aggressiv": "Aggressiv",
+    "Seekrieg": "Seekrieg",
+    "Expansiv": "Expansiv",
+    "Wirtschaft": "Wirtschaft",
+    "Defensiv": "Defensiv",
+    "Landkrieg": "Landkrieg",
+    "Offensiv": "Offensiv",
+    "Aufklärung": "Aufklärung",
+    "Luftkrieg": "Luftkrieg",
+    "Befestigung": "Befestigung"
+  },
+  "ai": {
+    "kessler": {
+      "title": "Großadmiral der Republik",
+      "description": "Sucht früh die Entscheidungsschlacht auf See und blockiert gegnerische Küsten."
+    },
+    "varenne": {
+      "title": "Handelsministerin",
+      "description": "Besetzt neutrale Inseln schneller als alle anderen und meidet offene Kriege, solange sie wächst."
+    },
+    "brandt": {
+      "title": "Vorsitzender des Hammerhauses",
+      "description": "Baut seine Städte zu Festungen aus und rückt erst vor, wenn genug Dampfkolosse bereitstehen. Wer ihn zu früh angreift, beißt sich an seinen Mauern die Zähne aus; wer ihn zu lange gewähren lässt, sieht sich einer Walze aus Stahl gegenüber, die Stadt um Stadt einnimmt."
+    },
+    "eisenhart": {
+      "title": "Oberbefehlshaberin der Zechengarde",
+      "description": "Setzt auf schnelle Panzerwagen-Vorstöße und greift schwach verteidigte Städte sofort an."
+    },
+    "halvorsen": {
+      "title": "Flottenkapitänin der Wolkenflotte",
+      "description": "Kennt die Karte früher als alle anderen und schlägt dort zu, wo die Verteidigung dünn ist."
+    },
+    "lindqvist": {
+      "title": "Werftmeister von Nordhavn",
+      "description": "Spielt abwartend und reagiert auf Bedrohungen."
+    },
+    "ostrow": {
+      "title": "Festungskommandant von Salzwacht",
+      "description": "Hält, was er hat, und verteidigt seine Küsten bis zum letzten Mann."
+    }
+  },
+  "step": {
+    "rules": "Modus & Regeln",
+    "faction": "Deine Fraktion",
+    "players": "Gegner & Mitspieler",
+    "map": "Karte",
+    "summary": "Übersicht"
+  },
+  "block": {
+    "name": "Gib der Partie einen Namen.",
+    "faction": "Wähle deine Fraktion.",
+    "seed": "Gib einen Kartencode ein oder würfle einen neuen.",
+    "seats": "Lege für jeden Platz fest, wer ihn besetzt, oder lass freie Plätze mit KI auffüllen.",
+    "aiSameFaction": "Zwei KI-Gegner führen dieselbe Fraktion. Doppelte Fraktionen sind nicht erlaubt.",
+    "aiYourFaction": "Ein KI-Gegner führt deine Fraktion. Wähle eine andere KI-Persönlichkeit oder erlaube doppelte Fraktionen."
+  },
+  "warn": {
+    "tooMany": "{count} Spieler sind viel für die Kartengröße „{size}“ (empfohlen bis {max}).",
+    "waits": "Die Partie wartet in der Lobby, bis alle eingeladenen und offenen Plätze besetzt sind.",
+    "live": "Live-Partien starten erst, wenn alle Mitspieler beigetreten sind.",
+    "solo": "Nur KI-Gegner: Die Partie startet sofort als Solo-Partie."
+  },
+  "invalid": {
+    "incomplete": "Die Angaben zur Partie sind unvollständig.",
+    "nameLong": "Der Name darf höchstens {max} Zeichen lang sein.",
+    "mode": "Wähle einen Modus.",
+    "asyncLimit": "Diese Frist pro Zug gibt es nicht.",
+    "liveLimit": "Dieses Zeitlimit pro Zug gibt es nicht.",
+    "victory": "Diese Siegbedingung gibt es nicht.",
+    "rounds": "Diese Rundenzahl gibt es nicht.",
+    "roundsNeeded": "Mit der Siegbedingung Rundenlimit brauchst du eine Rundenzahl.",
+    "size": "Diese Kartengröße gibt es nicht.",
+    "landShare": "Der Landanteil muss zwischen {min} und {max} % liegen.",
+    "mapSetting": "Diese Karteneinstellung gibt es nicht.",
+    "seedChars": "Der Kartencode darf nur A–Z, 0–9 und „-“ enthalten (höchstens 16 Zeichen).",
+    "seat": "Ein Platz ist ungültig.",
+    "seatCount": "Eine Partie hat {min} bis {max} Plätze.",
+    "firstSeat": "Platz 1 gehört dir.",
+    "faction": "Diese Fraktion gibt es nicht.",
+    "friendsOnly": "Du kannst nur Spieler aus deiner Freundesliste einladen.",
+    "friendTwice": "Jeden Freund kannst du nur einmal einladen.",
+    "ai": "Diese KI-Persönlichkeit gibt es nicht.",
+    "aiTwice": "Jede KI-Persönlichkeit kann nur einen Platz besetzen.",
+    "tooManyNoDuplicates": "Ohne doppelte Fraktionen sind höchstens {max} Plätze möglich. Entferne Plätze oder erlaube doppelte Fraktionen."
+  }
+}

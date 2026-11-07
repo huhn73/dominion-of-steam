@@ -7,6 +7,8 @@ import type {
   UnitType,
 } from '../types'
 
+import { translator, type Translate } from '@dos/shared/i18n'
+
 // Turn report: the events and seen opponent actions since the last own turn, grouped for the
 // report card at the start of a turn. Pure, so it can be tested without the map.
 
@@ -50,15 +52,6 @@ const SECTION_OF: Record<GameEventType, ReportSectionId> = {
   capitulation: 'cities',
 }
 
-const TITLES: Record<ReportSectionId, string> = {
-  losses: 'Verluste',
-  cities: 'Städte',
-  combat: 'Gefechte',
-  sightings: 'Entdeckt',
-  enemyMoves: 'Gegnerbewegungen',
-  home: 'Eigenes Reich',
-}
-
 const ORDER: ReportSectionId[] = ['losses', 'cities', 'combat', 'sightings', 'enemyMoves', 'home']
 
 export function buildTurnReport({
@@ -67,7 +60,10 @@ export function buildTurnReport({
   participants,
   unitTypes,
   round,
+  t = translator('de'),
 }: {
+  /** Language of the texts; German by default */
+  t?: Translate
   events: GameEvent[]
   replay: ReplayAction[]
   participants: Participant[]
@@ -94,7 +90,9 @@ export function buildTurnReport({
     const end = r.path[r.path.length - 1]
     if (!end) continue
     const verb =
-      r.action === 'move' ? `nach ${end.col},${end.row}` : r.action === 'attack' ? 'greift an' : 'erobert'
+      r.action === 'move'
+        ? t('board.moveTo', { col: end.col, row: end.row })
+        : t(`board.replay.${r.action}`)
     push('enemyMoves', {
       key: r.id,
       icon: r.action,
@@ -107,7 +105,7 @@ export function buildTurnReport({
 
   const sections = ORDER.filter((id) => entries.has(id)).map((id) => ({
     id,
-    title: TITLES[id],
+    title: t(`board.section.${id}`),
     entries: entries.get(id)!,
   }))
   return { round, sections, isEmpty: sections.length === 0 }

@@ -5,16 +5,10 @@ import { DOMAIN_LABEL, FACTION_HEX, bonusEffect } from './theme'
 import { UnitIcon } from './unitIcons'
 import { UnitRow } from './UnitRow'
 import { unitImageCandidates, useFirstLoadedImage, useImageLoaded } from './useImageLoaded'
-
-const STAT_LABEL = {
-  movement: 'Bewegung',
-  range: 'Reichweite',
-  productionTurns: 'Bauzeit',
-  strength: 'Stärke',
-  defense: 'Abwehr',
-} as const
+import { useT } from '../../../i18n'
 
 export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }: FraktionDetailProps) {
+  const t = useT()
   const c = FACTION_HEX[faction.color]
   const special = unitTypes.find((u) => u.id === faction.specialUnitTypeId) ?? null
   const general = unitTypes.filter((u) => u.factionId === null)
@@ -64,12 +58,12 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
             onClick={onBack}
             className="mb-8 flex min-h-11 items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white/80 hover:text-white"
           >
-            <ArrowLeft className="size-4" /> Zurück
+            <ArrowLeft className="size-4" /> {t('compendium.back')}
           </button>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end">
             <FactionEmblem faction={faction} className="size-28 shrink-0 drop-shadow-2xl sm:size-36" />
             <div className="min-w-0 text-white">
-              <p className="mb-2 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-white/70">Fraktion</p>
+              <p className="mb-2 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-white/70">{t('compendium.faction')}</p>
               <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-[0.9] tracking-wide sm:text-7xl">
                 {faction.name}
               </h1>
@@ -83,7 +77,7 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
         {/* History */}
         <section aria-labelledby="history-heading">
           <h2 id="history-heading" className="mb-4 font-['Big_Shoulders_Display'] text-3xl font-black uppercase tracking-wide">
-            Geschichte
+            {t('compendium.history')}
           </h2>
           <div className="space-y-4 text-[17px] leading-relaxed text-stone-700 dark:text-stone-300">
             {paragraphs.map((p, i) => (
@@ -107,7 +101,7 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
           <div className="overflow-hidden rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
             <div className="flex items-center gap-2 border-b-4 border-double border-stone-200 px-5 py-3 dark:border-stone-800">
               <Sparkles className="size-4 text-amber-600" />
-              <h2 className="font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">Eigenheit</h2>
+              <h2 className="font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">{t('compendium.trait')}</h2>
             </div>
             <div className="p-5">
               <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide" style={{ color: c.base }}>
@@ -116,14 +110,17 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
               <p className="mt-1 text-stone-700 dark:text-stone-300">{bonus.description}</p>
               <p className="mt-3 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-stone-500">
                 {bonus.stat
-                  ? `Wirkt auf ${bonus.domain ? `${DOMAIN_LABEL[bonus.domain]}einheiten` : 'alle Einheiten'} · ${STAT_LABEL[bonus.stat]}`
-                  : 'Wirkt auf Städte, nicht auf Einheiten'}
+                  ? t('compendium.affects', {
+                      target: { key: bonus.domain ? `compendium.domainUnits.${bonus.domain}` : 'compendium.allUnits' },
+                      stat: { key: `compendium.stat.${bonus.stat}` },
+                    })
+                  : t('compendium.affectsCities')}
               </p>
             </div>
           </div>
 
           <div className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-            <h2 className="mb-3 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">Spielstil</h2>
+            <h2 className="mb-3 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">{t('compendium.playstyle')}</h2>
             <div className="mb-3 flex flex-wrap gap-1.5">
               {faction.playstyle.map((p) => (
                 <span key={p} className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-teal-800 dark:bg-teal-950 dark:text-teal-300">
@@ -176,7 +173,7 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
               )}
               <span className="relative min-w-0 flex-1">
                 <span className="font-['IBM_Plex_Mono'] text-[11px] uppercase tracking-[0.3em]" style={{ color: c.base }}>
-                  Sondereinheit · {DOMAIN_LABEL[special.domain]}
+                  {t('compendium.specialDomain', { domain: { key: DOMAIN_LABEL[special.domain] } })}
                 </span>
                 <span className="block font-['Big_Shoulders_Display'] text-4xl font-black uppercase tracking-wide">{special.name}</span>
                 <span className="mt-1 line-clamp-2 text-sm text-stone-400">{special.description}</span>
@@ -184,10 +181,10 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
               <span className="relative grid grid-cols-4 gap-2 font-['IBM_Plex_Mono'] sm:grid-cols-2">
                 {(
                   [
-                    ['ST', 'strength'],
-                    ['AB', 'defense'],
-                    ['BW', 'movement'],
-                    ['BAU', 'productionTurns'],
+                    [t('compendium.abbr.strength'), 'strength'],
+                    [t('compendium.abbr.defense'), 'defense'],
+                    [t('compendium.abbr.movement'), 'movement'],
+                    [t('compendium.abbr.productionTurns'), 'productionTurns'],
                   ] as const
                 ).map(([l, key]) => {
                   const changed = specialBonus?.stat === key ? specialBonus : null
@@ -214,9 +211,9 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
             <div className="mb-8 flex items-start gap-4 rounded-xl border-2 border-dashed border-stone-300 p-6 dark:border-stone-700">
               <Castle className="mt-1 size-8 shrink-0" style={{ color: c.base }} />
               <div>
-                <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">Keine Sondereinheit</p>
+                <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">{t('compendium.noSpecial')}</p>
                 <p className="mt-1 text-stone-600 dark:text-stone-400">
-                  Die Stärke der {faction.name} liegt nicht in einer besonderen Einheit. {faction.trait}
+                  {t('compendium.noSpecialText', { name: faction.name, trait: faction.trait })}
                 </p>
               </div>
             </div>
@@ -224,12 +221,12 @@ export function FraktionDetail({ faction, unitTypes, onSelectUnitType, onBack }:
 
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="font-['Big_Shoulders_Display'] text-xl font-bold uppercase tracking-widest text-stone-600 dark:text-stone-400">
-              Allgemeine Einheiten
+              {t('compendium.generalUnits')}
             </h3>
             {bonus.stat && (
               <p className="flex items-center gap-1.5 text-xs text-stone-500">
                 <span className="inline-block size-2.5 rounded-sm border border-amber-400 bg-amber-100 dark:bg-amber-900" />
-                Durch „{bonus.label}“ veränderter Wert
+                {t('compendium.changedBy', { bonus: bonus.label })}
               </p>
             )}
           </div>

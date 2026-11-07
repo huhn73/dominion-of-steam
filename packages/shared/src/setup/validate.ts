@@ -1,3 +1,4 @@
+import type { Message, MessageKey } from '../i18n'
 // Prüfung eines MatchDraft auf dem Server: dieselben Regeln wie stepBlocker im Assistenten,
 // dazu Form, erlaubte Werte, Freunde und Fraktionsregel
 import { SEED_PATTERN } from '../game/seed'
@@ -8,7 +9,7 @@ import { DEFAULT_WORLD_SHAPE, isWorldShape } from '../game/worldShapes'
 
 export const MATCH_NAME_MAX = 40
 
-export type DraftValidation = { ok: true; draft: MatchDraft } | { ok: false; message: string }
+export type DraftValidation = { ok: true; draft: MatchDraft } | { ok: false; message: Message }
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
@@ -40,7 +41,10 @@ function parseSeat(raw: unknown): Seat | null {
   }
 }
 
-const fail = (message: string): DraftValidation => ({ ok: false, message })
+const fail = (key: MessageKey, params?: Message['params']): DraftValidation => ({
+  ok: false,
+  message: { key, params },
+})
 
 /**
  * Validate a draft sent by a client. `friendIds` are the friends of the creating player.
@@ -48,33 +52,33 @@ const fail = (message: string): DraftValidation => ({ ok: false, message })
  */
 export function validateDraft(input: unknown, friendIds: Set<string>): DraftValidation {
   if (!isObject(input) || !isObject(input.map) || !Array.isArray(input.seats))
-    return fail('Die Angaben zur Partie sind unvollständig.')
+    return fail('setup.invalid.incomplete')
   const m = input.map
   const o = SETUP_OPTIONS
 
-  if (typeof input.name !== 'string') return fail('Gib der Partie einen Namen.')
+  if (typeof input.name !== 'string') return fail('setup.block.name')
   const name = input.name.trim()
   if (name.length > MATCH_NAME_MAX)
-    return fail(`Der Name darf höchstens ${MATCH_NAME_MAX} Zeichen lang sein.`)
+    return fail('setup.invalid.nameLong', { max: MATCH_NAME_MAX })
 
-  if (input.mode !== 'live' && input.mode !== 'async') return fail('Wähle einen Modus.')
+  if (input.mode !== 'live' && input.mode !== 'async') return fail('setup.invalid.mode')
   if (!o.asyncTurnLimits.some((l) => l.hours === input.asyncTurnLimitHours))
-    return fail('Diese Frist pro Zug gibt es nicht.')
+    return fail('setup.invalid.asyncLimit')
   if (!o.liveTurnLimits.some((l) => l.minutes === input.liveTurnLimitMinutes))
-    return fail('Dieses Zeitlimit pro Zug gibt es nicht.')
+    return fail('setup.invalid.liveLimit')
   if (!o.victoryConditions.some((v) => v.id === input.victoryCondition))
-    return fail('Diese Siegbedingung gibt es nicht.')
+    return fail('setup.invalid.victory')
   if (!o.roundLimits.includes(input.roundLimit as number | null))
-    return fail('Diese Rundenzahl gibt es nicht.')
+    return fail('setup.invalid.rounds')
   if (input.victoryCondition === 'roundLimit' && input.roundLimit === null)
-    return fail('Mit der Siegbedingung Rundenlimit brauchst du eine Rundenzahl.')
+    return fail('setup.invalid.roundsNeeded')
   if (
     typeof input.allowDuplicateFactions !== 'boolean' ||
     typeof input.fillEmptyWithAI !== 'boolean'
   )
-    return fail('Die Angaben zur Partie sind unvollständig.')
+    return fail('setup.invalid.incomplete')
 
-  if (!o.mapSizes.some((s) => s.id === m.size)) return fail('Diese Kartengröße gibt es nicht.')
+  if (!o.mapSizes.some((s) => s.id === m.size)) return fail('setup.invalid.size')
   const share = m.landShare
   if (
     typeof share !== 'number' ||
@@ -82,27 +86,27 @@ export function validateDraft(input: unknown, friendIds: Set<string>): DraftVali
     share > o.landShare.max ||
     (share - o.landShare.min) % o.landShare.step !== 0
   )
-    return fail(`Der Landanteil muss zwischen ${o.landShare.min} und ${o.landShare.max} % liegen.`)
+    return fail('setup.invalid.landShare', { min: o.landShare.min, max: o.landShare.max })
   if (!LEVELS.includes(m.neutralCities as never) || !LEVELS.includes(m.terrain as never))
-    return fail('Diese Karteneinstellung gibt es nicht.')
+    return fail('setup.invalid.mapSetting')
   // Older drafts have no world shape yet: they are continents
   const worldShape = m.worldShape ?? DEFAULT_WORLD_SHAPE
-  if (!isWorldShape(worldShape)) return fail('Diese Karteneinstellung gibt es nicht.')
-  if (typeof m.seed !== 'string') return fail('Gib einen Kartencode ein oder würfle einen neuen.')
+  if (!isWorldShape(worldShape)) return fail('setup.invalid.mapSetting')
+  if (typeof m.seed !== 'string') return fail('setup.block.seed')
   const seed = m.seed.trim()
   if (seed && !SEED_PATTERN.test(seed))
-    return fail('Der Kartencode darf nur A–Z, 0–9 und „-“ enthalten (höchstens 16 Zeichen).')
+    return fail('setup.invalid.seedChars')
 
   const seats = input.seats.map(parseSeat)
-  if (seats.some((s) => s === null)) return fail('Ein Platz ist ungültig.')
+  if (seats.some((s) => s === null)) return fail('setup.invalid.seat')
   if (seats.length < MIN_SEATS || seats.length > MAX_SEATS)
-    return fail(`Eine Partie hat ${MIN_SEATS} bis ${MAX_SEATS} Plätze.`)
+    return fail('setup.invalid.seatCount', { min: MIN_SEATS, max: MAX_SEATS })
   if (seats[0]!.kind !== 'you' || seats.slice(1).some((s) => s!.kind === 'you'))
-    return fail('Platz 1 gehört dir.')
+    return fail('setup.invalid.firstSeat')
 
   const factionId = input.factionId
   if (factionId !== null && !SETUP_FACTIONS.some((f) => f.id === factionId))
-    return fail('Diese Fraktion gibt es nicht.')
+    return fail('setup.invalid.faction')
 
   const draft: MatchDraft = {
     name,
@@ -128,25 +132,23 @@ export function validateDraft(input: unknown, friendIds: Set<string>): DraftVali
   // Dieselben Blocker wie im Assistenten, Schritt für Schritt
   for (let step = 0; step < STEPS.length; step++) {
     const blocker = stepBlocker(step, draft, AI_PERSONALITIES)
-    if (blocker) return fail(blocker)
+    if (blocker) return fail(blocker.key, blocker.params)
   }
 
   const friendSeats = draft.seats.flatMap((s) => (s.kind === 'friend' ? [s.friendId] : []))
   if (friendSeats.some((id) => !friendIds.has(id)))
-    return fail('Du kannst nur Spieler aus deiner Freundesliste einladen.')
+    return fail('setup.invalid.friendsOnly')
   if (new Set(friendSeats).size !== friendSeats.length)
-    return fail('Jeden Freund kannst du nur einmal einladen.')
+    return fail('setup.invalid.friendTwice')
 
   const aiIds = draft.seats.flatMap((s) => (s.kind === 'ai' ? [s.personalityId] : []))
   if (aiIds.some((id) => !AI_PERSONALITIES.some((p) => p.id === id)))
-    return fail('Diese KI-Persönlichkeit gibt es nicht.')
+    return fail('setup.invalid.ai')
   if (new Set(aiIds).size !== aiIds.length)
-    return fail('Jede KI-Persönlichkeit kann nur einen Platz besetzen.')
+    return fail('setup.invalid.aiTwice')
 
   if (!draft.allowDuplicateFactions && draft.seats.length > SETUP_FACTIONS.length)
-    return fail(
-      `Ohne doppelte Fraktionen sind höchstens ${SETUP_FACTIONS.length} Plätze möglich. Entferne Plätze oder erlaube doppelte Fraktionen.`,
-    )
+    return fail('setup.invalid.tooManyNoDuplicates', { max: SETUP_FACTIONS.length })
 
   return { ok: true, draft }
 }

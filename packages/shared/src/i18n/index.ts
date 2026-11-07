@@ -40,12 +40,14 @@ function pluralForm(locale: Locale, count: number): keyof Plural {
   return rules.select(count) === 'one' ? 'one' : 'other'
 }
 
-/** Fill `{name}` placeholders; unknown placeholders stay visible */
-export function interpolate(text: string, params?: Params) {
+/** Fill `{name}` placeholders; unknown placeholders stay visible, nested messages are translated */
+export function interpolate(text: string, params?: Params, locale: Locale = DEFAULT_LOCALE) {
   if (!params) return text
-  return text.replace(/\{(\w+)\}/g, (match, name: string) =>
-    name in params ? String(params[name]) : match,
-  )
+  return text.replace(/\{(\w+)\}/g, (match, name: string) => {
+    const value = params[name]
+    if (value === undefined) return match
+    return typeof value === 'object' ? translate(locale, value.key, value.params) : String(value)
+  })
 }
 
 /**
@@ -57,17 +59,24 @@ export function translate(locale: Locale, key: MessageKey | string, params?: Par
   if (entry === undefined) return key
   const text =
     typeof entry === 'string' ? entry : entry[pluralForm(locale, Number(params?.count ?? 0))]
-  return interpolate(text, params)
+  return interpolate(text, params, locale)
 }
 
 export function translateMessage(locale: Locale, message: Message) {
   return translate(locale, message.key, message.params)
 }
 
-export type Translate = (key: MessageKey, params?: Params) => string
+/** `t('a.b', params)` or `t(message)` */
+export interface Translate {
+  (key: MessageKey, params?: Params): string
+  (message: Message): string
+}
 
 export function translator(locale: Locale): Translate {
-  return (key, params) => translate(locale, key, params)
+  return ((key: MessageKey | Message, params?: Params) =>
+    typeof key === 'string'
+      ? translate(locale, key, params)
+      : translate(locale, key.key, key.params)) as Translate
 }
 
 export function dictionary(locale: Locale): Dictionary {

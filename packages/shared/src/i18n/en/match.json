@@ -15,5 +15,10 @@
     "replay": "Enemy moves",
     "aiMoving": "{name} (AI) is moving …",
     "waiting": "Waiting for opponents"
-  }
+  },
+  "notFound": "Match not found",
+  "loadFailed": "The match could not be loaded",
+  "gone": "This match does not exist (any more).",
+  "rejected": "Action rejected:",
+  "closeHint": "Close notice"
 }

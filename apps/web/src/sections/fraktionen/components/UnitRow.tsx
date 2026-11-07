@@ -3,6 +3,7 @@ import type { Faction, UnitType } from '../types'
 import { DOMAIN_LABEL, FACTION_HEX, type BonusEffect } from './theme'
 import { UnitIcon } from './unitIcons'
 import { useFirstLoadedImage, useLoadedImages } from './useImageLoaded'
+import { useT } from '../../../i18n'
 
 interface UnitRowProps {
   unit: UnitType
@@ -25,12 +26,12 @@ export interface UnitImageVariant {
 }
 
 const STATS = [
-  { key: 'strength', label: 'ST', title: 'Stärke' },
-  { key: 'defense', label: 'AB', title: 'Abwehr' },
-  { key: 'hitPoints', label: 'TP', title: 'Trefferpunkte' },
-  { key: 'damage', label: 'SCH', title: 'Schaden je Treffer' },
-  { key: 'movement', label: 'BW', title: 'Bewegung' },
-  { key: 'productionTurns', label: 'BAU', title: 'Bauzeit in Runden' },
+  { key: 'strength', label: 'compendium.abbr.strength', title: 'compendium.stat.strength' },
+  { key: 'defense', label: 'compendium.abbr.defense', title: 'compendium.stat.defense' },
+  { key: 'hitPoints', label: 'compendium.abbr.hitPoints', title: 'compendium.stat.hitPoints' },
+  { key: 'damage', label: 'compendium.abbr.damage', title: 'compendium.title.damage' },
+  { key: 'movement', label: 'compendium.abbr.movement', title: 'compendium.stat.movement' },
+  { key: 'productionTurns', label: 'compendium.abbr.productionTurns', title: 'compendium.title.productionTurns' },
 ] as const
 
 const FRAME = 'relative h-18 w-24 shrink-0 overflow-hidden rounded-md border-2 border-stone-900 dark:border-stone-700'
@@ -61,13 +62,18 @@ function VariantImages({ variants, active }: { variants: UnitImageVariant[]; act
 }
 
 export function UnitRow({ unit, owner, bonus, imageUrls = [], variants, activeVariant = 0, onSelect }: UnitRowProps) {
+  const t = useT()
   const color = owner ? FACTION_HEX[owner.color] : null
   const image = useFirstLoadedImage(variants ? [] : imageUrls)
   const variantImages = variants ? <VariantImages variants={variants} active={activeVariant} /> : null
   const meta = [
-    DOMAIN_LABEL[unit.domain],
-    unit.capacity > 0 && `Ladung ${unit.capacity} ${unit.cargoDomain === 'air' ? 'Flugzeuge' : 'Landeinheiten'}`,
-    unit.range != null && `Reichweite ${unit.range}`,
+    t(DOMAIN_LABEL[unit.domain]),
+    unit.capacity > 0 &&
+      t('compendium.cargo', {
+        count: unit.capacity,
+        kind: { key: unit.cargoDomain === 'air' ? 'compendium.unit.aircraft' : 'compendium.domainUnits.land' },
+      }),
+    unit.range != null && t('compendium.rangeN', { count: unit.range }),
   ].filter((part): part is string => !!part)
 
   return (
@@ -113,19 +119,19 @@ export function UnitRow({ unit, owner, bonus, imageUrls = [], variants, activeVa
       </span>
 
       <span className="flex w-full items-center gap-1.5 @2xl:w-auto">
-        {[...STATS, ...(bonus?.stat === 'range' ? [{ key: 'range', label: 'RW', title: 'Reichweite' } as const] : [])].map((s) => {
+        {[...STATS, ...(bonus?.stat === 'range' ? [{ key: 'range', label: 'compendium.abbr.range', title: 'compendium.stat.range' } as const] : [])].map((s) => {
           const changed = bonus?.stat === s.key ? bonus : null
           return (
             <span
               key={s.key}
-              title={s.title}
+              title={t(s.title)}
               className={`flex min-w-12 flex-1 flex-col items-center rounded border px-2 py-1 @2xl:min-w-14 @2xl:flex-none ${
                 changed
                   ? 'border-amber-400 bg-amber-50 dark:border-amber-600 dark:bg-amber-950/40'
                   : 'border-stone-200 bg-stone-50 dark:border-stone-800 dark:bg-stone-950/50'
               }`}
             >
-              <span className="text-[9px] font-bold tracking-widest text-stone-500 dark:text-stone-400">{s.label}</span>
+              <span className="text-[9px] font-bold tracking-widest text-stone-500 dark:text-stone-400">{t(s.label)}</span>
               <span className="flex items-center gap-0.5 font-['IBM_Plex_Mono'] text-sm font-semibold">
                 {changed ? (
                   <>

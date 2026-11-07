@@ -1,0 +1,40 @@
+{
+  "order": {
+    "none": "kein Befehl",
+    "sentry": "Wache",
+    "goto": "marschiert",
+    "patrol": "Patrouille",
+    "explore": "Erkundung"
+  },
+  "garrison": "Garnison",
+  "cityOf": "Stadt {name}",
+  "capital": "Hauptstadt",
+  "city": "Stadt",
+  "neutral": "Neutral",
+  "close": "Schließen",
+  "captureToBuild": "Erobere die Stadt mit einer Landeinheit, um hier Einheiten zu produzieren.",
+  "inProduction": "In Produktion",
+  "roundsLeft": {
+    "one": "noch {count} Runde",
+    "other": "noch {count} Runden"
+  },
+  "progress": "Fortschritt {done} von {total}",
+  "idle": "Die Fabriken stehen still. Wähle unten, was gebaut werden soll.",
+  "damaged": "Beschädigt {damage}/{max}",
+  "damagedEffect": {
+    "one": "Bauzeiten +{count} Runde, heilt in Runden ohne Angriff",
+    "other": "Bauzeiten +{count} Runden, heilt in Runden ohne Angriff"
+  },
+  "buildOrder": "Bauauftrag",
+  "empireWide": {
+    "one": "Reichsweit {count} Einheit · {building} im Bau",
+    "other": "Reichsweit {count} Einheiten · {building} im Bau"
+  },
+  "special": "Sonder",
+  "stats": "{domain} · ST {str} · AB {def} · TP {hp} · BW {mov}",
+  "statRange": " · RW {value}",
+  "statCargo": " · LD {value}",
+  "stock": "Bestand {count}",
+  "building": "{count} im Bau",
+  "rounds": "Runden"
+}

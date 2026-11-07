@@ -1,5 +1,6 @@
 import { AlertTriangle, Binoculars, ChevronDown, ClipboardList, Compass, Crown, Flag, FlagOff, Fuel, Hammer, MapPinned, ScrollText, Skull, Swords } from 'lucide-react'
 import type { GameEvent, GameEventType } from '../types'
+import { useT } from '../../../i18n'
 
 interface EventLogProps {
   events: GameEvent[]
@@ -25,6 +26,7 @@ export const EVENT_STYLE: Record<GameEventType, { icon: typeof Flag; className: 
 }
 
 export function EventLog({ events, open, onToggle, onSelect, onOpenReport }: EventLogProps) {
+  const t = useT()
   const newCount = events.filter((e) => e.isNew).length
 
   return (
@@ -36,10 +38,10 @@ export function EventLog({ events, open, onToggle, onSelect, onOpenReport }: Eve
         className="flex min-h-11 items-center gap-2 rounded-lg border border-stone-300 bg-white/90 px-3 shadow-lg backdrop-blur transition-colors hover:border-teal-500 dark:border-stone-700 dark:bg-stone-900/90"
       >
         <ScrollText className="size-4 text-stone-600 dark:text-stone-300" />
-        <span className="font-['Big_Shoulders_Display'] text-sm font-bold uppercase tracking-widest">Ereignisse</span>
+        <span className="font-['Big_Shoulders_Display'] text-sm font-bold uppercase tracking-widest">{t('board.events')}</span>
         {newCount > 0 && (
           <span className="rounded-full bg-amber-500 px-1.5 font-['IBM_Plex_Mono'] text-[11px] font-semibold text-stone-950">
-            {newCount} neu
+            {t('board.newCount', { count: newCount })}
           </span>
         )}
         <ChevronDown className={`size-4 text-stone-500 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -55,12 +57,12 @@ export function EventLog({ events, open, onToggle, onSelect, onOpenReport }: Eve
                 className="flex min-h-11 w-full items-center gap-3 px-3 text-left text-sm font-semibold transition-colors hover:bg-teal-50 dark:hover:bg-teal-950/40"
               >
                 <ClipboardList className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                Rundenbericht anzeigen
+                {t('board.showReport')}
               </button>
             </li>
           )}
           {events.length === 0 && (
-            <li className="px-4 py-3 text-sm text-stone-500">Keine Ereignisse seit deinem letzten Zug.</li>
+            <li className="px-4 py-3 text-sm text-stone-500">{t('board.noEvents')}</li>
           )}
           {events.map((e) => {
             const { icon: Icon, className } = EVENT_STYLE[e.type]

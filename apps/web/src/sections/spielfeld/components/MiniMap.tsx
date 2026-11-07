@@ -5,6 +5,7 @@ import type { Camera, Viewport } from './camera'
 import type { CameraStore } from './cameraStore'
 import { diffVisibility } from './terrainChunks'
 import { TERRAIN_OF_CODE } from '@dos/shared/game/mapcodec'
+import { useT } from '../../../i18n'
 
 interface MiniMapProps {
   map: GameMap
@@ -58,6 +59,7 @@ function paintTile(ctx: CanvasRenderingContext2D, map: GameMap, i: number) {
  * camera frame. Tapping jumps the camera.
  */
 export function MiniMap({ map, cities, participants, store, viewport, onJump }: MiniMapProps) {
+  const t = useT()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const base = useRef<{ canvas: HTMLCanvasElement; terrain: string; visibility: string } | null>(null)
   const size = mapPixelSize(map)
@@ -156,7 +158,7 @@ export function MiniMap({ map, cities, participants, store, viewport, onJump }: 
       style={{ imageRendering: 'pixelated' }}
       onClick={handleClick}
       role="img"
-      aria-label="Minikarte, antippen zum Springen"
+      aria-label={t('board.minimapJump')}
     />
   )
 }

@@ -1,3 +1,4 @@
+import type { Message } from '@dos/shared/i18n'
 import { LocalizedError } from '../locale'
 import { isWaterCode, mapSize, mapSizeLabel } from '@dos/shared/game'
 import { and, desc, eq, inArray } from 'drizzle-orm'
@@ -422,7 +423,8 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
     return rows.map(({ inv, match }) => {
       const c = counts(match.id)
       const sender = inv.fromId ? from.get(inv.fromId) : undefined
-      const sizeLabel = mapSize(match.setup?.map.size)?.label ?? ''
+      const size = mapSize(match.setup?.map.size)
+      const sizeLabel: Message = size ? { key: size.label } : { key: 'setup.size.medium' }
       return {
         id: inv.id,
         matchName: match.name,
@@ -432,7 +434,9 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
           avatarUrl: sender?.avatarUrl ?? null,
         },
         mode: match.mode,
-        turnLimitLabel: match.setup ? turnLimitLabel(match.setup.rules) : '',
+        turnLimitLabel: match.setup
+          ? turnLimitLabel(match.setup.rules)
+          : { key: 'setup.noTimeLimit' },
         mapSizeLabel: sizeLabel,
         seatsTaken: c.taken,
         seatsTotal: c.total,

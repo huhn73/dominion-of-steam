@@ -1,3 +1,4 @@
+import type { Message } from '../i18n'
 // Datentypen unverändert aus product-plan/sections/lobby-and-multiplayer/types.ts;
 // die Props der Komponenten liegen in apps/web/src/sections/lobby/types.ts
 // =============================================================================
@@ -39,13 +40,13 @@ export interface Participant {
 export interface MatchRules {
   mode: 'live' | 'async'
   /** e.g. "24 Stunden" (async deadline) or "5 Minuten" (live time limit) */
-  turnLimitLabel: string
-  victoryCondition: string
+  turnLimitLabel: Message
+  victoryCondition: Message
   allowDuplicateFactions: boolean
 }
 
 export interface MatchMapInfo {
-  sizeLabel: string
+  sizeLabel: Message
   width: number
   height: number
   landShare: number
@@ -85,8 +86,8 @@ export interface Invitation {
   matchName: string
   from: Player
   mode: 'live' | 'async'
-  turnLimitLabel: string
-  mapSizeLabel: string
+  turnLimitLabel: Message
+  mapSizeLabel: Message
   seatsTaken: number
   seatsTotal: number
   sentAt: string
@@ -98,9 +99,9 @@ export interface OpenMatch {
   name: string
   host: string
   mode: 'live' | 'async'
-  turnLimitLabel: string
-  mapSizeLabel: string
-  victoryCondition: string
+  turnLimitLabel: Message
+  mapSizeLabel: Message
+  victoryCondition: Message
   seatsTaken: number
   seatsTotal: number
   /** Factions still free to pick; empty if all are taken (duplicates allowed) */

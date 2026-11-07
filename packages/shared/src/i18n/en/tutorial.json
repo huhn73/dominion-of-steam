@@ -1,0 +1,50 @@
+{
+  "welcome": {
+    "title": "Welcome, Commander",
+    "text": "This is an exercise against the exercise command. Depending on the victory condition you win by wiping out all opponents (capturing cities, destroying units), holding all capitals or keeping the majority of the cities. Here the capital Übungsfeste on the island to the east is enough. The enemy only defends with its garrison, so you can try things out at your leisure."
+  },
+  "camera": {
+    "title": "The map",
+    "text": "Drag the map with mouse or finger, zoom with the mouse wheel, a pinch or + and −. F fits the whole map, and a click on the minimap jumps there. Grey tiles are unexplored, darkened ones lie in the fog of war."
+  },
+  "move": {
+    "title": "Moving a unit",
+    "text": "Tap one of your units in Kesselhafen and then a highlighted tile. Grenadiers move one tile, Armoured Cars two. If several units share a tile, tap again to switch between them."
+  },
+  "town": {
+    "title": "Capturing a neutral city",
+    "text": "To the north-west lies the neutral city of Ruß. Select the Armoured Car and tap the city: it drives up and attacks. An attack on a city uses up the unit. An undamaged Armoured Car leaves Grenadiers behind as a garrison. If the attack fails, try again with the next unit."
+  },
+  "production": {
+    "title": "Production",
+    "text": "Cities build units. Tap Ruß and choose a type under “Build order”. The build time in rounds is shown next to it. Once the unit is finished, the next one starts automatically."
+  },
+  "endTurn": {
+    "title": "Ending your turn",
+    "text": "“Next” (N key or space) jumps to the next unit without orders. Once all are taken care of, end your turn at the bottom right. Then the opponents move, and your units get fresh movement."
+  },
+  "report": {
+    "title": "A new round",
+    "text": "At the start of every turn the turn report shows what happened: losses, battles and enemies sighted. You can look it up in the event log at any time. In asynchronous matches you get a notification as soon as it is your turn."
+  },
+  "scout": {
+    "title": "Reconnaissance from the air",
+    "text": "Select the Biplane and give the order “Explore”, or fly it east yourself. Aircraft have fuel: tiles marked red are within reach, but there is no way back from them. At the end of the turn an aircraft must be in an own city or on a carrier, or it crashes."
+  },
+  "board": {
+    "title": "Loading the freighter",
+    "text": "Land units only cross the sea on board. Drag Grenadiers and Armoured Cars onto the freighter’s tile off Kesselhafen. It holds six units. Take at least two along, because the fortress takes one attack on the garrison and one on the city."
+  },
+  "land": {
+    "title": "Crossing and unloading",
+    "text": "Sail the freighter to the coast of Übungsfeste. Next round, select a loaded unit, tap “Unload” and then a land tile next to the freighter."
+  },
+  "attack": {
+    "title": "Attack",
+    "text": "A garrison defends Übungsfeste. Select a unit next to the city and tap the enemy. The dialog shows the chance to win. Battles run in rounds until one side has no hit points left. Cities and terrain strengthen the defence."
+  },
+  "capture": {
+    "title": "Taking the fortress",
+    "text": "The city is now undefended. Attack it with another land unit. In “Capitals” mode, whoever holds all enemy capitals wins at once, and so it is here."
+  }
+}

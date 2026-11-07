@@ -1,0 +1,142 @@
+{
+  "fuel": {
+    "short": "The fuel does not reach the target: {path} tiles, but only {fuel} fuel.",
+    "noBase": "After this move {fuel} fuel remains, but there is no own city and no carrier to land on.",
+    "far": {
+      "one": "After this move {fuel} fuel remains; the nearest base is {count} tile away.",
+      "other": "After this move {fuel} fuel remains; the nearest base is {count} tiles away."
+    }
+  },
+  "fit": "Fit map",
+  "fitKey": "Fit map (F)",
+  "minimap": "Show or hide the minimap",
+  "replay": {
+    "title": "Enemy move",
+    "move": "moves",
+    "attack": "attacks",
+    "capture": "captures",
+    "skip": "Skip"
+  },
+  "toast": {
+    "win": "Victory",
+    "loss": "Defeat",
+    "damage": {
+      "one": "Damage: own −{own} · enemy −{enemy} HP · {count} round",
+      "other": "Damage: own −{own} · enemy −{enemy} HP · {count} rounds"
+    }
+  },
+  "close": "Close",
+  "endedPill": "Ended · {outcome}",
+  "result": "Result",
+  "waitingFor": "Waiting for {names} …",
+  "dominance": "Dominance:",
+  "you": "you",
+  "unknown": "Unknown",
+  "dominanceShare": {
+    "one": "{share} % of the cities · {count} round left",
+    "other": "{share} % of the cities · {count} rounds left"
+  },
+  "noReturn": "No way back",
+  "cancel": "Cancel",
+  "flyAnyway": "Fly anyway",
+  "attack": {
+    "title": "Attack",
+    "captureChance": "Chance to capture",
+    "winChance": "Chance to win",
+    "details": "Hit chance per round {hit} % · damage per hit: own {own}, enemy {enemy} HP · expected own loss −{loss} HP",
+    "spent": "The unit is used up in the attack.",
+    "spentGarrison": "The unit is used up in the attack and, if it succeeds, leaves Grenadiers in the city.",
+    "defender": "Defender: {mods}",
+    "approach": {
+      "one": "Moves {count} tile closer",
+      "other": "Moves {count} tiles closer"
+    },
+    "confirm": "Attack"
+  },
+  "nextUnit": "Next unit (N or space)",
+  "next": "Next",
+  "unitSuffix": " unit",
+  "matchEnded": "Match ended",
+  "endTurn": "End turn",
+  "endTurnQ": "End your turn?",
+  "pendingOrders": {
+    "one": "{count} unit has no orders this round yet.",
+    "other": "{count} units have no orders this round yet."
+  },
+  "stranded": {
+    "one": "One aircraft cannot reach a base with its fuel: {list}.",
+    "other": "{count} aircraft cannot reach a base with their fuel: {list}."
+  },
+  "strandedUnit": "{name} at {col},{row} (fuel {fuel}, base {base})",
+  "baseTiles": "{count} tiles",
+  "unreachable": "unreachable",
+  "toUnits": "To the units",
+  "endAnyway": "End anyway",
+  "outcome": {
+    "victory": "Victory",
+    "defeat": "Defeat",
+    "surrendered": "Surrendered"
+  },
+  "reason": {
+    "elimination": "eliminating all opponents",
+    "capitals": "capturing all capitals",
+    "roundLimit": "the round limit",
+    "dominance": "dominance",
+    "noHumans": "all players surrendering"
+  },
+  "endedIn": "{name} · ended in round {round}",
+  "endedBy": " by {reason}",
+  "winner": " · Winner: {name}",
+  "noWinner": " · No winner",
+  "tutorialDone": "Tutorial complete.",
+  "tutorialDoneText": "You now know movement, capture, production, freighters, aircraft and combat. Ready for your first real match?",
+  "col": {
+    "place": "Place",
+    "participant": "Participant",
+    "cities": "Cities",
+    "citiesShort": "Cit.",
+    "units": "Units",
+    "unitsShort": "Un.",
+    "points": "Points",
+    "pointsShort": "Pts."
+  },
+  "youMark": "(you)",
+  "capitulated": "capitulated",
+  "eliminated": "eliminated",
+  "ai": "AI",
+  "pointsNote": "Points: 3 per city, 1 per unit.",
+  "viewMap": "View map",
+  "toLobby": "To the lobby",
+  "newMatch": "New match",
+  "section": {
+    "losses": "Losses",
+    "cities": "Cities",
+    "combat": "Battles",
+    "sightings": "Sighted",
+    "enemyMoves": "Enemy movements",
+    "home": "Home front"
+  },
+  "moveTo": "to {col},{row}",
+  "events": "Events",
+  "newCount": "{count} new",
+  "showReport": "Show turn report",
+  "noEvents": "No events since your last turn.",
+  "reportTitle": "Turn report · Round {round}",
+  "sinceLastTurn": "Since your last turn",
+  "watchReplay": "Watch enemy moves",
+  "continue": "Continue",
+  "tutorial": {
+    "region": "Tutorial",
+    "step": "Tutorial · Step {progress}",
+    "done": "Done!",
+    "expand": "Expand tutorial",
+    "collapse": "Collapse tutorial",
+    "progress": "Progress",
+    "next": "Next",
+    "waiting": "Waiting for your move",
+    "leave": "Quit"
+  },
+  "minimapJump": "Minimap, tap to jump",
+  "stackCount": "{count} units",
+  "map": "Game map"
+}

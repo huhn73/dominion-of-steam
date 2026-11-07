@@ -225,10 +225,10 @@ export function Lobby({
                   <div className="mt-2 flex flex-wrap gap-1.5 pl-1">
                     <Chip>
                       {inv.mode === 'live' ? <Radio className="size-3" /> : <Clock className="size-3" />}
-                      {inv.mode === 'live' ? t('lobby.live') : t('lobby.async')} · {inv.turnLimitLabel}
+                      {inv.mode === 'live' ? t('lobby.live') : t('lobby.async')} · {t(inv.turnLimitLabel)}
                     </Chip>
                     <Chip>
-                      <MapIcon className="size-3" /> {inv.mapSizeLabel}
+                      <MapIcon className="size-3" /> {t(inv.mapSizeLabel)}
                     </Chip>
                     <Chip>
                       {t('lobby.seats', { taken: inv.seatsTaken, total: inv.seatsTotal })}
@@ -296,13 +296,13 @@ export function Lobby({
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       <Chip>
                         {o.mode === 'live' ? <Radio className="size-3" /> : <Clock className="size-3" />}
-                        {o.mode === 'live' ? t('lobby.live') : t('lobby.async')} · {o.turnLimitLabel}
+                        {o.mode === 'live' ? t('lobby.live') : t('lobby.async')} · {t(o.turnLimitLabel)}
                       </Chip>
                       <Chip>
-                        <MapIcon className="size-3" /> {o.mapSizeLabel}
+                        <MapIcon className="size-3" /> {t(o.mapSizeLabel)}
                       </Chip>
                       <Chip>
-                        <Trophy className="size-3" /> {o.victoryCondition}
+                        <Trophy className="size-3" /> {t(o.victoryCondition)}
                       </Chip>
                     </div>
                   </div>

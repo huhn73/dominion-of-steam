@@ -2,6 +2,7 @@ import { Check, Compass, Crown, Eye, Flag, Fuel, Landmark, PackageOpen, PlaneLan
 import type { City, Faction, Participant, Unit, UnitType } from '../types'
 import { PARTICIPANT_HEX } from './hex'
 import { UnitIcon } from './unitIcons'
+import { useT } from '../../../i18n'
 
 interface UnitPanelProps {
   unit: Unit
@@ -35,14 +36,6 @@ interface UnitPanelProps {
   /** Select an aircraft on a carrier so it can take off */
   onSelectCargo?: (cargoUnitId: string) => void
   onClose?: () => void
-}
-
-const ORDER_LABEL: Record<Unit['order']['type'], string> = {
-  none: 'Kein Befehl',
-  sentry: 'Auf Wache',
-  goto: 'Marschiert',
-  patrol: 'Patrouille',
-  explore: 'Erkundung',
 }
 
 function Stat({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
@@ -114,11 +107,12 @@ export function UnitPanel({
   onSelectCargo,
   onClose,
 }: UnitPanelProps) {
+  const t = useT()
   const color = PARTICIPANT_HEX[owner?.color ?? 'amber']
 
   return (
     <section
-      aria-label={`Einheit ${type.name}`}
+      aria-label={t('unit.unitOf', { name: type.name })}
       className="pointer-events-auto overflow-hidden rounded-t-2xl border border-stone-300 bg-white/95 shadow-2xl shadow-stone-900/30 backdrop-blur md:rounded-xl dark:border-stone-700 dark:bg-stone-900/95 dark:shadow-black/50"
     >
       <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-stone-300 md:hidden dark:bg-stone-600" />
@@ -136,13 +130,13 @@ export function UnitPanel({
           <p className="truncate text-xs text-stone-500 dark:text-stone-400">
             {owner?.name}
             {faction && <> · {faction.name}</>}
-            {type.factionId && <span className="ml-1.5 rounded bg-amber-100 px-1 py-px text-[10px] font-bold uppercase text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">Sondereinheit</span>}
+            {type.factionId && <span className="ml-1.5 rounded bg-amber-100 px-1 py-px text-[10px] font-bold uppercase text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">{t('unit.special')}</span>}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Schließen"
+          aria-label={t('unit.close')}
           className="flex size-11 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 hover:text-stone-800 dark:hover:bg-stone-800 dark:hover:text-stone-100"
         >
           <X className="size-5" />
@@ -151,11 +145,11 @@ export function UnitPanel({
 
       <div className="space-y-3 p-4">
         <div className="grid grid-cols-5 gap-1.5">
-          <Stat label="Stärke" value={type.strength} />
-          <Stat label="Abwehr" value={type.defense} />
-          <Stat label="Schaden" value={type.damage} />
-          <Stat label="Bewegung" value={isYours ? unit.movesLeft : type.movement} sub={isYours ? `/${type.movement}` : undefined} />
-          <Stat label="TP" value={unit.hp} sub={`/${type.hitPoints}`} />
+          <Stat label={t('unit.stat.strength')} value={type.strength} />
+          <Stat label={t('unit.stat.defense')} value={type.defense} />
+          <Stat label={t('unit.stat.damage')} value={type.damage} />
+          <Stat label={t('unit.stat.movement')} value={isYours ? unit.movesLeft : type.movement} sub={isYours ? `/${type.movement}` : undefined} />
+          <Stat label={t('unit.stat.hp')} value={unit.hp} sub={`/${type.hitPoints}`} />
         </div>
 
         {type.range != null && unit.fuel != null && (
@@ -175,19 +169,19 @@ export function UnitPanel({
 
         {isYours && (
           <p className="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-300">
-            <span className="font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-400">{ORDER_LABEL[unit.order.type]}</span>
-            {unit.order.type === 'goto' && <span>· noch {unit.order.turnsRemaining} Runden bis zum Ziel</span>}
-            {unit.order.type === 'patrol' && <span>· {unit.order.waypoints.length} Wegpunkte</span>}
-            {unit.order.type === 'explore' && <span>· fliegt in den Nebel und kehrt zum Tanken um</span>}
+            <span className="font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-400">{t(`unit.order.${unit.order.type}`)}</span>
+            {unit.order.type === 'goto' && <span>{t('unit.gotoRounds', { count: unit.order.turnsRemaining })}</span>}
+            {unit.order.type === 'patrol' && <span>{t('unit.waypoints', { count: unit.order.waypoints.length })}</span>}
+            {unit.order.type === 'explore' && <span>{t('unit.exploring')}</span>}
           </p>
         )}
 
         {isYours && (stack.length > 1 || cityHere) && (
           <div>
             <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              Auf diesem Feld
+              {t('unit.onTile')}
             </h3>
-            <ul className="flex flex-wrap gap-1.5" aria-label="Auf diesem Feld">
+            <ul className="flex flex-wrap gap-1.5" aria-label={t('unit.onTile')}>
               {stack.map(({ unit: s, type: st }) => {
                 const active = s.id === unit.id
                 return (
@@ -205,7 +199,7 @@ export function UnitPanel({
                       <UnitIcon unitTypeId={s.unitTypeId} domain={st?.domain} className="size-3.5" />
                       {st?.name}
                       <span className="font-['IBM_Plex_Mono'] font-normal text-stone-500 dark:text-stone-400">{s.hp}/{st?.hitPoints}</span>
-                      {s.needsOrders && <span className="size-1.5 rounded-full bg-amber-500" aria-label="braucht Befehle" />}
+                      {s.needsOrders && <span className="size-1.5 rounded-full bg-amber-500" aria-label={t('unit.needsOrders')} />}
                     </button>
                   </li>
                 )
@@ -229,7 +223,7 @@ export function UnitPanel({
         {type.capacity > 0 && (
           <div>
             <div className="mb-1.5 flex items-baseline justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">Ladung</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{t('unit.cargo')}</h3>
               <span className="font-['IBM_Plex_Mono'] text-xs text-stone-500">
                 {cargo.length}/{type.capacity}
               </span>
@@ -237,8 +231,8 @@ export function UnitPanel({
             {cargo.length === 0 ? (
               <p className="rounded border border-dashed border-stone-300 px-3 py-2 text-sm text-stone-500 dark:border-stone-700">
                 {type.cargoDomain === 'air'
-                  ? 'Leer. Lass Flugzeuge auf dem Träger landen, um sie aufzutanken und mitzunehmen.'
-                  : 'Leer. Ziehe Landeinheiten auf den Frachter, um sie zu laden.'}
+                  ? t('unit.emptyCarrier')
+                  : t('unit.emptyFreighter')}
               </p>
             ) : (
               <ul className="space-y-1">
@@ -257,11 +251,11 @@ export function UnitPanel({
                         >
                           {type.cargoDomain === 'air' ? (
                             <>
-                              <PlaneTakeoff className="size-4" /> Starten
+                              <PlaneTakeoff className="size-4" /> {t('unit.launch')}
                             </>
                           ) : (
                             <>
-                              <PackageOpen className="size-4" /> Ausladen
+                              <PackageOpen className="size-4" /> {t('unit.unload')}
                             </>
                           )}
                         </button>
@@ -277,7 +271,7 @@ export function UnitPanel({
         {isYours && mode === 'patrol' && (
           <div className="rounded-md border border-teal-400 bg-teal-50 p-3 text-sm dark:bg-teal-950/60">
             <p className="mb-2 text-teal-900 dark:text-teal-100">
-              Tippe auf der Karte die Wegpunkte der Patrouille an ({patrolCount} gesetzt).
+              {t('unit.patrolHint', { count: patrolCount })}
             </p>
             <div className="flex gap-2">
               <button
@@ -285,7 +279,7 @@ export function UnitPanel({
                 onClick={onCancelMode}
                 className="min-h-11 flex-1 rounded-md border border-stone-300 bg-white text-sm font-semibold dark:border-stone-600 dark:bg-stone-800"
               >
-                Abbrechen
+                {t('unit.cancel')}
               </button>
               <button
                 type="button"
@@ -293,7 +287,7 @@ export function UnitPanel({
                 disabled={patrolCount < 1}
                 className="flex min-h-11 flex-1 items-center justify-center gap-1 rounded-md bg-teal-600 text-sm font-semibold text-white hover:bg-teal-500 disabled:opacity-40"
               >
-                <Check className="size-4" /> Bestätigen
+                <Check className="size-4" /> {t('unit.confirm')}
               </button>
             </div>
           </div>
@@ -301,25 +295,25 @@ export function UnitPanel({
 
         {isYours && mode === 'unload' && (
           <div className="flex items-center justify-between gap-2 rounded-md border border-teal-400 bg-teal-50 p-3 text-sm text-teal-900 dark:bg-teal-950/60 dark:text-teal-100">
-            Tippe auf ein markiertes Landfeld zum Ausladen.
+            {t('unit.unloadHint')}
             <button type="button" onClick={onCancelMode} className="min-h-9 rounded px-2 font-semibold underline">
-              Abbrechen
+              {t('unit.cancel')}
             </button>
           </div>
         )}
 
         {isYours && mode === 'normal' && (
           <div className="flex flex-wrap gap-1.5">
-            <OrderButton icon={Eye} label="Wache" onClick={onSentry} active={unit.order.type === 'sentry'} disabled={disabled} />
-            <OrderButton icon={Repeat} label="Patrouille" onClick={onPatrolStart} active={unit.order.type === 'patrol'} disabled={disabled} />
+            <OrderButton icon={Eye} label={t('unit.btn.sentry')} onClick={onSentry} active={unit.order.type === 'sentry'} disabled={disabled} />
+            <OrderButton icon={Repeat} label={t('unit.btn.patrol')} onClick={onPatrolStart} active={unit.order.type === 'patrol'} disabled={disabled} />
             {type.domain === 'air' && (
-              <OrderButton icon={Compass} label="Erkunden" onClick={onExplore} active={unit.order.type === 'explore'} disabled={disabled} />
+              <OrderButton icon={Compass} label={t('unit.btn.explore')} onClick={onExplore} active={unit.order.type === 'explore'} disabled={disabled} />
             )}
             {type.domain === 'air' && (
-              <OrderButton icon={PlaneLanding} label="Zur Basis" onClick={onReturnToBase} disabled={disabled || atBase} />
+              <OrderButton icon={PlaneLanding} label={t('unit.btn.base')} onClick={onReturnToBase} disabled={disabled || atBase} />
             )}
-            <OrderButton icon={XCircle} label="Aufheben" onClick={onCancelOrder} disabled={disabled || unit.order.type === 'none'} />
-            <OrderButton icon={SkipForward} label="Überspringen" onClick={onSkip} disabled={disabled || !unit.needsOrders} />
+            <OrderButton icon={XCircle} label={t('unit.btn.cancelOrder')} onClick={onCancelOrder} disabled={disabled || unit.order.type === 'none'} />
+            <OrderButton icon={SkipForward} label={t('unit.btn.skip')} onClick={onSkip} disabled={disabled || !unit.needsOrders} />
           </div>
         )}
 
@@ -327,8 +321,8 @@ export function UnitPanel({
           <p className="flex items-start gap-1.5 text-xs text-stone-500 dark:text-stone-400">
             <Flag className="mt-px size-3.5 shrink-0" />
             <span>
-              Ziel antippen oder Einheit ziehen. Ziele außerhalb der Reichweite werden zum Mehrrunden-Marsch.
-              <span className="hidden md:inline"> Rechtsklick oder Esc bricht ab.</span>
+              {t('unit.moveHint')}
+              <span className="hidden md:inline">{t('unit.cancelHint')}</span>
             </span>
           </p>
         )}

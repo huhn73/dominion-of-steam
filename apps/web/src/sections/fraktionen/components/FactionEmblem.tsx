@@ -1,6 +1,7 @@
 import type { Faction } from '../types'
 import { FACTION_HEX } from './theme'
 import { useImageLoaded } from './useImageLoaded'
+import { useT } from '../../../i18n'
 
 interface FactionEmblemProps {
   faction: Pick<Faction, 'id' | 'name' | 'color' | 'emblemUrl'>
@@ -9,9 +10,10 @@ interface FactionEmblemProps {
 
 /** Heraldic shield placeholder in the faction color, or the real emblem if one exists */
 export function FactionEmblem({ faction, className = 'size-16' }: FactionEmblemProps) {
+  const t = useT()
   const hasImage = useImageLoaded(faction.emblemUrl)
   if (hasImage && faction.emblemUrl) {
-    return <img src={faction.emblemUrl} alt={`Wappen ${faction.name}`} className={`${className} object-contain`} />
+    return <img src={faction.emblemUrl} alt={t('compendium.emblem', { name: faction.name })} className={`${className} object-contain`} />
   }
   const c = FACTION_HEX[faction.color]
   const initial = faction.name
@@ -21,7 +23,7 @@ export function FactionEmblem({ faction, className = 'size-16' }: FactionEmblemP
   const gradId = `emblem-${faction.id}`
 
   return (
-    <svg viewBox="0 0 64 72" className={className} role="img" aria-label={`Wappen ${faction.name}`}>
+    <svg viewBox="0 0 64 72" className={className} role="img" aria-label={t('compendium.emblem', { name: faction.name })}>
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor={c.base} />

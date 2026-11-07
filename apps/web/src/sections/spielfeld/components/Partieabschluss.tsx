@@ -1,8 +1,11 @@
 import { Flag, Home, Map as MapIcon, Swords, Trophy } from 'lucide-react'
 import { type MatchOutcome, matchOutcome, participantScore } from '@dos/shared/game'
-import { COMPENDIUM_FACTIONS } from '@dos/shared/compendium'
+import { compendiumFor } from '@dos/shared/compendium'
+import type { MessageKey } from '@dos/shared/i18n'
+import { matchName } from '../../../data/match'
 import type { Match, MatchResult, Participant } from '../types'
 import { FactionEmblem } from '../../fraktionen/components'
+import { useLocale, useT } from '../../../i18n'
 
 interface PartieabschlussProps {
   match: Match
@@ -16,21 +19,21 @@ interface PartieabschlussProps {
 }
 
 /** Stamp like the lobby's „Beendet“ tab */
-export const OUTCOME_STYLE: Record<MatchOutcome, { label: string; stamp: string; icon: typeof Trophy; iconClass: string }> = {
+export const OUTCOME_STYLE: Record<MatchOutcome, { label: MessageKey; stamp: string; icon: typeof Trophy; iconClass: string }> = {
   victory: {
-    label: 'Sieg',
+    label: 'board.outcome.victory',
     stamp: 'border-teal-600 text-teal-700 dark:border-teal-400 dark:text-teal-300',
     icon: Trophy,
     iconClass: 'text-teal-600 dark:text-teal-400',
   },
   defeat: {
-    label: 'Niederlage',
+    label: 'board.outcome.defeat',
     stamp: 'border-rose-600 text-rose-600 dark:border-rose-400 dark:text-rose-400',
     icon: Flag,
     iconClass: 'text-rose-600 dark:text-rose-400',
   },
   surrendered: {
-    label: 'Aufgegeben',
+    label: 'board.outcome.surrendered',
     stamp: 'border-stone-400 text-stone-500',
     icon: Flag,
     iconClass: 'text-stone-500 dark:text-stone-400',
@@ -42,14 +45,6 @@ const secondary =
 const primary =
   "flex min-h-11 flex-1 items-center justify-center gap-1 rounded-md bg-amber-500 px-3 text-sm font-bold uppercase tracking-wider text-stone-950 hover:bg-amber-400"
 
-/** How the match was decided („beendet in Runde 93 durch …“); null for older matches */
-const REASON_LABEL: Record<NonNullable<MatchResult['reason']>, string> = {
-  elimination: 'Ausschaltung aller Gegner',
-  capitals: 'Eroberung aller Hauptstädte',
-  roundLimit: 'das Rundenlimit',
-  dominance: 'Vorherrschaft',
-  noHumans: 'Aufgabe aller Spieler',
-}
 
 /** Result card at the end of a match: outcome stamp and the ranking with the final counts */
 export function Partieabschluss({ match, participants, result, onViewMap, onLeave, tutorial, onNewMatch }: PartieabschlussProps) {
@@ -57,7 +52,9 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
   const style = OUTCOME_STYLE[outcome]
   const Icon = style.icon
   // Emblems and colors come from the compendium (the game's Faction type carries neither)
-  const factionById = new Map(COMPENDIUM_FACTIONS.map((f) => [f.id, f]))
+  const t = useT()
+  const { locale } = useLocale()
+  const factionById = new Map(compendiumFor(locale).factions.map((f) => [f.id, f]))
   const winner = participants.find((p) => p.id === result.winnerId)
   const ranking = [...participants].sort(
     (a, b) => (result.placements[a.id] ?? 99) - (result.placements[b.id] ?? 99) || participants.indexOf(a) - participants.indexOf(b),
@@ -73,26 +70,25 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
         <Icon className={`mt-0.5 size-6 shrink-0 ${style.iconClass}`} />
         <div className="min-w-0 flex-1">
           <h2 id="dos-result-title" className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase leading-tight tracking-wider">
-            {style.label}
+            {t(style.label)}
           </h2>
           <p className="truncate text-xs text-stone-500 dark:text-stone-400">
-            {match.name} · beendet in Runde {match.round}
-            {result.reason && ` durch ${REASON_LABEL[result.reason]}`}
-            {winner ? ` · Sieger: ${winner.name}` : ' · Kein Sieger'}
+            {t('board.endedIn', { name: matchName(t, match), round: match.round })}
+            {result.reason && t('board.endedBy', { reason: { key: `board.reason.${result.reason}` } })}
+            {winner ? t('board.winner', { name: winner.name }) : t('board.noWinner')}
           </p>
         </div>
         <span
           aria-hidden
           className={`shrink-0 rotate-[-6deg] rounded border-[3px] border-double px-2 py-1 font-['Big_Shoulders_Display'] text-sm font-black uppercase tracking-[0.2em] ${style.stamp}`}
         >
-          {style.label}
+          {t(style.label)}
         </span>
       </header>
 
       {tutorial && outcome === 'victory' && (
         <p className="border-b border-stone-200 px-4 py-3 text-sm dark:border-stone-800">
-          <span className="font-semibold">Tutorial abgeschlossen.</span> Du kennst jetzt Bewegung, Eroberung, Produktion,
-          Frachter, Flugzeuge und Kampf. Bereit für deine erste echte Partie?
+          <span className="font-semibold">{t('board.tutorialDone')}</span> {t('board.tutorialDoneText')}
         </p>
       )}
       <div className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
@@ -106,19 +102,19 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
           </colgroup>
           <thead>
             <tr className="font-['Big_Shoulders_Display'] text-xs uppercase tracking-widest text-stone-500 dark:text-stone-400">
-              <th scope="col" className="px-2 py-1 text-left font-bold">Platz</th>
-              <th scope="col" className="px-2 py-1 text-left font-bold">Teilnehmer</th>
+              <th scope="col" className="px-2 py-1 text-left font-bold">{t('board.col.place')}</th>
+              <th scope="col" className="px-2 py-1 text-left font-bold">{t('board.col.participant')}</th>
               <th scope="col" className="px-2 py-1 text-right font-bold">
-                <span className="hidden sm:inline">Städte</span>
-                <abbr title="Städte" className="no-underline sm:hidden">St.</abbr>
+                <span className="hidden sm:inline">{t('board.col.cities')}</span>
+                <abbr title={t('board.col.cities')} className="no-underline sm:hidden">{t('board.col.citiesShort')}</abbr>
               </th>
               <th scope="col" className="px-2 py-1 text-right font-bold">
-                <span className="hidden sm:inline">Einheiten</span>
-                <abbr title="Einheiten" className="no-underline sm:hidden">Einh.</abbr>
+                <span className="hidden sm:inline">{t('board.col.units')}</span>
+                <abbr title={t('board.col.units')} className="no-underline sm:hidden">{t('board.col.unitsShort')}</abbr>
               </th>
               <th scope="col" className="px-2 py-1 text-right font-bold">
-                <span className="hidden sm:inline">Punkte</span>
-                <abbr title="Punkte" className="no-underline sm:hidden">Pkt.</abbr>
+                <span className="hidden sm:inline">{t('board.col.points')}</span>
+                <abbr title={t('board.col.points')} className="no-underline sm:hidden">{t('board.col.pointsShort')}</abbr>
               </th>
             </tr>
           </thead>
@@ -139,15 +135,15 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
                       {faction && <FactionEmblem faction={faction} className="size-6 shrink-0" />}
                       <span className="min-w-0 truncate font-semibold">
                         {p.name}
-                        {isYou && <span className="ml-1 font-normal text-stone-500 dark:text-stone-400">(du)</span>}
-                        {out && <span className="ml-1 font-normal italic sm:hidden">({p.capitulated ? 'kapituliert' : 'ausgeschieden'})</span>}
+                        {isYou && <span className="ml-1 font-normal text-stone-500 dark:text-stone-400">{t('board.youMark')}</span>}
+                        {out && <span className="ml-1 font-normal italic sm:hidden">({p.capitulated ? t('board.capitulated') : t('board.eliminated')})</span>}
                       </span>
                       {p.isAI && (
                         <span className="rounded bg-stone-200 px-1 font-['IBM_Plex_Mono'] text-[10px] uppercase text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-                          KI
+                          {t('board.ai')}
                         </span>
                       )}
-                      {out && <span className="hidden truncate text-xs italic sm:inline">{p.capitulated ? 'kapituliert' : 'ausgeschieden'}</span>}
+                      {out && <span className="hidden truncate text-xs italic sm:inline">{p.capitulated ? t('board.capitulated') : t('board.eliminated')}</span>}
                     </div>
                   </td>
                   <td className="px-2 py-1.5 text-right font-['IBM_Plex_Mono']">{out ? '–' : p.cityCount}</td>
@@ -158,25 +154,25 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
             })}
           </tbody>
         </table>
-        <p className="px-2 pt-2 text-xs text-stone-500 dark:text-stone-400">Punkte: 3 je Stadt, 1 je Einheit.</p>
+        <p className="px-2 pt-2 text-xs text-stone-500 dark:text-stone-400">{t('board.pointsNote')}</p>
       </div>
 
       <footer className="flex gap-2 border-t border-stone-200 p-3 dark:border-stone-800">
         <button type="button" onClick={onViewMap} className={secondary}>
-          <MapIcon className="size-4" /> Karte ansehen
+          <MapIcon className="size-4" /> {t('board.viewMap')}
         </button>
         {tutorial && onNewMatch ? (
           <>
             <button type="button" onClick={onLeave} className={secondary}>
-              <Home className="size-4" /> Zur Lobby
+              <Home className="size-4" /> {t('board.toLobby')}
             </button>
             <button type="button" onClick={onNewMatch} className={primary}>
-              <Swords className="size-4" /> Neue Partie
+              <Swords className="size-4" /> {t('board.newMatch')}
             </button>
           </>
         ) : (
           <button type="button" onClick={onLeave} className={primary}>
-            <Home className="size-4" /> Zur Lobby
+            <Home className="size-4" /> {t('board.toLobby')}
           </button>
         )}
       </footer>

@@ -4,75 +4,72 @@ import { WORLD_SHAPES } from '../game/worldShapes'
 import { COMPENDIUM_FACTIONS } from '../compendium'
 import { randomSeed } from '../game/seed'
 import type { AiPersonality, Faction, MatchDraft, SetupOptions } from './types'
+import type { Message } from '../i18n'
 
 /** KI-Persönlichkeiten; jede führt immer dieselbe Fraktion. Porträts laut art-brief.md */
 export const AI_PERSONALITIES: AiPersonality[] = [
   {
     id: 'kessler',
     name: 'Admiral Kessler',
-    title: 'Großadmiral der Republik',
+    title: 'setup.ai.kessler.title',
     factionId: 'aurelia',
     portraitUrl: '/art/portraits/kessler.webp',
     style: ['Aggressiv', 'Seekrieg'],
-    description: 'Sucht früh die Entscheidungsschlacht auf See und blockiert gegnerische Küsten.',
+    description: 'setup.ai.kessler.description',
   },
   {
     id: 'varenne',
     name: 'Senatorin Varenne',
-    title: 'Handelsministerin',
+    title: 'setup.ai.varenne.title',
     factionId: 'aurelia',
     portraitUrl: '/art/portraits/varenne.webp',
     style: ['Expansiv', 'Wirtschaft'],
-    description:
-      'Besetzt neutrale Inseln schneller als alle anderen und meidet offene Kriege, solange sie wächst.',
+    description: 'setup.ai.varenne.description',
   },
   {
     id: 'brandt',
     name: 'Zechenmeister Brandt',
-    title: 'Vorsitzender des Hammerhauses',
+    title: 'setup.ai.brandt.title',
     factionId: 'eisenbund',
     portraitUrl: '/art/portraits/brandt.webp',
     style: ['Defensiv', 'Landkrieg'],
-    description:
-      'Baut seine Städte zu Festungen aus und rückt erst vor, wenn genug Dampfkolosse bereitstehen. Wer ihn zu früh angreift, beißt sich an seinen Mauern die Zähne aus; wer ihn zu lange gewähren lässt, sieht sich einer Walze aus Stahl gegenüber, die Stadt um Stadt einnimmt.',
+    description: 'setup.ai.brandt.description',
   },
   {
     id: 'eisenhart',
     name: 'Generalin Eisenhart',
-    title: 'Oberbefehlshaberin der Zechengarde',
+    title: 'setup.ai.eisenhart.title',
     factionId: 'eisenbund',
     portraitUrl: '/art/portraits/eisenhart.webp',
     style: ['Offensiv', 'Landkrieg'],
-    description:
-      'Setzt auf schnelle Panzerwagen-Vorstöße und greift schwach verteidigte Städte sofort an.',
+    description: 'setup.ai.eisenhart.description',
   },
   {
     id: 'halvorsen',
     name: 'Kapitänin Halvorsen',
-    title: 'Flottenkapitänin der Wolkenflotte',
+    title: 'setup.ai.halvorsen.title',
     factionId: 'nordmark',
     portraitUrl: '/art/portraits/halvorsen.webp',
     style: ['Aufklärung', 'Luftkrieg'],
-    description:
-      'Kennt die Karte früher als alle anderen und schlägt dort zu, wo die Verteidigung dünn ist.',
+    description: 'setup.ai.halvorsen.description',
   },
   {
     id: 'lindqvist',
     name: 'Ingenieur Lindqvist',
-    title: 'Werftmeister von Nordhavn',
+    title: 'setup.ai.lindqvist.title',
     factionId: 'nordmark',
     portraitUrl: '/art/portraits/lindqvist.webp',
     style: [],
-    description: 'Spielt abwartend und reagiert auf Bedrohungen.',
+    description: 'setup.ai.lindqvist.description',
   },
   {
     id: 'ostrow',
     name: 'Graf Ostrow',
-    title: 'Festungskommandant von Salzwacht',
+    title: 'setup.ai.ostrow.title',
     factionId: 'salzkueste',
     portraitUrl: '/art/portraits/ostrow.webp',
     style: ['Defensiv', 'Befestigung'],
-    description: 'Hält, was er hat, und verteidigt seine Küsten bis zum letzten Mann.',
+    description: 'setup.ai.ostrow.description',
   },
 ]
 
@@ -94,51 +91,34 @@ export const SETUP_FACTIONS: Faction[] = COMPENDIUM_FACTIONS.map((f) => ({
 /** Wählbare Werte des Assistenten */
 export const SETUP_OPTIONS: SetupOptions = {
   mapSizes: MAP_SIZE_OPTIONS,
-  landShare: { min: 20, max: 70, step: 5, minLabel: 'Wenig Land', maxLabel: 'Viel Land' },
+  landShare: { min: 20, max: 70, step: 5, minLabel: 'setup.land.min', maxLabel: 'setup.land.max' },
   worldShapes: WORLD_SHAPES,
   levels: [
-    { id: 'low', label: 'Wenig' },
-    { id: 'normal', label: 'Normal' },
-    { id: 'high', label: 'Viel' },
+    { id: 'low', label: 'setup.level.low' },
+    { id: 'normal', label: 'setup.level.normal' },
+    { id: 'high', label: 'setup.level.high' },
   ],
-  asyncTurnLimits: [
-    { hours: 12, label: '12 Stunden' },
-    { hours: 24, label: '24 Stunden' },
-    { hours: 48, label: '48 Stunden' },
-  ],
+  asyncTurnLimits: [12, 24, 48].map((hours) => ({
+    hours,
+    label: { key: 'setup.hours', params: { count: hours } },
+  })),
   liveTurnLimits: [
-    { minutes: null, label: 'Aus' },
-    { minutes: 2, label: '2 Minuten' },
-    { minutes: 5, label: '5 Minuten' },
+    { minutes: null, label: { key: 'setup.off' } },
+    { minutes: 2, label: { key: 'setup.minutes', params: { count: 2 } } },
+    { minutes: 5, label: { key: 'setup.minutes', params: { count: 5 } } },
   ],
-  victoryConditions: [
-    {
-      id: 'elimination',
-      label: 'Alle Gegner besiegen',
-      description: 'Gewonnen hat, wer als Letzter noch Städte besitzt.',
-    },
-    {
-      id: 'capitals',
-      label: 'Hauptstädte erobern',
-      description: 'Gewonnen hat, wer alle gegnerischen Hauptstädte hält.',
-    },
-    {
-      id: 'dominance',
-      label: 'Vorherrschaft',
-      description:
-        'Gewonnen hat, wer fünf eigene Runden in Folge die Mehrheit aller Städte hält: 60 % auf dem Kontinent, 50 % auf Inseln und Archipel. Passt zu Inselwelten, wo kaum jemand ganz ausgeschaltet wird.',
-    },
-    {
-      id: 'roundLimit',
-      label: 'Rundenlimit',
-      description:
-        'Nach der letzten Runde gewinnt, wer die meisten Punkte für Städte und Einheiten hat.',
-    },
-  ],
+  victoryConditions: (['elimination', 'capitals', 'dominance', 'roundLimit'] as const).map(
+    (id) => ({
+      id,
+      label: `setup.victory.${id}.label` as const,
+      description: `setup.victory.${id}.description` as const,
+    }),
+  ),
   roundLimits: [50, 100, 150, 250, 500, null],
 }
 
-export const roundLimitLabel = (n: number | null) => (n === null ? 'Ohne Limit' : `${n} Runden`)
+export const roundLimitLabel = (n: number | null): Message =>
+  n === null ? { key: 'setup.noRoundLimit' } : { key: 'setup.rounds', params: { count: n } }
 
 /** Vorschläge für den Namen einer neuen Partie */
 export const MATCH_NAME_SUGGESTIONS = [
@@ -193,18 +173,17 @@ export const turnLimitLabel = (rules: {
   mode: 'live' | 'async'
   asyncTurnLimitHours: number
   liveTurnLimitMinutes: number | null
-}) =>
+}): Message =>
   rules.mode === 'async'
-    ? `${rules.asyncTurnLimitHours} Stunden`
+    ? { key: 'setup.hours', params: { count: rules.asyncTurnLimitHours } }
     : rules.liveTurnLimitMinutes
-      ? `${rules.liveTurnLimitMinutes} Minuten`
-      : 'Ohne Zeitlimit'
+      ? { key: 'setup.minutes', params: { count: rules.liveTurnLimitMinutes } }
+      : { key: 'setup.noTimeLimit' }
 
 export const victoryConditionLabel = (rules: {
   victoryCondition: MatchDraft['victoryCondition']
   roundLimit: number | null
-}) => {
-  const label =
-    SETUP_OPTIONS.victoryConditions.find((v) => v.id === rules.victoryCondition)?.label ?? ''
-  return rules.victoryCondition === 'roundLimit' ? `${label} · ${rules.roundLimit} Runden` : label
-}
+}): Message =>
+  rules.victoryCondition === 'roundLimit'
+    ? { key: 'setup.victoryWithRounds', params: { count: rules.roundLimit ?? 0 } }
+    : { key: `setup.victory.${rules.victoryCondition}.label` }

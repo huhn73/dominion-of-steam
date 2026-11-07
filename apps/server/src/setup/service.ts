@@ -1,3 +1,4 @@
+import { LocalizedError, type Text } from '../locale'
 import { isWorldShape, mapSize } from '@dos/shared/game'
 import { randomBytes, randomUUID } from 'node:crypto'
 import { and, desc, eq, inArray, isNotNull } from 'drizzle-orm'
@@ -39,13 +40,9 @@ import type { Notifier } from '../notifications/service'
 import { signal } from '../realtime/signals'
 
 /** German message for the client, sent as 422 (or `status`) with `code` */
-export class SetupError extends Error {
-  constructor(
-    readonly code: string,
-    message: string,
-    readonly status = 422,
-  ) {
-    super(message)
+export class SetupError extends LocalizedError {
+  constructor(code: string, text: Text, status = 422) {
+    super(status, code, text)
   }
 }
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { SETUP_OPTIONS } from '@dos/shared/setup'
 import { useDevActions } from '../../data/match'
 import { routes } from '../../routes'
+import { useT } from '../../i18n'
 
 const DEMO_MATCH_ID = 'demo'
 
@@ -12,6 +13,7 @@ export const devToolsEnabled = import.meta.env.DEV || import.meta.env.VITE_DEV_T
 /** Nur in der Entwicklung: Demo zurücksetzen und Mitspieler ihren Zug beenden lassen */
 export function DevBar() {
   const navigate = useNavigate()
+  const t = useT()
   const { resetDemo, passOthers, createSolo } = useDevActions()
   const [status, setStatus] = useState<string | null>(null)
   const [solo, setSolo] = useState({
@@ -47,7 +49,7 @@ export function DevBar() {
         >
           {SETUP_OPTIONS.mapSizes.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.label}
+              {t(s.label)}
             </option>
           ))}
         </select>
@@ -59,7 +61,7 @@ export function DevBar() {
         >
           {SETUP_OPTIONS.worldShapes.map((w) => (
             <option key={w.id} value={w.id}>
-              {w.label}
+              {t(w.label)}
             </option>
           ))}
         </select>

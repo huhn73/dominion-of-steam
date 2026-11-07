@@ -1,3 +1,4 @@
+import type { MessageKey } from '@dos/shared/i18n'
 import { Bot, Copy, DoorOpen, Link2, Minus, Plus, RotateCcw, Share2, UserPlus } from 'lucide-react'
 import type {
   AiPersonality,
@@ -10,6 +11,7 @@ import type {
 } from '../types'
 import { DIFFICULTY_LABEL, FACTION_HEX, MAX_SEATS, MIN_SEATS, resizeSeats } from './setup'
 import { Avatar, FactionEmblem, Field, Segmented, Toggle } from './ui'
+import { useT } from '../../../i18n'
 
 interface StepPlayersProps {
   draft: MatchDraft
@@ -25,14 +27,14 @@ interface StepPlayersProps {
   onShareInviteLink?: (link: string) => void
 }
 
-const SEAT_KIND_LABEL: Record<Seat['kind'], string> = {
-  you: 'Du',
-  friend: 'Freund',
-  invite: 'Einladung per Link',
-  open: 'Offener Platz',
-  ai: 'KI-Gegner',
-  empty: 'Noch frei',
-}
+const SEAT_KIND_LABEL = {
+  you: 'partieSetup.seat.you',
+  friend: 'partieSetup.seat.friend',
+  invite: 'partieSetup.seat.invite',
+  open: 'partieSetup.seat.open',
+  ai: 'partieSetup.seat.ai',
+  empty: 'partieSetup.seat.empty',
+} as const satisfies Record<Seat['kind'], MessageKey>
 
 export function StepPlayers({
   draft,
@@ -47,16 +49,17 @@ export function StepPlayers({
   onCopyInviteLink,
   onShareInviteLink,
 }: StepPlayersProps) {
+  const t = useT()
   const setSeat = (i: number, seat: Seat) => onChange({ seats: draft.seats.map((s, j) => (j === i ? seat : s)) })
   const factionById = (id: string | null | undefined) => factions.find((f) => f.id === id)
 
   return (
     <div className="space-y-6">
-      <Field label="Anzahl Plätze" hint={`${MIN_SEATS} bis ${MAX_SEATS} Spieler, Platz 1 bist du.`}>
+      <Field label={t('partieSetup.seatCount')} hint={t('partieSetup.seatCountHint', { min: MIN_SEATS, max: MAX_SEATS })}>
         <div className="flex items-center gap-3">
           <button
             type="button"
-            aria-label="Platz entfernen"
+            aria-label={t('partieSetup.removeSeat')}
             disabled={draft.seats.length <= MIN_SEATS}
             onClick={() => onChange({ seats: resizeSeats(draft.seats, draft.seats.length - 1) })}
             className="flex size-12 items-center justify-center rounded-lg border-2 border-stone-300 bg-white hover:border-teal-500 disabled:opacity-40 dark:border-stone-700 dark:bg-stone-900"
@@ -68,7 +71,7 @@ export function StepPlayers({
           </span>
           <button
             type="button"
-            aria-label="Platz hinzufügen"
+            aria-label={t('partieSetup.addSeat')}
             disabled={draft.seats.length >= MAX_SEATS}
             onClick={() => onChange({ seats: resizeSeats(draft.seats, draft.seats.length + 1) })}
             className="flex size-12 items-center justify-center rounded-lg border-2 border-stone-300 bg-white hover:border-teal-500 disabled:opacity-40 dark:border-stone-700 dark:bg-stone-900"
@@ -78,7 +81,7 @@ export function StepPlayers({
         </div>
       </Field>
 
-      <Field label="Plätze">
+      <Field label={t('partieSetup.seats')}>
         <ol className="grid gap-3 md:grid-cols-2">
           {draft.seats.map((seat, i) => {
             const personality = seat.kind === 'ai' ? aiPersonalities.find((p) => p.id === seat.personalityId) : undefined
@@ -100,13 +103,13 @@ export function StepPlayers({
 
                 {seat.kind === 'empty' ? (
                   <>
-                    <p className="mb-3 pl-3 text-sm font-semibold text-stone-500">Wer besetzt diesen Platz?</p>
+                    <p className="mb-3 pl-3 text-sm font-semibold text-stone-500">{t('partieSetup.whoTakes')}</p>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { icon: UserPlus, label: 'Freund', onClick: () => onPickFriend(i) },
-                        { icon: Link2, label: 'Einladung', onClick: () => setSeat(i, { kind: 'invite' }) },
-                        { icon: DoorOpen, label: 'Offen', onClick: () => setSeat(i, { kind: 'open' }) },
-                        { icon: Bot, label: 'KI', onClick: () => onPickAi(i) },
+                        { icon: UserPlus, label: t('partieSetup.pick.friend'), onClick: () => onPickFriend(i) },
+                        { icon: Link2, label: t('partieSetup.pick.invite'), onClick: () => setSeat(i, { kind: 'invite' }) },
+                        { icon: DoorOpen, label: t('partieSetup.pick.open'), onClick: () => setSeat(i, { kind: 'open' }) },
+                        { icon: Bot, label: t('partieSetup.pick.ai'), onClick: () => onPickAi(i) },
                       ].map(({ icon: Icon, label, onClick }) => (
                         <button
                           key={label}
@@ -132,14 +135,14 @@ export function StepPlayers({
 
                     <div className="min-w-0 flex-1">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">
-                        {SEAT_KIND_LABEL[seat.kind]}
+                        {t(SEAT_KIND_LABEL[seat.kind])}
                       </p>
                       <p className="truncate font-['Big_Shoulders_Display'] text-xl font-extrabold uppercase tracking-wide">
                         {seat.kind === 'you' && you.name}
                         {friend?.name}
                         {personality?.name}
-                        {seat.kind === 'invite' && 'Wer den Link hat'}
-                        {seat.kind === 'open' && 'Beliebiger Spieler'}
+                        {seat.kind === 'invite' && t('partieSetup.linkHolder')}
+                        {seat.kind === 'open' && t('partieSetup.anyPlayer')}
                       </p>
                       {faction ? (
                         <p className="mt-0.5 flex items-center gap-1.5 text-sm text-stone-600 dark:text-stone-300">
@@ -148,15 +151,15 @@ export function StepPlayers({
                         </p>
                       ) : (
                         <p className="mt-0.5 text-sm text-stone-500">
-                          {seat.kind === 'you' ? 'Noch keine Fraktion gewählt' : 'Wählt die Fraktion selbst'}
+                          {seat.kind === 'you' ? t('partieSetup.noFaction') : t('partieSetup.choosesOwn')}
                         </p>
                       )}
                       {seat.kind === 'ai' && (
                         <div className="mt-3">
                           <Segmented<Difficulty>
-                            label={`Schwierigkeit ${personality?.name ?? ''}`}
+                            label={t('partieSetup.difficultyOf', { name: personality?.name ?? '' })}
                             value={seat.difficulty}
-                            options={(['easy', 'normal', 'hard'] as const).map((d) => ({ value: d, label: DIFFICULTY_LABEL[d] }))}
+                            options={(['easy', 'normal', 'hard'] as const).map((d) => ({ value: d, label: t(DIFFICULTY_LABEL[d]) }))}
                             onChange={(d) => setSeat(i, { ...seat, difficulty: d })}
                           />
                         </div>
@@ -169,7 +172,7 @@ export function StepPlayers({
                         onClick={() => setSeat(i, { kind: 'empty' })}
                         className="flex min-h-10 items-center gap-1 rounded-md px-2 text-xs font-semibold uppercase tracking-wide text-stone-500 hover:bg-stone-100 hover:text-teal-700 dark:hover:bg-stone-800 dark:hover:text-teal-300"
                       >
-                        <RotateCcw className="size-3.5" /> Ändern
+                        <RotateCcw className="size-3.5" /> {t('partieSetup.change')}
                       </button>
                     )}
                   </div>
@@ -180,7 +183,7 @@ export function StepPlayers({
         </ol>
       </Field>
 
-      <Field label="Einladungslink" hint="Teile den Link mit Freunden, die keinen festen Platz haben. Er besetzt Plätze vom Typ „Einladung per Link“.">
+      <Field label={t('partieSetup.inviteLink')} hint={t('partieSetup.inviteLinkHint')}>
         <div className="flex flex-col gap-2 sm:flex-row">
           <code className="flex min-h-12 flex-1 items-center truncate rounded-lg border-2 border-dashed border-stone-300 bg-stone-100 px-4 font-['IBM_Plex_Mono'] text-sm dark:border-stone-700 dark:bg-stone-950">
             {inviteLink}
@@ -194,25 +197,25 @@ export function StepPlayers({
               }}
               className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg border-2 border-stone-300 px-4 font-semibold hover:border-teal-500 sm:flex-none dark:border-stone-700"
             >
-              <Copy className="size-4" /> Kopieren
+              <Copy className="size-4" /> {t('partieSetup.copy')}
             </button>
             <button
               type="button"
               onClick={() => onShareInviteLink?.(inviteLink)}
               className="flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-teal-600 px-4 font-semibold text-white hover:bg-teal-500 sm:flex-none"
             >
-              <Share2 className="size-4" /> Teilen
+              <Share2 className="size-4" /> {t('partieSetup.share')}
             </button>
           </div>
         </div>
       </Field>
 
-      <Field label="Freie Plätze">
+      <Field label={t('partieSetup.freeSeats')}>
         <Toggle
           checked={draft.fillEmptyWithAI}
           onChange={(v) => onChange({ fillEmptyWithAI: v })}
-          label="Freie Plätze beim Start mit KI auffüllen"
-          description="Noch freie, offene oder nicht angenommene Plätze werden beim Start durch KI-Gegner (Normal) ersetzt."
+          label={t('partieSetup.fill')}
+          description={t('partieSetup.fillHint')}
         />
       </Field>
     </div>

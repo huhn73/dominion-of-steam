@@ -275,7 +275,7 @@ describe('Spielfeld', () => {
     expect(dialog).toHaveTextContent('18 %')
     expect(dialog).toHaveTextContent('Trefferchance je Runde 18 %')
     expect(dialog).toHaveTextContent('Schaden je Treffer: eigene 1, Gegner 3 TP')
-    expect(dialog).toHaveTextContent('Erwarteter eigener Verlust −1.0 TP')
+    expect(dialog).toHaveTextContent('Erwarteter eigener Verlust −1,0 TP')
     await userEvent.click(screen.getByRole('button', { name: 'Abbrechen' }))
     expect(screen.queryByText('Angriff')).not.toBeInTheDocument()
   })

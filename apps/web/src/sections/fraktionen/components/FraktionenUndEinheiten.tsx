@@ -4,7 +4,9 @@ import type { FraktionenUndEinheitenProps, UnitDomain } from '../types'
 import { FactionEmblem } from './FactionEmblem'
 import { FACTION_HEX } from './theme'
 import { UnitRow } from './UnitRow'
+import type { MessageKey } from '@dos/shared/i18n'
 import { unitImageCandidates, unitThumbUrl, useImageLoaded, useVariantCycle } from './useImageLoaded'
+import { useT } from '../../../i18n'
 
 type DomainFilter = 'all' | UnitDomain
 /** 'all', 'general' or a faction id (its special units) */
@@ -22,14 +24,15 @@ function CardImage({ url, deep }: { url: string | null; deep: string }) {
   )
 }
 
-const DOMAIN_FILTERS: { value: DomainFilter; label: string; icon: typeof Shield }[] = [
-  { value: 'all', label: 'Alle', icon: Layers },
-  { value: 'land', label: 'Land', icon: Shield },
-  { value: 'sea', label: 'See', icon: Ship },
-  { value: 'air', label: 'Luft', icon: Plane },
+const DOMAIN_FILTERS: { value: DomainFilter; label: MessageKey; icon: typeof Shield }[] = [
+  { value: 'all', label: 'compendium.filter.all', icon: Layers },
+  { value: 'land', label: 'compendium.domain.land', icon: Shield },
+  { value: 'sea', label: 'compendium.domain.sea', icon: Ship },
+  { value: 'air', label: 'compendium.domain.air', icon: Plane },
 ]
 
 export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, onSelectUnitType }: FraktionenUndEinheitenProps) {
+  const t = useT()
   const [domain, setDomain] = useState<DomainFilter>('all')
   const [origin, setOrigin] = useState<OriginFilter>('all')
 
@@ -56,20 +59,20 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
       {/* Title */}
       <header className="mb-10 max-w-3xl">
         <p className="mb-2 flex items-center gap-3 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-teal-700 dark:text-teal-400">
-          <span className="h-px w-8 bg-current" /> Kompendium
+          <span className="h-px w-8 bg-current" /> {t('compendium.kicker')}
         </p>
         <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-[0.9] tracking-wide sm:text-7xl">
-          Fraktionen <span className="text-amber-600 dark:text-amber-500">&amp;</span> Einheiten
+          {t('compendium.titleFactions')} <span className="text-amber-600 dark:text-amber-500">&amp;</span> {t('compendium.titleUnits')}
         </h1>
         <p className="mt-4 text-lg text-stone-600 dark:text-stone-400">
-          {factions.length} Mächte ringen um die Kohleinseln. Lerne ihre Eigenheiten kennen, bevor du ihnen auf der Karte begegnest.
+          {t('compendium.intro', { count: factions.length })}
         </p>
       </header>
 
       {/* Factions */}
       <section aria-labelledby="factions-heading" className="mb-16">
         <h2 id="factions-heading" className="sr-only">
-          Fraktionen
+          {t('compendium.factions')}
         </h2>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {factions.map((f, i) => {
@@ -134,15 +137,15 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b-4 border-double border-stone-300 pb-4 dark:border-stone-700">
           <div>
             <h2 id="units-heading" className="font-['Big_Shoulders_Display'] text-4xl font-black uppercase tracking-wide">
-              Einheiten
+              {t('compendium.units')}
             </h2>
             <p className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-stone-500" aria-live="polite">
-              {filtered.length} von {unitTypes.length} Typen
+              {t('compendium.typesCount', { shown: filtered.length, total: unitTypes.length })}
             </p>
           </div>
 
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-            <div role="radiogroup" aria-label="Einsatzgebiet" className="flex flex-1 rounded-lg border border-stone-300 bg-white p-1 sm:flex-none dark:border-stone-700 dark:bg-stone-900">
+            <div role="radiogroup" aria-label={t('compendium.domainFilter')} className="flex flex-1 rounded-lg border border-stone-300 bg-white p-1 sm:flex-none dark:border-stone-700 dark:bg-stone-900">
               {DOMAIN_FILTERS.map(({ value, label, icon: Icon }) => (
                 <button
                   key={value}
@@ -157,24 +160,24 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
                   }`}
                 >
                   <Icon className="size-4" />
-                  {label}
+                  {t(label)}
                 </button>
               ))}
             </div>
 
             <label className="relative flex min-h-12 flex-1 items-center sm:flex-none">
-              <span className="sr-only">Herkunft</span>
+              <span className="sr-only">{t('compendium.origin')}</span>
               <Filter className="pointer-events-none absolute left-3 size-4 text-stone-500" />
               <select
                 value={origin}
                 onChange={(e) => setOrigin(e.target.value)}
                 className="h-12 w-full appearance-none rounded-lg border border-stone-300 bg-white pl-9 pr-9 text-sm font-semibold text-stone-800 focus-visible:outline-2 focus-visible:outline-teal-500 sm:w-60 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100"
               >
-                <option value="all">Alle Herkünfte</option>
-                <option value="general">Allgemeine Einheiten</option>
+                <option value="all">{t('compendium.allOrigins')}</option>
+                <option value="general">{t('compendium.generalUnits')}</option>
                 {factions.map((f) => (
                   <option key={f.id} value={f.id}>
-                    Sondereinheiten: {f.name}
+                    {t('compendium.specialUnitsOf', { name: f.name })}
                   </option>
                 ))}
               </select>
@@ -185,9 +188,9 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
 
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center rounded-xl border-2 border-dashed border-stone-300 px-6 py-14 text-center dark:border-stone-700">
-            <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">Keine Einheiten gefunden</p>
+            <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">{t('compendium.noneFound')}</p>
             <p className="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
-              Für diese Kombination aus Einsatzgebiet und Herkunft gibt es keinen Einheitentyp.
+              {t('compendium.noneFoundHint')}
             </p>
             <button
               type="button"
@@ -228,7 +231,7 @@ export function FraktionenUndEinheiten({ factions, unitTypes, onSelectFaction, o
             }}
             className="mt-4 text-sm font-semibold text-teal-700 underline-offset-4 hover:underline dark:text-teal-400"
           >
-            Filter zurücksetzen
+            {t('compendium.resetFilter')}
           </button>
         )}
       </section>

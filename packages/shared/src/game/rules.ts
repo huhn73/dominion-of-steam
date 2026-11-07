@@ -1,3 +1,4 @@
+import type { MessageKey } from '../i18n'
 import type { CombatOdds, Terrain, UnitDomain, UnitType } from './types'
 import type { WorldShape } from './worldShapes'
 
@@ -19,14 +20,14 @@ export const TERRAIN_DEFENSE: Record<Terrain, number> = {
   mountains: 2,
 }
 
-export const TERRAIN_LABEL: Record<Terrain, string> = {
-  deepSea: 'Tiefsee',
-  shallows: 'Flachwasser',
-  plains: 'Ebene',
-  forest: 'Wald',
-  hills: 'Hügel',
-  mountains: 'Gebirge',
-}
+export const TERRAIN_LABEL = {
+  deepSea: 'game.terrain.deepSea',
+  shallows: 'game.terrain.shallows',
+  plains: 'game.terrain.plains',
+  forest: 'game.terrain.forest',
+  hills: 'game.terrain.hills',
+  mountains: 'game.terrain.mountains',
+} as const satisfies Record<Terrain, MessageKey>
 
 /** Additional defense of every unit inside a city (factions may add a fortification bonus) */
 export const CITY_DEFENSE = 1
@@ -59,15 +60,15 @@ export function canAttack(
 }
 
 /** Short description of the targets a unit type may attack, for the compendium */
-export function attackTargetsDescription(type: Pick<UnitType, 'id' | 'domain' | 'strength'>) {
-  if (type.strength <= 0) return 'Keine Angriffe'
+export function attackTargetsDescription(type: Pick<UnitType, 'id' | 'domain' | 'strength'>): MessageKey {
+  if (type.strength <= 0) return 'game.targets.none'
   switch (type.domain) {
     case 'air':
-      return 'Land, See und Luft'
+      return 'game.targets.air'
     case 'land':
-      return 'Land, Schiffe auf Nachbarfeldern (Küste, Hafen) und Flugzeuge über Land'
+      return 'game.targets.land'
     case 'sea':
-      return type.id === 'tauchboot' ? 'Nur Schiffe' : 'See, Landeinheiten an der Küste und Luft'
+      return type.id === 'tauchboot' ? 'game.targets.submarine' : 'game.targets.sea'
   }
 }
 
@@ -77,7 +78,7 @@ export function terrainDefense(defender: Pick<UnitType, 'domain'>, terrain: Terr
 }
 
 export interface DefenseModifier {
-  label: string
+  label: MessageKey
   value: number
 }
 
@@ -90,7 +91,7 @@ export function defenseModifiers(
   const mods: DefenseModifier[] = []
   const t = terrainDefense(defender, terrain)
   if (t > 0) mods.push({ label: TERRAIN_LABEL[terrain], value: t })
-  if (inCity) mods.push({ label: 'Stadt', value: CITY_DEFENSE })
+  if (inCity) mods.push({ label: 'game.city', value: CITY_DEFENSE })
   return mods
 }
 

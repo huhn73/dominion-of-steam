@@ -6,12 +6,10 @@ import { LobbyError, type LobbyService } from '../lobby/service'
 import { SetupError } from '../setup/service'
 import { loadSession, requireAuth } from '../session'
 import { handleSetupError, requestOrigin } from './setup'
+import { sendError } from '../locale'
 
 function handleLobbyError(err: unknown, reply: FastifyReply) {
-  if (err instanceof LobbyError)
-    return reply
-      .status(err.status)
-      .send({ error: { code: err.code, message: err.message } } satisfies ApiError)
+  if (err instanceof LobbyError) return sendError(reply, err.status, err.code, err.text)
   if (err instanceof SetupError) return handleSetupError(err, reply)
   throw err
 }

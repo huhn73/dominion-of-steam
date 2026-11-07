@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { translateMessage } from '../../../i18n'
+
+const de = (m: Parameters<typeof translateMessage>[1]) => translateMessage('de', m)
 import {
   createMatch,
   defaultRules,
@@ -37,8 +40,8 @@ describe('Kartengrößen: Stufen', () => {
       ['empire', 200, 200, 500],
     ])
     expect(SETUP_OPTIONS.mapSizes).toBe(MAP_SIZE_OPTIONS)
-    expect(mapSizeLabel(200, 200)).toBe('Imperium')
-    expect(mapSizeLabel(14, 10)).toBe('14×10')
+    expect(de(mapSizeLabel(200, 200))).toBe('Imperium')
+    expect(de(mapSizeLabel(14, 10))).toBe('14×10')
   })
 
   it('erlaubt „kein Rundenlimit“ nur mit anderer Siegbedingung', () => {

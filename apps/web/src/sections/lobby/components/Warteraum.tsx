@@ -140,8 +140,8 @@ export function Warteraum({ room, factions, onToggleReady, onStartMatch, onLeave
               <dl className="space-y-1.5 text-sm">
                 {[
                   [t('lobby.details.mode'), room.rules.mode === 'live' ? t('lobby.live') : t('lobby.async')],
-                  [room.rules.mode === 'live' ? t('lobby.details.timeLimit') : t('lobby.details.deadline'), room.rules.turnLimitLabel],
-                  [t('lobby.details.victory'), room.rules.victoryCondition],
+                  [room.rules.mode === 'live' ? t('lobby.details.timeLimit') : t('lobby.details.deadline'), t(room.rules.turnLimitLabel)],
+                  [t('lobby.details.victory'), t(room.rules.victoryCondition)],
                   [
                     t('lobby.details.map'),
                     t('lobby.room.mapLine', { size: room.map.sizeLabel, width: room.map.width, height: room.map.height, land: room.map.landShare }) +

@@ -9,6 +9,7 @@ import type {
 } from '@dos/shared/lobby'
 import { api, ApiRequestError } from './api'
 import { useServerEventsConnected } from './events'
+import { useLocalizedMasterData } from '../i18n/localize'
 
 /** Lobby without event stream: every 15 s and when the window gets focus again */
 export const LOBBY_POLL_MS = 15_000
@@ -22,9 +23,11 @@ export const roomKey = (matchId: string) => ['room', matchId] as const
 
 export function useLobby() {
   const live = useServerEventsConnected()
+  const select = useLocalizedMasterData<LobbyData>()
   return useQuery({
     queryKey: lobbyKey,
     queryFn: () => api<LobbyData>('/lobby'),
+    select,
     refetchInterval: live ? LOBBY_POLL_CONNECTED_MS : LOBBY_POLL_MS,
     refetchOnWindowFocus: true,
   })
@@ -38,9 +41,11 @@ export function useYourTurnCount(): number {
 
 export function useWaitingRoom(matchId: string) {
   const live = useServerEventsConnected()
+  const select = useLocalizedMasterData<WaitingRoomData>()
   return useQuery({
     queryKey: roomKey(matchId),
     queryFn: () => api<WaitingRoomData>(`/matches/${matchId}/room`),
+    select,
     refetchInterval: (query) =>
       live ||
       (query.state.error instanceof ApiRequestError &&

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultDraft, type MatchDraft, validateDraft } from '..'
+import { translateMessage } from '../../i18n'
 
 const FRIENDS = new Set(['lena'])
 const base = (patch: Partial<MatchDraft> = {}): MatchDraft => ({
@@ -9,7 +10,7 @@ const base = (patch: Partial<MatchDraft> = {}): MatchDraft => ({
 })
 const message = (input: unknown) => {
   const r = validateDraft(input, FRIENDS)
-  return r.ok ? null : r.message
+  return r.ok ? null : translateMessage('de', r.message)
 }
 
 describe('validateDraft', () => {

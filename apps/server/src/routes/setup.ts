@@ -1,8 +1,8 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { API_PREFIX } from '@dos/shared'
-import type { ApiError } from '@dos/shared/game'
 import type { CreateMatchRequest, CreateMatchResponse } from '@dos/shared/setup'
 import { type SetupService, SetupError } from '../setup/service'
+import { sendError } from '../locale'
 import { loadSession, requireAuth } from '../session'
 
 /**
@@ -19,10 +19,7 @@ export function requestOrigin(req: FastifyRequest) {
 }
 
 export function handleSetupError(err: unknown, reply: FastifyReply) {
-  if (err instanceof SetupError)
-    return reply
-      .status(err.status)
-      .send({ error: { code: err.code, message: err.message } } satisfies ApiError)
+  if (err instanceof SetupError) return sendError(reply, err.status, err.code, err.text)
   throw err
 }
 

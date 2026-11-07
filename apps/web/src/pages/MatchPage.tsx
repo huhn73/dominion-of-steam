@@ -10,6 +10,7 @@ import { useSettings } from '../data/profile'
 import { BoardSettingsLayer } from '../settings/BoardSettingsLayer'
 import { DEFAULT_SETTINGS } from '@dos/shared/profile'
 import { useMatchAudio } from './useMatchAudio'
+import { useT } from '../i18n'
 
 const REJECTED_TOAST_MS = 5000
 /** Combat sequence on the map; „Animationen reduzieren“ keeps it short */
@@ -26,6 +27,7 @@ export const combatAnimationMs = (display: { combatAnimations: boolean; reduceMo
 export function MatchPage() {
   const { matchId = '' } = useParams()
   const navigate = useNavigate()
+  const t = useT()
   const { data: view, error, isPending, refetch } = useMatchView(matchId)
   const [lastCombat, setLastCombat] = useState<CombatResult | null>(null)
   const [rejected, setRejected] = useState<string | null>(null)
@@ -64,7 +66,7 @@ export function MatchPage() {
     return () => clearTimeout(timer)
   }, [rejected])
 
-  if (isPending) return <BoardMessage title="Lade Partie …" pulse />
+  if (isPending) return <BoardMessage title={t('match.header.loading')} pulse />
   // Die Partie wartet noch auf Mitspieler: in den Warteraum
   if (error instanceof ApiRequestError && error.code === 'MATCH_WAITING')
     return <Navigate to={routes.waitingRoom(matchId)} replace />
@@ -74,12 +76,12 @@ export function MatchPage() {
     const forbidden = error instanceof ApiRequestError && error.status === 403
     return (
       <BoardMessage
-        title={notFound ? 'Partie nicht gefunden' : 'Partie konnte nicht geladen werden'}
-        text={notFound ? 'Diese Partie gibt es nicht oder nicht mehr.' : error?.message}
+        title={notFound ? t('match.notFound') : t('match.loadFailed')}
+        text={notFound ? t('match.gone') : error?.message}
         action={
           notFound || forbidden
             ? undefined
-            : { label: 'Erneut versuchen', onClick: () => void refetch() }
+            : { label: t('common.retry'), onClick: () => void refetch() }
         }
       />
     )
@@ -136,12 +138,12 @@ export function MatchPage() {
           >
             <AlertTriangle className="mt-0.5 size-4 shrink-0 text-rose-400" />
             <p>
-              <span className="font-semibold">Aktion abgelehnt:</span> {rejected}
+              <span className="font-semibold">{t('match.rejected')}</span> {rejected}
             </p>
             <button
               type="button"
               onClick={() => setRejected(null)}
-              aria-label="Hinweis schließen"
+              aria-label={t('match.closeHint')}
               className="-mr-1 flex size-6 shrink-0 items-center justify-center rounded text-rose-300 hover:text-rose-100"
             >
               <X className="size-4" />

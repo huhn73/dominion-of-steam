@@ -1,3 +1,4 @@
+import { formatNumber } from '@dos/shared/i18n'
 import type { ReactNode } from 'react'
 import { AlertTriangle, Pencil } from 'lucide-react'
 import type {
@@ -10,6 +11,7 @@ import type {
 } from '../types'
 import { DIFFICULTY_LABEL, STEP, summaryWarnings } from './setup'
 import { FactionEmblem } from './ui'
+import { useLocale, useT } from '../../../i18n'
 
 interface StepSummaryProps {
   draft: MatchDraft
@@ -22,6 +24,7 @@ interface StepSummaryProps {
 }
 
 function Block({ title, step, onEdit, children }: { title: string; step: number; onEdit: (s: number) => void; children: ReactNode }) {
+  const t = useT()
   return (
     <section className="rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
       <header className="flex items-center justify-between border-b-4 border-double border-stone-200 px-5 py-2.5 dark:border-stone-800">
@@ -31,7 +34,7 @@ function Block({ title, step, onEdit, children }: { title: string; step: number;
           onClick={() => onEdit(step)}
           className="flex min-h-10 items-center gap-1 text-sm font-semibold text-teal-700 hover:underline dark:text-teal-400"
         >
-          <Pencil className="size-3.5" /> Ändern
+          <Pencil className="size-3.5" /> {t('partieSetup.change')}
         </button>
       </header>
       <dl className="divide-y divide-stone-100 px-5 dark:divide-stone-800">{children}</dl>
@@ -49,6 +52,8 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 }
 
 export function StepSummary({ draft, you, factions, friends, aiPersonalities, options, onEdit }: StepSummaryProps) {
+  const t = useT()
+  const { locale } = useLocale()
   const size = options.mapSizes.find((s) => s.id === draft.map.size)
   const warnings = summaryWarnings(draft, size)
   const victory = options.victoryConditions.find((v) => v.id === draft.victoryCondition)
@@ -56,35 +61,37 @@ export function StepSummary({ draft, you, factions, friends, aiPersonalities, op
   const ownFaction = factions.find((f) => f.id === draft.factionId)
   const turnLimit =
     draft.mode === 'async'
-      ? options.asyncTurnLimits.find((t) => t.hours === draft.asyncTurnLimitHours)?.label
-      : options.liveTurnLimits.find((t) => t.minutes === draft.liveTurnLimitMinutes)?.label
+      ? options.asyncTurnLimits.find((l) => l.hours === draft.asyncTurnLimitHours)?.label
+      : options.liveTurnLimits.find((l) => l.minutes === draft.liveTurnLimitMinutes)?.label
 
   return (
     <div className="space-y-5">
       {warnings.length > 0 && (
-        <ul className="space-y-2" aria-label="Hinweise">
+        <ul className="space-y-2" aria-label={t('partieSetup.hints')}>
           {warnings.map((w) => (
-            <li key={w} className="flex items-start gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
-              <AlertTriangle className="mt-0.5 size-4 shrink-0" /> {w}
+            <li key={w.key} className="flex items-start gap-2.5 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" /> {t(w)}
             </li>
           ))}
         </ul>
       )}
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Block title="Modus & Regeln" step={STEP.rules} onEdit={onEdit}>
-          <Row label="Name">{draft.name}</Row>
-          <Row label="Modus">{draft.mode === 'async' ? 'Asynchron' : 'Live'}</Row>
-          <Row label={draft.mode === 'async' ? 'Frist pro Zug' : 'Zeitlimit pro Zug'}>{turnLimit}</Row>
-          <Row label="Siegbedingung">
-            {victory?.label}
+        <Block title={t('setup.step.rules')} step={STEP.rules} onEdit={onEdit}>
+          <Row label={t('partieSetup.nameShort')}>{draft.name}</Row>
+          <Row label={t('partieSetup.mode')}>{draft.mode === 'async' ? t('partieSetup.async') : t('partieSetup.live')}</Row>
+          <Row label={draft.mode === 'async' ? t('partieSetup.asyncLimit') : t('partieSetup.liveLimit')}>{turnLimit && t(turnLimit)}</Row>
+          <Row label={t('partieSetup.victory')}>
+            {victory && t(victory.label)}
             {draft.victoryCondition === 'roundLimit' &&
-              ` · ${draft.roundLimit === null ? 'ohne Rundenlimit' : `${draft.roundLimit} Runden`}`}
+              ` · ${draft.roundLimit === null ? t('partieSetup.withoutRoundLimit') : t('setup.rounds', { count: draft.roundLimit })}`}
           </Row>
-          <Row label="Doppelte Fraktionen">{draft.allowDuplicateFactions ? 'Erlaubt' : 'Nicht erlaubt'}</Row>
+          <Row label={t('lobby.details.duplicates')}>
+            {draft.allowDuplicateFactions ? t('lobby.details.allowed') : t('lobby.details.notAllowed')}
+          </Row>
         </Block>
 
-        <Block title="Deine Fraktion" step={STEP.faction} onEdit={onEdit}>
+        <Block title={t('setup.step.faction')} step={STEP.faction} onEdit={onEdit}>
           {ownFaction ? (
             <div className="flex items-center gap-3 py-3">
               <FactionEmblem faction={ownFaction} className="size-12" />
@@ -94,39 +101,53 @@ export function StepSummary({ draft, you, factions, friends, aiPersonalities, op
               </div>
             </div>
           ) : (
-            <Row label="Fraktion">Noch nicht gewählt</Row>
+            <Row label={t('partieSetup.faction')}>{t('partieSetup.notChosen')}</Row>
           )}
         </Block>
 
-        <Block title={`Gegner & Mitspieler · ${draft.seats.length}`} step={STEP.players} onEdit={onEdit}>
+        <Block title={t('partieSetup.playersTitle', { count: draft.seats.length })} step={STEP.players} onEdit={onEdit}>
           {draft.seats.map((s, i) => {
-            let label: ReactNode = 'Noch frei'
-            if (s.kind === 'you') label = `${you.name} (du)`
+            let label: ReactNode = t('partieSetup.seat.empty')
+            if (s.kind === 'you') label = t('partieSetup.youName', { name: you.name })
             if (s.kind === 'friend') label = friends.find((f) => f.id === s.friendId)?.name
-            if (s.kind === 'invite') label = 'Einladung per Link'
-            if (s.kind === 'open') label = 'Offener Platz'
+            if (s.kind === 'invite') label = t('partieSetup.seat.invite')
+            if (s.kind === 'open') label = t('partieSetup.seat.open')
             if (s.kind === 'ai') {
               const p = aiPersonalities.find((x) => x.id === s.personalityId)
-              label = `${p?.name} · KI ${DIFFICULTY_LABEL[s.difficulty]}`
+              label = t('partieSetup.aiSeat', { name: p?.name ?? '', difficulty: { key: DIFFICULTY_LABEL[s.difficulty] } })
             }
-            if (s.kind === 'empty' && draft.fillEmptyWithAI) label = 'KI (Normal) beim Start'
+            if (s.kind === 'empty' && draft.fillEmptyWithAI) label = t('partieSetup.aiAtStart')
             return (
-              <Row key={i} label={`Platz ${i + 1}`}>
+              <Row key={i} label={t('partieSetup.seatN', { n: i + 1 })}>
                 {label}
               </Row>
             )
           })}
         </Block>
 
-        <Block title="Karte" step={STEP.map} onEdit={onEdit}>
-          <Row label="Größe">
-            {size?.label} · {size?.width}×{size?.height} · {size ? (size.width * size.height).toLocaleString('de-DE') : ''} Felder
+        <Block title={t('setup.step.map')} step={STEP.map} onEdit={onEdit}>
+          <Row label={t('partieSetup.size')}>
+            {size &&
+              t('partieSetup.sizeLine', {
+                size: { key: size.label },
+                width: size.width,
+                height: size.height,
+                tiles: formatNumber(locale, size.width * size.height),
+              })}
           </Row>
-          <Row label="Weltform">{options.worldShapes.find((w) => w.id === (draft.map.worldShape ?? 'continent'))?.label ?? 'Kontinent'}</Row>
-          <Row label="Landanteil">{draft.map.landShare} %</Row>
-          <Row label="Neutrale Städte">{draft.map.neutralCities === 'low' ? 'Wenige' : draft.map.neutralCities === 'high' ? 'Viele' : 'Normal'}</Row>
-          <Row label="Gebirge & Wald">{level(draft.map.terrain)}</Row>
-          <Row label="Kartencode">
+          <Row label={t('partieSetup.worldShape')}>
+            {t(options.worldShapes.find((w) => w.id === (draft.map.worldShape ?? 'continent'))?.label ?? 'setup.shape.continent.label')}
+          </Row>
+          <Row label={t('partieSetup.landShare')}>{draft.map.landShare} %</Row>
+          <Row label={t('partieSetup.neutralCities')}>
+            {draft.map.neutralCities === 'low'
+              ? t('partieSetup.few')
+              : draft.map.neutralCities === 'high'
+                ? t('partieSetup.many')
+                : t('partieSetup.normal')}
+          </Row>
+          <Row label={t('partieSetup.terrain')}>{level(draft.map.terrain) && t(level(draft.map.terrain)!)}</Row>
+          <Row label={t('partieSetup.seed')}>
             <span className="font-['IBM_Plex_Mono'] tracking-widest">{draft.map.seed}</span>
           </Row>
         </Block>

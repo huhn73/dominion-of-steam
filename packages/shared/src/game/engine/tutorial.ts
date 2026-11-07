@@ -1,3 +1,4 @@
+import type { MessageKey } from '../../i18n'
 import { bitsFromKeys } from '../bits'
 import { hexKey } from '../hex'
 import type { HexCoord } from '../types'
@@ -51,8 +52,8 @@ type Done = (state: GameState, me: ParticipantState) => boolean
 
 interface TutorialStep {
   id: string
-  title: string
-  text: string
+  title: MessageKey
+  text: MessageKey
   /** What the panel points at */
   focus?: TutorialFocus
   /** Fulfilled by the player's actions; steps without it are confirmed with „Weiter“ */
@@ -68,113 +69,82 @@ const ownsCity = (state: GameState, me: ParticipantState, id: string) =>
 export const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'welcome',
-    title: 'Willkommen, Kommandant',
-    text:
-      'Dies ist ein Manöver gegen die Manöverleitung. Gewonnen wird je nach Siegbedingung: alle Gegner ' +
-      'ausschalten (Städte erobern, Einheiten vernichten), alle Hauptstädte halten oder die Mehrheit der Städte ' +
-      'behaupten. Hier genügt die Hauptstadt Übungsfeste auf der Insel im Osten. ' +
-      'Der Gegner wehrt sich nur mit seiner Garnison, du kannst also in Ruhe ausprobieren.',
+    title: 'tutorial.welcome.title',
+    text: 'tutorial.welcome.text',
   },
   {
     id: 'camera',
-    title: 'Die Karte',
-    text:
-      'Ziehe die Karte mit Maus oder Finger, zoome mit Mausrad, Pinch oder + und −. Mit F passt du die ganze ' +
-      'Karte ein, die Minikarte springt per Klick. Graue Felder sind unerforscht, abgedunkelte liegen im Kriegsnebel.',
+    title: 'tutorial.camera.title',
+    text: 'tutorial.camera.text',
     focus: { ui: 'minimap' },
   },
   {
     id: 'move',
-    title: 'Einheit bewegen',
-    text:
-      'Tippe auf eine deiner Einheiten in Kesselhafen und dann auf ein markiertes Feld. Grenadiere ziehen ' +
-      'ein Feld weit, Panzerwagen zwei. Liegen mehrere Einheiten auf einem Feld, wechselst du sie durch erneutes Tippen.',
+    title: 'tutorial.move.title',
+    text: 'tutorial.move.text',
     focus: { hex: TUTORIAL_CITIES.capital },
     done: (state, me) => state.log.some((l) => l.participantId === me.id && l.action === 'move'),
   },
   {
     id: 'town',
-    title: 'Neutrale Stadt erobern',
-    text:
-      'Nordwestlich liegt die neutrale Stadt Ruß. Wähle den Panzerwagen und tippe auf die Stadt: Er fährt heran ' +
-      'und greift an. Ein Stadtangriff verbraucht die Einheit. Ein unbeschädigter Panzerwagen lässt Grenadiere ' +
-      'als Besatzung zurück. Scheitert der Angriff, versuch es mit der nächsten Einheit.',
+    title: 'tutorial.town.title',
+    text: 'tutorial.town.text',
     focus: { hex: TUTORIAL_CITIES.town },
     done: (state, me) => ownsCity(state, me, TUTORIAL_CITIES.town.id),
   },
   {
     id: 'production',
-    title: 'Produktion',
-    text:
-      'Städte bauen Einheiten. Tippe auf Ruß und wähle unter „Bauauftrag“ einen Typ. Die Bauzeit steht in Runden ' +
-      'daneben. Ist die Einheit fertig, beginnt automatisch die nächste.',
+    title: 'tutorial.production.title',
+    text: 'tutorial.production.text',
     focus: { hex: TUTORIAL_CITIES.town },
     done: (state) =>
       state.cities.some((c) => c.id === TUTORIAL_CITIES.town.id && c.production !== null),
   },
   {
     id: 'endTurn',
-    title: 'Zug beenden',
-    text:
-      '„Nächste“ (Taste N oder Leertaste) springt zur nächsten Einheit ohne Befehl. Sind alle versorgt, ' +
-      'beende deinen Zug unten rechts. Danach ziehen die Gegner, und deine Einheiten bekommen neue Bewegung.',
+    title: 'tutorial.endTurn.title',
+    text: 'tutorial.endTurn.text',
     focus: { ui: 'endTurn' },
     done: (_state, me) => me.lastTurnEndSeq > 0,
   },
   {
     id: 'report',
-    title: 'Neue Runde',
-    text:
-      'Zu Beginn jedes Zuges zeigt der Rundenbericht, was geschehen ist: Verluste, Gefechte und gesichtete Feinde. ' +
-      'Im Ereignisprotokoll kannst du das jederzeit nachlesen. Bei asynchronen Partien bekommst du ' +
-      'eine Benachrichtigung, sobald du am Zug bist.',
+    title: 'tutorial.report.title',
+    text: 'tutorial.report.text',
   },
   {
     id: 'scout',
-    title: 'Aufklärung aus der Luft',
-    text:
-      'Wähle den Doppeldecker und gib den Befehl „Erkunden“, oder steuere ihn selbst nach Osten. Flugzeuge haben ' +
-      'Treibstoff: Rot markierte Felder erreichen sie, kommen aber nicht mehr zurück. Am Zugende muss ein ' +
-      'Flugzeug in einer eigenen Stadt oder auf einem Träger stehen, sonst stürzt es ab.',
+    title: 'tutorial.scout.title',
+    text: 'tutorial.scout.text',
     done: (state, me) =>
       state.cities.some((c) => c.id === TUTORIAL_CITIES.enemy.id && me.id in c.knownBy),
   },
   {
     id: 'board',
-    title: 'Frachter beladen',
-    text:
-      'Landeinheiten überqueren das Meer nur an Bord. Ziehe Grenadiere und Panzerwagen auf das Feld des Frachters ' +
-      'vor Kesselhafen. Er fasst sechs Einheiten. Nimm mindestens zwei mit, denn für die Feste brauchst du einen ' +
-      'Angriff auf die Garnison und einen auf die Stadt.',
+    title: 'tutorial.board.title',
+    text: 'tutorial.board.text',
     focus: { hex: { col: 10, row: 5 } },
     done: (state, me) => own(state, me).some((u) => isLand(u) && u.carriedBy !== null),
   },
   {
     id: 'land',
-    title: 'Übersetzen und ausladen',
-    text:
-      'Fahre den Frachter an die Küste der Übungsfeste. In der nächsten Runde wählst du eine geladene Einheit, ' +
-      'tippst auf „Ausladen“ und dann auf ein Landfeld neben dem Frachter.',
+    title: 'tutorial.land.title',
+    text: 'tutorial.land.text',
     focus: { hex: { col: 12, row: 5 } },
     done: (state, me) =>
       own(state, me).some((u) => isLand(u) && !u.carriedBy && u.col >= ENEMY_ISLAND_COL + 1),
   },
   {
     id: 'attack',
-    title: 'Angriff',
-    text:
-      'Eine Garnison verteidigt die Übungsfeste. Wähle eine Einheit neben der Stadt und tippe auf den Gegner. ' +
-      'Der Dialog zeigt die Siegchance. Kämpfe laufen in Runden, bis eine Seite keine Trefferpunkte mehr hat. ' +
-      'Städte und Gelände stärken die Abwehr.',
+    title: 'tutorial.attack.title',
+    text: 'tutorial.attack.text',
     focus: { hex: TUTORIAL_CITIES.enemy },
     done: (state) => !state.units.some((u) => u.id === GARRISON_ID),
   },
   {
     id: 'capture',
-    title: 'Die Feste einnehmen',
-    text:
-      'Die Stadt ist jetzt unverteidigt. Greife sie mit einer weiteren Landeinheit an. Wer im Modus ' +
-      '„Hauptstädte“ alle gegnerischen Hauptstädte hält, gewinnt sofort, so auch hier.',
+    title: 'tutorial.capture.title',
+    text: 'tutorial.capture.text',
     focus: { hex: TUTORIAL_CITIES.enemy },
     done: (state, me) => state.winnerId === me.id,
   },
@@ -316,6 +286,7 @@ export function seedTutorial(playerId: string, playerName: string): GameState {
 
   const state: GameState = {
     id: tutorialMatchId(playerId),
+    // Shown in the player's language via `isTutorialMatchId` (match.tutorialName)
     name: 'Tutorial: Erste Schritte',
     mode: 'live',
     // 'capitals': taking the Übungsfeste decides the match at once, not only at the turn's end

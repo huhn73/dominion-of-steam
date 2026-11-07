@@ -1,0 +1,50 @@
+{
+  "welcome": {
+    "title": "Willkommen, Kommandant",
+    "text": "Dies ist ein Manöver gegen die Manöverleitung. Gewonnen wird je nach Siegbedingung: alle Gegner ausschalten (Städte erobern, Einheiten vernichten), alle Hauptstädte halten oder die Mehrheit der Städte behaupten. Hier genügt die Hauptstadt Übungsfeste auf der Insel im Osten. Der Gegner wehrt sich nur mit seiner Garnison, du kannst also in Ruhe ausprobieren."
+  },
+  "camera": {
+    "title": "Die Karte",
+    "text": "Ziehe die Karte mit Maus oder Finger, zoome mit Mausrad, Pinch oder + und −. Mit F passt du die ganze Karte ein, die Minikarte springt per Klick. Graue Felder sind unerforscht, abgedunkelte liegen im Kriegsnebel."
+  },
+  "move": {
+    "title": "Einheit bewegen",
+    "text": "Tippe auf eine deiner Einheiten in Kesselhafen und dann auf ein markiertes Feld. Grenadiere ziehen ein Feld weit, Panzerwagen zwei. Liegen mehrere Einheiten auf einem Feld, wechselst du sie durch erneutes Tippen."
+  },
+  "town": {
+    "title": "Neutrale Stadt erobern",
+    "text": "Nordwestlich liegt die neutrale Stadt Ruß. Wähle den Panzerwagen und tippe auf die Stadt: Er fährt heran und greift an. Ein Stadtangriff verbraucht die Einheit. Ein unbeschädigter Panzerwagen lässt Grenadiere als Besatzung zurück. Scheitert der Angriff, versuch es mit der nächsten Einheit."
+  },
+  "production": {
+    "title": "Produktion",
+    "text": "Städte bauen Einheiten. Tippe auf Ruß und wähle unter „Bauauftrag“ einen Typ. Die Bauzeit steht in Runden daneben. Ist die Einheit fertig, beginnt automatisch die nächste."
+  },
+  "endTurn": {
+    "title": "Zug beenden",
+    "text": "„Nächste“ (Taste N oder Leertaste) springt zur nächsten Einheit ohne Befehl. Sind alle versorgt, beende deinen Zug unten rechts. Danach ziehen die Gegner, und deine Einheiten bekommen neue Bewegung."
+  },
+  "report": {
+    "title": "Neue Runde",
+    "text": "Zu Beginn jedes Zuges zeigt der Rundenbericht, was geschehen ist: Verluste, Gefechte und gesichtete Feinde. Im Ereignisprotokoll kannst du das jederzeit nachlesen. Bei asynchronen Partien bekommst du eine Benachrichtigung, sobald du am Zug bist."
+  },
+  "scout": {
+    "title": "Aufklärung aus der Luft",
+    "text": "Wähle den Doppeldecker und gib den Befehl „Erkunden“, oder steuere ihn selbst nach Osten. Flugzeuge haben Treibstoff: Rot markierte Felder erreichen sie, kommen aber nicht mehr zurück. Am Zugende muss ein Flugzeug in einer eigenen Stadt oder auf einem Träger stehen, sonst stürzt es ab."
+  },
+  "board": {
+    "title": "Frachter beladen",
+    "text": "Landeinheiten überqueren das Meer nur an Bord. Ziehe Grenadiere und Panzerwagen auf das Feld des Frachters vor Kesselhafen. Er fasst sechs Einheiten. Nimm mindestens zwei mit, denn für die Feste brauchst du einen Angriff auf die Garnison und einen auf die Stadt."
+  },
+  "land": {
+    "title": "Übersetzen und ausladen",
+    "text": "Fahre den Frachter an die Küste der Übungsfeste. In der nächsten Runde wählst du eine geladene Einheit, tippst auf „Ausladen“ und dann auf ein Landfeld neben dem Frachter."
+  },
+  "attack": {
+    "title": "Angriff",
+    "text": "Eine Garnison verteidigt die Übungsfeste. Wähle eine Einheit neben der Stadt und tippe auf den Gegner. Der Dialog zeigt die Siegchance. Kämpfe laufen in Runden, bis eine Seite keine Trefferpunkte mehr hat. Städte und Gelände stärken die Abwehr."
+  },
+  "capture": {
+    "title": "Die Feste einnehmen",
+    "text": "Die Stadt ist jetzt unverteidigt. Greife sie mit einer weiteren Landeinheit an. Wer im Modus „Hauptstädte“ alle gegnerischen Hauptstädte hält, gewinnt sofort, so auch hier."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "terrain": {
+    "deepSea": "Deep sea",
+    "shallows": "Shallows",
+    "plains": "Plains",
+    "forest": "Forest",
+    "hills": "Hills",
+    "mountains": "Mountains"
+  },
+  "city": "City",
+  "targets": {
+    "none": "No attacks",
+    "air": "Land, sea and air",
+    "land": "Land, ships on adjacent tiles (coast, harbour) and aircraft over land",
+    "submarine": "Ships only",
+    "sea": "Sea, land units on the coast and air"
+  }
+}

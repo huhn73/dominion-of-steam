@@ -11,21 +11,24 @@ import { FactionEmblem } from './FactionEmblem'
 import { DOMAIN_LABEL, FACTION_HEX, bonusEffect } from './theme'
 import { UnitIcon } from './unitIcons'
 import { useFirstLoadedImage } from './useImageLoaded'
+import type { MessageKey } from '@dos/shared/i18n'
+import { useT } from '../../../i18n'
 
 type NumericStat = 'strength' | 'defense' | 'hitPoints' | 'damage' | 'movement' | 'range' | 'capacity' | 'productionTurns'
 
-const STATS: { key: NumericStat; label: string; unit?: string; note?: string }[] = [
-  { key: 'strength', label: 'Stärke' },
-  { key: 'defense', label: 'Abwehr' },
-  { key: 'hitPoints', label: 'Trefferpunkte' },
-  { key: 'damage', label: 'Schaden', unit: 'je Treffer' },
-  { key: 'movement', label: 'Bewegung', unit: 'Felder' },
-  { key: 'range', label: 'Reichweite', unit: 'Felder', note: 'Nur Lufteinheiten' },
-  { key: 'capacity', label: 'Ladung', unit: 'Einheiten' },
-  { key: 'productionTurns', label: 'Bauzeit', unit: 'Runden' },
+const STATS: { key: NumericStat; unit?: MessageKey; note?: MessageKey }[] = [
+  { key: 'strength' },
+  { key: 'defense' },
+  { key: 'hitPoints' },
+  { key: 'damage', unit: 'compendium.unit.perHit' },
+  { key: 'movement', unit: 'compendium.unit.tiles' },
+  { key: 'range', unit: 'compendium.unit.tiles', note: 'compendium.airOnly' },
+  { key: 'capacity', unit: 'compendium.unit.units' },
+  { key: 'productionTurns', unit: 'compendium.unit.rounds' },
 ]
 
 function Blueprint({ unit, accent, imageUrls, label }: { unit: UnitType; accent: string; imageUrls: (string | null)[]; label: string }) {
+  const t = useT()
   const image = useFirstLoadedImage(imageUrls)
   if (image) {
     return (
@@ -46,7 +49,7 @@ function Blueprint({ unit, accent, imageUrls, label }: { unit: UnitType; accent:
         backgroundSize: '60px 60px, 60px 60px, 12px 12px, 12px 12px',
       }}
       role="img"
-      aria-label={`Bauplan ${unit.name} (Platzhalter)`}
+      aria-label={t('compendium.blueprint', { name: unit.name })}
     >
       {/* drafting circle */}
       <div className="absolute left-1/2 top-1/2 aspect-square h-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-teal-300/40" />
@@ -68,9 +71,9 @@ function Blueprint({ unit, accent, imageUrls, label }: { unit: UnitType; accent:
       </div>
       {/* title block */}
       <div className="absolute right-3 top-3 border border-teal-300/50 px-2 py-1 font-['IBM_Plex_Mono'] text-[10px] uppercase leading-tight tracking-widest text-teal-200/80">
-        Bauplan Nr. {unit.id.slice(0, 4).toUpperCase()}-{unit.productionTurns.toString().padStart(2, '0')}
+        {t('compendium.blueprintNo')} {unit.id.slice(0, 4).toUpperCase()}-{unit.productionTurns.toString().padStart(2, '0')}
         <br />
-        {DOMAIN_LABEL[unit.domain]}
+        {t(DOMAIN_LABEL[unit.domain])}
       </div>
       <div className="absolute bottom-3 left-3 size-3 rounded-full" style={{ background: accent }} />
     </div>
@@ -86,6 +89,7 @@ export function EinheitDetail({
   onSelectFaction,
   onBack,
 }: EinheitDetailProps) {
+  const t = useT()
   const variantFactions = factions.filter((f) => unit.variantIllustrationUrls[f.id])
   const [variantId, setVariantId] = useState<string | null>(
     variantFactions.some((f) => f.id === initialVariantFactionId)
@@ -107,7 +111,7 @@ export function EinheitDetail({
         onClick={onBack}
         className="mb-6 flex min-h-11 items-center gap-2 text-sm font-semibold uppercase tracking-widest text-stone-500 hover:text-teal-700 dark:text-stone-400 dark:hover:text-teal-300"
       >
-        <ArrowLeft className="size-4" /> Zurück
+        <ArrowLeft className="size-4" /> {t('compendium.back')}
       </button>
 
       <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:items-start">
@@ -116,14 +120,14 @@ export function EinheitDetail({
             unit={unit}
             accent={accent}
             imageUrls={imageUrls}
-            label={variant ? `${unit.name} in der Ausführung von ${variant.name}` : unit.name}
+            label={variant ? t('compendium.variantOf', { unit: unit.name, faction: variant.name }) : unit.name}
           />
           {variantFactions.length > 0 && (
             <div className="mt-3">
               <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">
-                Ausführung · eigenes Aussehen, Werte mit Fraktionsbonus
+                {t('compendium.variantHint')}
               </p>
-              <div role="tablist" aria-label="Ausführung nach Fraktion" className="flex flex-wrap gap-1.5">
+              <div role="tablist" aria-label={t('compendium.variantTabs')} className="flex flex-wrap gap-1.5">
                 {variantFactions.map((f) => {
                   const active = f.id === variantId
                   const c = FACTION_HEX[f.color]
@@ -153,7 +157,7 @@ export function EinheitDetail({
 
         <div>
           <p className="mb-2 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-teal-700 dark:text-teal-400">
-            {DOMAIN_LABEL[unit.domain]}einheit
+            {t(`compendium.domainUnit.${unit.domain}`)}
           </p>
           <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-[0.9] tracking-wide sm:text-6xl">
             {unit.name}
@@ -168,14 +172,14 @@ export function EinheitDetail({
             >
               <FactionEmblem faction={faction} className="size-10" />
               <span>
-                <span className="block text-[10px] font-bold uppercase tracking-widest text-stone-500">Sondereinheit von</span>
+                <span className="block text-[10px] font-bold uppercase tracking-widest text-stone-500">{t('compendium.specialOf')}</span>
                 <span className="font-semibold">{faction.name}</span>
               </span>
               <ArrowUpRight className="size-4 text-stone-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-teal-600" />
             </button>
           ) : (
             <p className="mt-4 inline-block rounded-full bg-stone-200 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-              Allgemeine Einheit · alle Fraktionen
+              {t('compendium.generalUnit')}
             </p>
           )}
 
@@ -184,11 +188,11 @@ export function EinheitDetail({
           <p className="mt-4 flex items-center gap-2 text-sm font-semibold text-stone-600 dark:text-stone-400">
             {unit.canCaptureCities ? (
               <>
-                <Flag className="size-4 text-teal-600" /> Kann Städte erobern
+                <Flag className="size-4 text-teal-600" /> {t('compendium.canCapture')}
               </>
             ) : (
               <>
-                <FlagOff className="size-4 text-stone-400" /> Kann keine Städte erobern
+                <FlagOff className="size-4 text-stone-400" /> {t('compendium.cannotCapture')}
               </>
             )}
           </p>
@@ -198,7 +202,7 @@ export function EinheitDetail({
       {/* Stats */}
       <section aria-labelledby="stats-heading" className="mt-12">
         <h2 id="stats-heading" className="mb-4 border-b-4 border-double border-stone-300 pb-3 font-['Big_Shoulders_Display'] text-3xl font-black uppercase tracking-wide dark:border-stone-700">
-          Typenschild
+          {t('compendium.statsHeading')}
         </h2>
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
           {STATS.map((s) => {
@@ -212,13 +216,15 @@ export function EinheitDetail({
                   changed ? 'border-amber-400 dark:border-amber-600' : 'border-stone-200 dark:border-stone-800'
                 }`}
               >
-                <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">{s.label}</dt>
+                <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">{t(`compendium.stat.${s.key}`)}</dt>
                 <dd>
                   {changed && <span className="mr-1.5 font-['IBM_Plex_Mono'] text-lg text-stone-400 line-through">{changed.base}</span>}
                   <span className={`font-['IBM_Plex_Mono'] text-3xl font-semibold ${changed ? 'text-amber-700 dark:text-amber-400' : ''}`}>{value ?? '–'}</span>
                   {value != null && s.unit && (
                     <span className="ml-1 text-xs text-stone-500">
-                      {s.key === 'capacity' && unit.capacity > 0 ? (unit.cargoDomain === 'air' ? 'Flugzeuge' : 'Landeinheiten') : s.unit}
+                      {s.key === 'capacity' && unit.capacity > 0
+                        ? t(unit.cargoDomain === 'air' ? 'compendium.unit.aircraft' : 'compendium.domainUnits.land')
+                        : t(s.unit)}
                     </span>
                   )}
                   <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-800">
@@ -227,47 +233,45 @@ export function EinheitDetail({
                       style={{ width: `${pct}%` }}
                     />
                   </span>
-                  {value == null && s.note && <span className="mt-1.5 block text-[11px] text-stone-400">{s.note}</span>}
+                  {value == null && s.note && <span className="mt-1.5 block text-[11px] text-stone-400">{t(s.note)}</span>}
                 </dd>
               </div>
             )
           })}
         </dl>
         <p className="mt-2 text-xs text-stone-500">
-          Balken im Verhältnis zum höchsten Wert aller Einheitentypen.
-          {bonus && accentFaction && ` Hervorgehoben: durch „${accentFaction.bonus.label}“ (${accentFaction.shortName}) veränderter Wert.`}
+          {t('compendium.barsNote')}
+          {bonus &&
+            accentFaction &&
+            ` ${t('compendium.bonusNote', { bonus: accentFaction.bonus.label, faction: accentFaction.shortName })}`}
         </p>
       </section>
 
       {/* Combat rules */}
       <section aria-labelledby="combat-heading" className="mt-12">
         <h2 id="combat-heading" className="mb-4 border-b-4 border-double border-stone-300 pb-3 font-['Big_Shoulders_Display'] text-3xl font-black uppercase tracking-wide dark:border-stone-700">
-          Gefecht
+          {t('compendium.combat')}
         </h2>
         <dl className="grid gap-4 md:grid-cols-2">
           <div className="rounded-lg border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-            <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">Greift an</dt>
-            <dd className="mt-1 text-stone-700 dark:text-stone-300">{attackTargetsDescription(unit)}</dd>
+            <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">{t('compendium.attacks')}</dt>
+            <dd className="mt-1 text-stone-700 dark:text-stone-300">{t(attackTargetsDescription(unit))}</dd>
           </div>
           <div className="rounded-lg border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
-            <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">Abwehrbonus</dt>
+            <dt className="text-[11px] font-bold uppercase tracking-widest text-stone-500 dark:text-stone-400">{t('compendium.defenseBonus')}</dt>
             <dd className="mt-1 text-stone-700 dark:text-stone-300">
               {unit.domain === 'land'
                 ? (Object.keys(TERRAIN_DEFENSE) as (keyof typeof TERRAIN_DEFENSE)[])
-                    .filter((t) => TERRAIN_DEFENSE[t] > 0)
-                    .map((t) => `${TERRAIN_LABEL[t]} +${TERRAIN_DEFENSE[t]}`)
+                    .filter((terrain) => TERRAIN_DEFENSE[terrain] > 0)
+                    .map((terrain) => `${t(TERRAIN_LABEL[terrain])} +${TERRAIN_DEFENSE[terrain]}`)
                     .join(' · ')
-                : 'Kein Geländebonus'}
-              {` · Stadt +${CITY_DEFENSE}`}
+                : t('compendium.noTerrainBonus')}
+              {` · ${t('compendium.cityBonus', { value: CITY_DEFENSE })}`}
             </dd>
           </div>
         </dl>
         <p className="mt-2 text-xs text-stone-500">
-          Ein Angriff läuft in Runden, bis eine Seite keine Trefferpunkte mehr hat; je Runde trifft entweder der Angreifer
-          oder der Verteidiger mit seinem Schadenswert, die Trefferchance ergibt sich aus Stärke gegen Abwehr samt Boni. Ein
-          Angriff kostet einen Bewegungspunkt. Wer eine Einheit vernichtet, rückt auf ihr Feld nach. Grenadiere, Panzerwagen
-          und Dampfkoloss erobern Städte und werden dabei verbraucht; ein unbeschädigter Panzer hinterlässt Grenadiere. Jeder
-          Angriff auf eine Stadt verzögert dort die Produktion.
+          {t('compendium.combatRules')}
         </p>
       </section>
 
@@ -275,15 +279,15 @@ export function EinheitDetail({
       {unit.tactics.length > 0 && (
         <section aria-labelledby="tactics-heading" className="mt-12">
           <h2 id="tactics-heading" className="mb-4 border-b-4 border-double border-stone-300 pb-3 font-['Big_Shoulders_Display'] text-3xl font-black uppercase tracking-wide dark:border-stone-700">
-            Taktik
+            {t('compendium.tactics')}
           </h2>
           <ol className="grid gap-4 md:grid-cols-3">
-            {unit.tactics.map((t, i) => (
+            {unit.tactics.map((tactic, i) => (
               <li key={i} className="flex gap-4 rounded-lg bg-teal-50 p-5 dark:bg-teal-950/40">
                 <span className="font-['IBM_Plex_Mono'] text-3xl font-semibold leading-none text-teal-600 dark:text-teal-400">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <span className="text-stone-700 dark:text-stone-300">{t}</span>
+                <span className="text-stone-700 dark:text-stone-300">{tactic}</span>
               </li>
             ))}
           </ol>

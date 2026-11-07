@@ -1,0 +1,18 @@
+{
+  "terrain": {
+    "deepSea": "Tiefsee",
+    "shallows": "Flachwasser",
+    "plains": "Ebene",
+    "forest": "Wald",
+    "hills": "Hügel",
+    "mountains": "Gebirge"
+  },
+  "city": "Stadt",
+  "targets": {
+    "none": "Keine Angriffe",
+    "air": "Land, See und Luft",
+    "land": "Land, Schiffe auf Nachbarfeldern (Küste, Hafen) und Flugzeuge über Land",
+    "submarine": "Nur Schiffe",
+    "sea": "See, Landeinheiten an der Küste und Luft"
+  }
+}

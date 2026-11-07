@@ -1,6 +1,7 @@
 import { ClipboardList, Flag, Footprints, Play, SkipForward, Swords } from 'lucide-react'
 import { EVENT_STYLE } from './EventLog'
 import type { ReportEntry, ReportIcon, TurnReport } from './report'
+import { useT } from '../../../i18n'
 
 /** Which buttons the card offers: watch or skip the pending replay, continue the turn, or just close */
 export type ReportFooter = 'watch' | 'continue' | 'close'
@@ -29,6 +30,7 @@ const primary =
   "flex min-h-11 flex-1 items-center justify-center gap-1 rounded-md bg-amber-500 px-3 text-sm font-bold uppercase tracking-wider text-stone-950 hover:bg-amber-400"
 
 export function Rundenbericht({ report, footer, onJump, onWatchReplay, onSkipReplay, onClose }: RundenberichtProps) {
+  const t = useT()
   return (
     <section
       role="dialog"
@@ -39,9 +41,9 @@ export function Rundenbericht({ report, footer, onJump, onWatchReplay, onSkipRep
         <ClipboardList className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
         <div className="min-w-0">
           <h2 id="dos-report-title" className="font-['Big_Shoulders_Display'] text-xl font-black uppercase leading-tight tracking-wider">
-            Rundenbericht · Runde {report.round}
+            {t('board.reportTitle', { round: report.round })}
           </h2>
-          <p className="text-xs text-stone-500 dark:text-stone-400">Seit deinem letzten Zug</p>
+          <p className="text-xs text-stone-500 dark:text-stone-400">{t('board.sinceLastTurn')}</p>
         </div>
       </header>
 
@@ -90,21 +92,21 @@ export function Rundenbericht({ report, footer, onJump, onWatchReplay, onSkipRep
         {footer === 'watch' && (
           <>
             <button type="button" onClick={onSkipReplay} className={secondary}>
-              <SkipForward className="size-4" /> Überspringen
+              <SkipForward className="size-4" /> {t('board.replay.skip')}
             </button>
             <button type="button" onClick={onWatchReplay} className={primary}>
-              <Play className="size-4" /> Gegnerzüge ansehen
+              <Play className="size-4" /> {t('board.watchReplay')}
             </button>
           </>
         )}
         {footer === 'continue' && (
           <button type="button" onClick={onClose} className={primary}>
-            Weiter
+            {t('board.continue')}
           </button>
         )}
         {footer === 'close' && (
           <button type="button" onClick={onClose} className={secondary}>
-            Schließen
+            {t('board.close')}
           </button>
         )}
       </footer>

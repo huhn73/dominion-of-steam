@@ -1,0 +1,40 @@
+{
+  "order": {
+    "none": "no orders",
+    "sentry": "sentry",
+    "goto": "marching",
+    "patrol": "patrol",
+    "explore": "exploring"
+  },
+  "garrison": "Garrison",
+  "cityOf": "City {name}",
+  "capital": "Capital",
+  "city": "City",
+  "neutral": "Neutral",
+  "close": "Close",
+  "captureToBuild": "Capture the city with a land unit to produce units here.",
+  "inProduction": "In production",
+  "roundsLeft": {
+    "one": "{count} round left",
+    "other": "{count} rounds left"
+  },
+  "progress": "Progress {done} of {total}",
+  "idle": "The factories stand idle. Choose below what to build.",
+  "damaged": "Damaged {damage}/{max}",
+  "damagedEffect": {
+    "one": "Build times +{count} round, heals in rounds without attack",
+    "other": "Build times +{count} rounds, heals in rounds without attack"
+  },
+  "buildOrder": "Build order",
+  "empireWide": {
+    "one": "Empire-wide {count} unit · {building} in production",
+    "other": "Empire-wide {count} units · {building} in production"
+  },
+  "special": "Special",
+  "stats": "{domain} · STR {str} · DEF {def} · HP {hp} · MOV {mov}",
+  "statRange": " · RNG {value}",
+  "statCargo": " · CAR {value}",
+  "stock": "In service {count}",
+  "building": "{count} in production",
+  "rounds": "rounds"
+}

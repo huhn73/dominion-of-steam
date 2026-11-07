@@ -61,11 +61,11 @@ const room: WaitingRoomData = {
     inviteLink: setupData.inviteLink,
     rules: {
       mode: 'async',
-      turnLimitLabel: '24 Stunden',
-      victoryCondition: 'Hauptstädte erobern',
+      turnLimitLabel: { key: 'setup.hours', params: { count: 24 } },
+      victoryCondition: { key: 'setup.victory.capitals.label' },
       allowDuplicateFactions: false,
     },
-    map: { sizeLabel: 'Mittel', width: 18, height: 12, landShare: 45, seed: 'KOHLE-5530' },
+    map: { sizeLabel: { key: 'setup.size.medium' }, width: 18, height: 12, landShare: 45, seed: 'KOHLE-5530' },
     fillEmptyWithAI: true,
     seats: [
       {

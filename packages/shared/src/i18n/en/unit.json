@@ -1,0 +1,43 @@
+{
+  "order": {
+    "none": "No orders",
+    "sentry": "On sentry",
+    "goto": "Marching",
+    "patrol": "Patrol",
+    "explore": "Exploring"
+  },
+  "unitOf": "Unit {name}",
+  "special": "Special unit",
+  "close": "Close",
+  "stat": {
+    "strength": "Strength",
+    "defense": "Defence",
+    "damage": "Damage",
+    "movement": "Movement",
+    "hp": "HP"
+  },
+  "gotoRounds": "· {count} rounds to the target",
+  "waypoints": "· {count} waypoints",
+  "exploring": "· flies into the fog and returns to refuel",
+  "onTile": "On this tile",
+  "needsOrders": "needs orders",
+  "cargo": "Cargo",
+  "emptyCarrier": "Empty. Land aircraft on the carrier to refuel them and take them along.",
+  "emptyFreighter": "Empty. Drag land units onto the freighter to load them.",
+  "launch": "Launch",
+  "unload": "Unload",
+  "patrolHint": "Tap the patrol waypoints on the map ({count} set).",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "unloadHint": "Tap a highlighted land tile to unload.",
+  "btn": {
+    "sentry": "Sentry",
+    "patrol": "Patrol",
+    "explore": "Explore",
+    "base": "To base",
+    "cancelOrder": "Clear",
+    "skip": "Skip"
+  },
+  "moveHint": "Tap a target or drag the unit. Targets out of reach become a multi-round march.",
+  "cancelHint": " Right-click or Esc cancels."
+}

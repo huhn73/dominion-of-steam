@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import type { Faction } from '../types'
 import { FACTION_HEX } from './setup'
+import { useT } from '../../../i18n'
 
 /** Form block with a stamped heading */
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
@@ -137,13 +138,14 @@ function useImageLoaded(url: string | null) {
 
 /** Faction shield: real emblem if it exists, otherwise a placeholder in the faction color */
 export function FactionEmblem({ faction, className = 'size-12' }: { faction: Faction; className?: string }) {
+  const t = useT()
   const hasImage = useImageLoaded(faction.emblemUrl)
   if (hasImage && faction.emblemUrl) {
-    return <img src={faction.emblemUrl} alt={`Wappen ${faction.name}`} className={`${className} object-contain`} />
+    return <img src={faction.emblemUrl} alt={t('lobby.emblem', { name: faction.name })} className={`${className} object-contain`} />
   }
   const c = FACTION_HEX[faction.color]
   return (
-    <svg viewBox="0 0 64 72" className={className} role="img" aria-label={`Wappen ${faction.name}`}>
+    <svg viewBox="0 0 64 72" className={className} role="img" aria-label={t('lobby.emblem', { name: faction.name })}>
       <path d="M32 2 L60 10 V34 C60 52 47 64 32 70 C17 64 4 52 4 34 V10 Z" fill="#b45309" />
       <path d="M32 6 L56 13 V34 C56 49 45 59 32 65 C19 59 8 49 8 34 V13 Z" fill={c.base} />
       <path d="M8 40 L32 26 L56 40 V46 L32 32 L8 46 Z" fill="#1c1917" opacity="0.28" />
@@ -211,6 +213,7 @@ function useDialogFocus(ref: React.RefObject<HTMLDivElement | null>) {
 }
 
 export function Sheet({ title, onClose, children, footer }: { title: string; onClose: () => void; children: ReactNode; footer?: ReactNode }) {
+  const t = useT()
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -232,7 +235,7 @@ export function Sheet({ title, onClose, children, footer }: { title: string; onC
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-stone-300 sm:hidden dark:bg-stone-600" />
         <header className="flex items-center justify-between border-b-4 border-double border-stone-200 px-5 py-3 dark:border-stone-700">
           <h2 className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">{title}</h2>
-          <button type="button" onClick={onClose} aria-label="Schließen" className="flex size-11 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800">
+          <button type="button" onClick={onClose} aria-label={t('lobby.close')} className="flex size-11 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-800">
             <X className="size-5" />
           </button>
         </header>

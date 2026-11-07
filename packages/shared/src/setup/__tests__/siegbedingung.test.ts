@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { translateMessage } from '../../i18n'
+
+const de = (m: Parameters<typeof translateMessage>[1]) => translateMessage('de', m)
 import { defaultDraft, SETUP_OPTIONS, victoryConditionLabel } from '../data'
 import { victoryConditionAfterShapeChange } from '../setup'
 import type { MatchDraft } from '../types'
@@ -11,7 +14,7 @@ const withShape = (draft: MatchDraft, worldShape: MatchDraft['map']['worldShape'
 describe('Siegbedingung „Vorherrschaft“', () => {
   it('steht im Assistenten zur Wahl', () => {
     expect(SETUP_OPTIONS.victoryConditions.map((v) => v.id)).toContain('dominance')
-    expect(victoryConditionLabel({ victoryCondition: 'dominance', roundLimit: null })).toBe(
+    expect(de(victoryConditionLabel({ victoryCondition: 'dominance', roundLimit: null }))).toBe(
       'Vorherrschaft',
     )
   })

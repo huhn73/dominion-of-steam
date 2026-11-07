@@ -187,8 +187,8 @@ describe.skipIf(!url)('Lobby & Multiplayer (Datenbank)', () => {
       matchName: 'Nordwind',
       from: { name: 'Björn' },
       mode: 'async',
-      turnLimitLabel: '24 Stunden',
-      mapSizeLabel: 'Klein',
+      turnLimitLabel: { key: 'setup.hours', params: { count: 24 } },
+      mapSizeLabel: { key: 'setup.size.small' },
       seatsTaken: 1,
       seatsTotal: 3,
     })
@@ -249,7 +249,7 @@ describe.skipIf(!url)('Lobby & Multiplayer (Datenbank)', () => {
       host: 'Björn',
       seatsTaken: 1,
       seatsTotal: 3,
-      victoryCondition: 'Alle Gegner besiegen',
+      victoryCondition: { key: 'setup.victory.elimination.label' },
       availableFactionIds: ['aurelia', 'nordmark', 'salzkueste'],
     })
     // Nicht in den offenen Partien des Erstellers
@@ -415,11 +415,11 @@ describe.skipIf(!url)('Lobby & Multiplayer (Datenbank)', () => {
       isHost: true,
       rules: {
         mode: 'async',
-        turnLimitLabel: '24 Stunden',
-        victoryCondition: 'Alle Gegner besiegen',
+        turnLimitLabel: { key: 'setup.hours', params: { count: 24 } },
+        victoryCondition: { key: 'setup.victory.elimination.label' },
         allowDuplicateFactions: false,
       },
-      map: { sizeLabel: 'Klein', width: 20, height: 20, landShare: 50, seed: 'NORD-4242' },
+      map: { sizeLabel: { key: 'setup.size.small' }, width: 20, height: 20, landShare: 50, seed: 'NORD-4242' },
     })
     expect(Date.parse(mine.turnDeadline!)).toBeGreaterThan(Date.now() + 23 * HOUR)
     expect(mine.participants.map((p) => [p.name, p.isYou, p.isAI, p.status])).toEqual([

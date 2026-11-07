@@ -23,8 +23,8 @@ export function MatchDetailsSheet({ match, factions, onClose }: { match: Match; 
           <h3 className="mb-1 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">{t('lobby.details.rules')}</h3>
           <dl className="divide-y divide-stone-200 dark:divide-stone-800">
             <Row label={t('lobby.details.mode')}>{rules.mode === 'live' ? t('lobby.live') : t('lobby.async')}</Row>
-            <Row label={rules.mode === 'live' ? t('lobby.details.timeLimit') : t('lobby.details.deadline')}>{rules.turnLimitLabel}</Row>
-            <Row label={t('lobby.details.victory')}>{rules.victoryCondition}</Row>
+            <Row label={rules.mode === 'live' ? t('lobby.details.timeLimit') : t('lobby.details.deadline')}>{t(rules.turnLimitLabel)}</Row>
+            <Row label={t('lobby.details.victory')}>{t(rules.victoryCondition)}</Row>
             <Row label={t('lobby.details.duplicates')}>
               {rules.allowDuplicateFactions ? t('lobby.details.allowed') : t('lobby.details.notAllowed')}
             </Row>
@@ -34,7 +34,7 @@ export function MatchDetailsSheet({ match, factions, onClose }: { match: Match; 
           <h3 className="mb-1 font-['Big_Shoulders_Display'] text-lg font-bold uppercase tracking-widest">{t('lobby.details.map')}</h3>
           <dl className="divide-y divide-stone-200 dark:divide-stone-800">
             <Row label={t('lobby.details.size')}>
-              {map.sizeLabel} · {map.width}×{map.height}
+              {t(map.sizeLabel)} · {map.width}×{map.height}
             </Row>
             {map.worldShape && map.worldShape !== 'continent' && (
               <Row label={t('lobby.details.worldShape')}>

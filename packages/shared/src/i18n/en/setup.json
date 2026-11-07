@@ -1,0 +1,144 @@
+{
+  "size": {
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "huge": "Huge",
+    "empire": "Empire"
+  },
+  "sizeDims": "{width}×{height}",
+  "shape": {
+    "continent": {
+      "label": "Continent",
+      "description": "One large landmass with bays and a few offshore islands."
+    },
+    "islands": {
+      "label": "Islands",
+      "description": "Every capital on its own island, with neutral islands in between."
+    },
+    "archipelago": {
+      "label": "Archipelago",
+      "description": "Many small islands where sea lanes decide; best with 20 to 30 % land."
+    }
+  },
+  "land": {
+    "min": "Little land",
+    "max": "Much land"
+  },
+  "level": {
+    "low": "Few",
+    "normal": "Normal",
+    "high": "Many"
+  },
+  "hours": "{count} hours",
+  "minutes": "{count} minutes",
+  "off": "Off",
+  "noTimeLimit": "No time limit",
+  "rounds": "{count} rounds",
+  "noRoundLimit": "No limit",
+  "victory": {
+    "elimination": {
+      "label": "Defeat all opponents",
+      "description": "The last one still holding cities wins."
+    },
+    "capitals": {
+      "label": "Capture the capitals",
+      "description": "Whoever holds all enemy capitals wins."
+    },
+    "dominance": {
+      "label": "Dominance",
+      "description": "Whoever holds the majority of all cities for five own rounds in a row wins: 60 % on the continent, 50 % on islands and archipelagos. Suits island worlds, where hardly anyone is wiped out completely."
+    },
+    "roundLimit": {
+      "label": "Round limit",
+      "description": "After the last round, whoever has the most points for cities and units wins."
+    }
+  },
+  "victoryWithRounds": "Round limit · {count} rounds",
+  "style": {
+    "Aggressiv": "Aggressive",
+    "Seekrieg": "Naval warfare",
+    "Expansiv": "Expansive",
+    "Wirtschaft": "Economy",
+    "Defensiv": "Defensive",
+    "Landkrieg": "Land warfare",
+    "Offensiv": "Offensive",
+    "Aufklärung": "Reconnaissance",
+    "Luftkrieg": "Air warfare",
+    "Befestigung": "Fortification"
+  },
+  "ai": {
+    "kessler": {
+      "title": "Grand Admiral of the Republic",
+      "description": "Seeks the decisive battle at sea early on and blockades enemy coasts."
+    },
+    "varenne": {
+      "title": "Minister of Trade",
+      "description": "Claims neutral islands faster than anyone else and avoids open war as long as she keeps growing."
+    },
+    "brandt": {
+      "title": "Chairman of the Hammer House",
+      "description": "Turns his cities into fortresses and only advances once enough Steam Colossi stand ready. Attack him too early and you break your teeth on his walls; leave him be for too long and you face a steamroller of steel that takes city after city."
+    },
+    "eisenhart": {
+      "title": "Commander-in-Chief of the Colliery Guard",
+      "description": "Relies on fast Armoured Car thrusts and strikes weakly defended cities at once."
+    },
+    "halvorsen": {
+      "title": "Fleet Captain of the Cloud Fleet",
+      "description": "Knows the map before anyone else and strikes where the defence is thin."
+    },
+    "lindqvist": {
+      "title": "Shipwright of Nordhavn",
+      "description": "Plays a waiting game and reacts to threats."
+    },
+    "ostrow": {
+      "title": "Fortress Commandant of Salzwacht",
+      "description": "Holds what he has and defends his coasts to the last man."
+    }
+  },
+  "step": {
+    "rules": "Mode & rules",
+    "faction": "Your faction",
+    "players": "Opponents & players",
+    "map": "Map",
+    "summary": "Summary"
+  },
+  "block": {
+    "name": "Give the match a name.",
+    "faction": "Choose your faction.",
+    "seed": "Enter a map code or roll a new one.",
+    "seats": "Decide who takes each seat, or let free seats be filled with AI.",
+    "aiSameFaction": "Two AI opponents lead the same faction. Duplicate factions are not allowed.",
+    "aiYourFaction": "An AI opponent leads your faction. Choose another AI personality or allow duplicate factions."
+  },
+  "warn": {
+    "tooMany": "{count} players are a lot for the map size “{size}” (recommended up to {max}).",
+    "waits": "The match waits in the lobby until all invited and open seats are taken.",
+    "live": "Live matches only start once all players have joined.",
+    "solo": "AI opponents only: the match starts at once as a solo match."
+  },
+  "invalid": {
+    "incomplete": "The match details are incomplete.",
+    "nameLong": "The name may be at most {max} characters long.",
+    "mode": "Choose a mode.",
+    "asyncLimit": "This deadline per turn does not exist.",
+    "liveLimit": "This time limit per turn does not exist.",
+    "victory": "This victory condition does not exist.",
+    "rounds": "This number of rounds does not exist.",
+    "roundsNeeded": "The round limit victory condition needs a number of rounds.",
+    "size": "This map size does not exist.",
+    "landShare": "The land share must be between {min} and {max} %.",
+    "mapSetting": "This map setting does not exist.",
+    "seedChars": "The map code may only contain A–Z, 0–9 and “-” (at most 16 characters).",
+    "seat": "A seat is invalid.",
+    "seatCount": "A match has {min} to {max} seats.",
+    "firstSeat": "Seat 1 is yours.",
+    "faction": "This faction does not exist.",
+    "friendsOnly": "You can only invite players from your friends list.",
+    "friendTwice": "You can invite each friend only once.",
+    "ai": "This AI personality does not exist.",
+    "aiTwice": "Each AI personality can take only one seat.",
+    "tooManyNoDuplicates": "Without duplicate factions at most {max} seats are possible. Remove seats or allow duplicate factions."
+  }
+}

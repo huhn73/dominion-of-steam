@@ -1,0 +1,426 @@
+{
+  "factions": [
+    {
+      "id": "eisenbund",
+      "name": "Iron Covenant of Valdrin",
+      "shortName": "Iron Covenant",
+      "motto": "From coal comes steel, from steel comes certainty.",
+      "color": "amber",
+      "emblemUrl": "/art/factions/eisenbund-emblem.png",
+      "heroImageUrl": "/art/factions/eisenbund-hero.webp",
+      "trait": "Heavy industry: Armoured Cars and Steam Colossi are built one round faster.",
+      "bonus": {
+        "label": "Heavy industry",
+        "description": "Armoured Cars and Steam Colossi are built one round faster (land units with five or more rounds of build time).",
+        "domain": "land",
+        "stat": "productionTurns",
+        "modifier": -1,
+        "mode": "add",
+        "minBase": 5
+      },
+      "playstyle": [
+        "Defensive",
+        "Land warfare",
+        "Slow build-up"
+      ],
+      "playstyleSummary": "For patient strategists who take city after city with superior land forces. At sea and in the air the Iron Covenant has to make do with standard units.",
+      "history": "When the old coalfields of Valdrin drove out their princes after the Great Standstill, the mining towns joined in a covenant that trusts only one thing: what can be forged. A council of pit masters rules from the Hammer House in Eisenhafen, and every town sends as many votes as it runs blast furnaces.\n\nThe Iron Covenant wages war the way it digs galleries: slowly, thoroughly and without ever giving ground. Its Steam Colossi are feared across the continent, even if wags claim you can comfortably outrun one on foot. Little binds it to its neighbours beyond a mutual mistrust, which the Covenant's diplomats reliably deepen.",
+      "specialUnitTypeId": "dampfkoloss"
+    },
+    {
+      "id": "aurelia",
+      "name": "Aurelian Republic",
+      "shortName": "Aurelia",
+      "motto": "Who holds the waves holds the world.",
+      "color": "rose",
+      "emblemUrl": "/art/factions/aurelia-emblem.png",
+      "heroImageUrl": "/art/factions/aurelia-hero.webp",
+      "trait": "Sea power: ships have +1 movement.",
+      "bonus": {
+        "label": "Sea power",
+        "description": "Ships have +1 movement.",
+        "domain": "sea",
+        "stat": "movement",
+        "modifier": 1,
+        "mode": "add"
+      },
+      "playstyle": [
+        "Offensive",
+        "Naval warfare",
+        "Rapid expansion"
+      ],
+      "playstyleSummary": "For players who seize island chains quickly and press with nimble fleets. On land the Republic lacks the stamina for long campaigns.",
+      "history": "The Aurelian Republic grew out of an alliance of trading ports whose merchants eventually found that cannons write better contracts than notaries. Its fleet is the largest in the known world, and its admirals sit in the Senate.",
+      "specialUnitTypeId": "blitzkorvette"
+    },
+    {
+      "id": "nordmark",
+      "name": "Nordmark Collective",
+      "shortName": "Nordmark",
+      "motto": "Above the clouds there are no borders.",
+      "color": "sky",
+      "emblemUrl": "/art/factions/nordmark-emblem.png",
+      "heroImageUrl": "/art/factions/nordmark-hero.webp",
+      "trait": "Aeronautics: air units have +50 % range.",
+      "bonus": {
+        "label": "Aeronautics",
+        "description": "Air units have +50 % range.",
+        "domain": "air",
+        "stat": "range",
+        "modifier": 1.5,
+        "mode": "multiply"
+      },
+      "playstyle": [
+        "Reconnaissance",
+        "Air warfare",
+        "Flexible"
+      ],
+      "playstyleSummary": "For players who see first and strike second. The long range of the airships covers large parts of the map.",
+      "history": "In the barren north people learned early that the shortest way across the glaciers leads through the air. The Collective is led by elected captains, and its Cloud Cruisers are shipyard, barracks and town hall all at once.",
+      "specialUnitTypeId": "wolkenkreuzer"
+    },
+    {
+      "id": "salzkueste",
+      "name": "Salt Coast League",
+      "shortName": "Salt Coast",
+      "motto": "Our walls outlast your patience.",
+      "color": "lime",
+      "emblemUrl": "/art/factions/salzkueste-emblem.png",
+      "heroImageUrl": "/art/factions/salzkueste-hero.webp",
+      "trait": "Fortification: cities get +1 defence.",
+      "bonus": {
+        "label": "Fortification",
+        "description": "Cities get +1 defence.",
+        "domain": null,
+        "stat": null,
+        "modifier": 1,
+        "mode": "add"
+      },
+      "playstyle": [
+        "Fortification",
+        "Defence"
+      ],
+      "playstyleSummary": "For players who would rather hold than take. Without a special unit, the League's strength lies in cities that are hard to capture.",
+      "history": "A loose league of fortress towns along the salt marshes, held together by common enemies and the salt trade.",
+      "specialUnitTypeId": null
+    }
+  ],
+  "unitTypes": [
+    {
+      "id": "grenadiere",
+      "name": "Grenadiers",
+      "domain": "land",
+      "strength": 2,
+      "defense": 2,
+      "hitPoints": 1,
+      "damage": 1,
+      "movement": 1,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 4,
+      "factionId": null,
+      "canCaptureCities": true,
+      "description": "The backbone of every army: foot soldiers with gas masks and rifle grenades. Slow, but the only ones who can go anywhere.",
+      "tactics": [
+        "Leave a unit of Grenadiers on guard in every captured city.",
+        "On hills and in forests Grenadiers are hard to dislodge."
+      ],
+      "illustrationUrl": "/art/units/grenadiere.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/grenadiere.webp",
+        "aurelia": "/art/units/aurelia/grenadiere.webp",
+        "nordmark": "/art/units/nordmark/grenadiere.webp",
+        "salzkueste": "/art/units/salzkueste/grenadiere.webp"
+      }
+    },
+    {
+      "id": "panzerwagen",
+      "name": "Armoured Car",
+      "domain": "land",
+      "strength": 4,
+      "defense": 3,
+      "hitPoints": 2,
+      "damage": 1,
+      "movement": 2,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 7,
+      "factionId": null,
+      "canCaptureCities": true,
+      "description": "Armoured steam carriages with a rapid-fire cannon. Fast enough to reach neutral cities before the enemy does.",
+      "tactics": [
+        "Use the double movement to close gaps in the front.",
+        "Armoured Cars are well suited to multi-round marches to distant cities."
+      ],
+      "illustrationUrl": "/art/units/panzerwagen.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/panzerwagen.webp",
+        "aurelia": "/art/units/aurelia/panzerwagen.webp",
+        "nordmark": "/art/units/nordmark/panzerwagen.webp",
+        "salzkueste": "/art/units/salzkueste/panzerwagen.webp"
+      }
+    },
+    {
+      "id": "dampfkoloss",
+      "name": "Steam Colossus",
+      "domain": "land",
+      "strength": 6,
+      "defense": 5,
+      "hitPoints": 3,
+      "damage": 2,
+      "movement": 1,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 12,
+      "factionId": "eisenbund",
+      "canCaptureCities": true,
+      "description": "The Steam Colossus is a fortress on caterpillar tracks, as tall as a church tower and driven by three boilers that together burn more coal than a small town in winter. It moves only one tile per round, yet hardly any unit can harm its armour. In the battle for the collieries of Grauwasser a single Colossus is said to have held up an entire army for three days, until it finally ran out of coal.",
+      "tactics": [
+        "Escort the Colossus with Grenadiers so it does not get encircled.",
+        "Plan its route early: it takes twice as long as an Armoured Car for any distance.",
+        "A Colossus in a city makes it practically impregnable."
+      ],
+      "illustrationUrl": "/art/units/dampfkoloss.webp",
+      "variantIllustrationUrls": {}
+    },
+    {
+      "id": "kanonenboot",
+      "name": "Gunboat",
+      "domain": "sea",
+      "strength": 2,
+      "defense": 2,
+      "hitPoints": 3,
+      "damage": 1,
+      "movement": 4,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 6,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Small, nimble ships for coastal defence and reconnaissance.",
+      "tactics": [
+        "Send Gunboats on patrol along your coasts."
+      ],
+      "illustrationUrl": "/art/units/kanonenboot.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/kanonenboot.webp",
+        "aurelia": "/art/units/aurelia/kanonenboot.webp",
+        "nordmark": "/art/units/nordmark/kanonenboot.webp",
+        "salzkueste": "/art/units/salzkueste/kanonenboot.webp"
+      }
+    },
+    {
+      "id": "panzerkreuzer",
+      "name": "Armoured Cruiser",
+      "domain": "sea",
+      "strength": 6,
+      "defense": 6,
+      "hitPoints": 12,
+      "damage": 3,
+      "movement": 3,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 14,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "The backbone of every fleet: heavily armoured, slow and expensive.",
+      "tactics": [
+        "Armoured Cruisers protect freighters on their way to foreign shores.",
+        "Only attack with them when the odds are good. A lost cruiser costs 14 rounds of production."
+      ],
+      "illustrationUrl": "/art/units/panzerkreuzer.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/panzerkreuzer.webp",
+        "aurelia": "/art/units/aurelia/panzerkreuzer.webp",
+        "nordmark": "/art/units/nordmark/panzerkreuzer.webp",
+        "salzkueste": "/art/units/salzkueste/panzerkreuzer.webp"
+      }
+    },
+    {
+      "id": "tauchboot",
+      "name": "Submersible",
+      "domain": "sea",
+      "strength": 5,
+      "defense": 1,
+      "hitPoints": 2,
+      "damage": 3,
+      "movement": 3,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 9,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Invisible hunters beneath the waves. Strong attack, but hardly any armour. The enemy only sees a Submersible with a Submersible of their own nearby (two tiles) or by running into it; it then stays visible until its owner's next turn.",
+      "tactics": [
+        "Submersibles are ideal against Armoured Cruisers, but vulnerable once discovered."
+      ],
+      "illustrationUrl": "/art/units/tauchboot.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/tauchboot.webp",
+        "aurelia": "/art/units/aurelia/tauchboot.webp",
+        "nordmark": "/art/units/nordmark/tauchboot.webp",
+        "salzkueste": "/art/units/salzkueste/tauchboot.webp"
+      }
+    },
+    {
+      "id": "frachter",
+      "name": "Transport Freighter",
+      "domain": "sea",
+      "strength": 0,
+      "defense": 1,
+      "hitPoints": 3,
+      "damage": 1,
+      "movement": 3,
+      "range": null,
+      "capacity": 6,
+      "cargoDomain": "land",
+      "productionTurns": 8,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Unarmed transport ships for up to six land units.",
+      "tactics": [
+        "A loaded freighter without escort is an invitation to every Submersible.",
+        "Load units directly from a coastal city to save movement points."
+      ],
+      "illustrationUrl": "/art/units/frachter.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/frachter.webp",
+        "aurelia": "/art/units/aurelia/frachter.webp",
+        "nordmark": "/art/units/nordmark/frachter.webp",
+        "salzkueste": "/art/units/salzkueste/frachter.webp"
+      }
+    },
+    {
+      "id": "flugzeugtraeger",
+      "name": "Aircraft Carrier",
+      "domain": "sea",
+      "strength": 1,
+      "defense": 5,
+      "hitPoints": 8,
+      "damage": 1,
+      "movement": 3,
+      "range": null,
+      "capacity": 4,
+      "cargoDomain": "air",
+      "productionTurns": 16,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "A floating airfield with a hangar deck for up to four aircraft. Air units can land and refuel on it, far from any city.",
+      "tactics": [
+        "With a carrier, Biplanes and bombers reach foreign shores.",
+        "A carrier itself is barely armed. Keep cruisers close by."
+      ],
+      "illustrationUrl": "/art/units/flugzeugtraeger.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/flugzeugtraeger.webp",
+        "aurelia": "/art/units/aurelia/flugzeugtraeger.webp",
+        "nordmark": "/art/units/nordmark/flugzeugtraeger.webp",
+        "salzkueste": "/art/units/salzkueste/flugzeugtraeger.webp"
+      }
+    },
+    {
+      "id": "blitzkorvette",
+      "name": "Lightning Corvette",
+      "domain": "sea",
+      "strength": 3,
+      "defense": 2,
+      "hitPoints": 8,
+      "damage": 2,
+      "movement": 6,
+      "range": null,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 8,
+      "factionId": "aurelia",
+      "canCaptureCities": false,
+      "description": "The fastest unit of the Aurelian fleet, built for raids on trade routes.",
+      "tactics": [],
+      "illustrationUrl": "/art/units/blitzkorvette.webp",
+      "variantIllustrationUrls": {}
+    },
+    {
+      "id": "doppeldecker",
+      "name": "Biplane",
+      "domain": "air",
+      "strength": 1,
+      "defense": 1,
+      "hitPoints": 1,
+      "damage": 1,
+      "movement": 6,
+      "range": 12,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 5,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Light aircraft with limited fuel. Indispensable for reconnaissance.",
+      "tactics": [
+        "Never fly further than half the range from your nearest city.",
+        "Biplanes lift the fog of war faster than any other unit."
+      ],
+      "illustrationUrl": "/art/units/doppeldecker.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/doppeldecker.webp",
+        "aurelia": "/art/units/aurelia/doppeldecker.webp",
+        "nordmark": "/art/units/nordmark/doppeldecker.webp",
+        "salzkueste": "/art/units/salzkueste/doppeldecker.webp"
+      }
+    },
+    {
+      "id": "schwerbomber",
+      "name": "Heavy Bomber",
+      "domain": "air",
+      "strength": 5,
+      "defense": 1,
+      "hitPoints": 1,
+      "damage": 2,
+      "movement": 4,
+      "range": 16,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 10,
+      "factionId": null,
+      "canCaptureCities": false,
+      "description": "Four-engined bomber with an armoured cockpit and a heavy bomb load. It hits cities and ground troops hard, but is almost defenceless against fighters.",
+      "tactics": [
+        "Attack defenders in cities with bombers before your land units storm in.",
+        "Never send bombers within reach of enemy aircraft without a Biplane escort."
+      ],
+      "illustrationUrl": "/art/units/schwerbomber.webp",
+      "variantIllustrationUrls": {
+        "eisenbund": "/art/units/eisenbund/schwerbomber.webp",
+        "aurelia": "/art/units/aurelia/schwerbomber.webp",
+        "nordmark": "/art/units/nordmark/schwerbomber.webp",
+        "salzkueste": "/art/units/salzkueste/schwerbomber.webp"
+      }
+    },
+    {
+      "id": "wolkenkreuzer",
+      "name": "Cloud Cruiser",
+      "domain": "air",
+      "strength": 3,
+      "defense": 3,
+      "hitPoints": 2,
+      "damage": 2,
+      "movement": 3,
+      "range": 30,
+      "capacity": 0,
+      "cargoDomain": null,
+      "productionTurns": 12,
+      "factionId": "nordmark",
+      "canCaptureCities": false,
+      "description": "Huge airships with deck guns and enormous range.",
+      "tactics": [
+        "Cloud Cruisers can circle over enemy territory for weeks and report troop movements."
+      ],
+      "illustrationUrl": "/art/units/wolkenkreuzer.webp",
+      "variantIllustrationUrls": {}
+    }
+  ]
+}

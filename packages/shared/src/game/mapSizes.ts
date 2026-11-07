@@ -1,10 +1,11 @@
+import type { Message, MessageKey } from '../i18n'
 /**
  * The five map tiers (square, geometric steps). One source for the setup wizard, the server,
  * the lobby labels and the engine; `MapSizeId` is derived from it.
  */
 export interface MapSizeOption {
   id: MapSizeId
-  label: string
+  label: MessageKey
   width: number
   height: number
   /** [min, max] players that fit this size well */
@@ -17,35 +18,35 @@ const define = <T extends Record<string, Omit<MapSizeOption, 'id'>>>(sizes: T) =
 
 const SIZES = define({
   small: {
-    label: 'Klein',
+    label: 'setup.size.small',
     width: 20,
     height: 20,
     recommendedPlayers: [2, 3],
     defaultRoundLimit: 50,
   },
   medium: {
-    label: 'Mittel',
+    label: 'setup.size.medium',
     width: 40,
     height: 40,
     recommendedPlayers: [2, 4],
     defaultRoundLimit: 150,
   },
   large: {
-    label: 'Groß',
+    label: 'setup.size.large',
     width: 75,
     height: 75,
     recommendedPlayers: [3, 6],
     defaultRoundLimit: 150,
   },
   huge: {
-    label: 'Riesig',
+    label: 'setup.size.huge',
     width: 130,
     height: 130,
     recommendedPlayers: [4, 6],
     defaultRoundLimit: 250,
   },
   empire: {
-    label: 'Imperium',
+    label: 'setup.size.empire',
     width: 200,
     height: 200,
     recommendedPlayers: [4, 6],
@@ -68,6 +69,7 @@ export const mapSize = (id: string | null | undefined): MapSizeOption | undefine
   id != null && id in MAP_SIZES ? MAP_SIZES[id as MapSizeId] : undefined
 
 /** Tier label when the dimensions match a tier, otherwise "14×10" (matches from older tiers) */
-export const mapSizeLabel = (width: number, height: number) =>
-  MAP_SIZE_OPTIONS.find((s) => s.width === width && s.height === height)?.label ??
-  `${width}×${height}`
+export const mapSizeLabel = (width: number, height: number): Message => {
+  const tier = MAP_SIZE_OPTIONS.find((s) => s.width === width && s.height === height)
+  return tier ? { key: tier.label } : { key: 'setup.sizeDims', params: { width, height } }
+}

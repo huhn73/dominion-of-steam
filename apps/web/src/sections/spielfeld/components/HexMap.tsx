@@ -14,6 +14,7 @@ import { type Camera, clampCamera, inRange, type TileRange, type Viewport, zoomA
 import { type CameraStore, useCameraRange } from './cameraStore'
 import { TerrainCanvas } from './TerrainCanvas'
 import { UnitIcon } from './unitIcons'
+import { useT } from '../../../i18n'
 
 export type { Camera } from './camera'
 
@@ -149,6 +150,7 @@ function UnitToken({
   stackCount: number
   fading: boolean
 }) {
+  const t = useT()
   const p = hexToPixel(unit)
   const x = inCity ? p.x + 13 : p.x
   const y = inCity ? p.y - 12 : p.y
@@ -206,7 +208,7 @@ function UnitToken({
         </g>
       )}
       {stackCount > 1 && (
-        <g transform="translate(13,13)" data-testid="stack-badge" aria-label={`${stackCount} Einheiten`}>
+        <g transform="translate(13,13)" data-testid="stack-badge" aria-label={t('board.stackCount', { count: stackCount })}>
           <circle r={7} fill="#1c1917" stroke="#e7e5e4" strokeWidth={1.2} />
           <text
             textAnchor="middle"
@@ -403,6 +405,7 @@ export function HexMap({
   onDragEnd,
   onCancel,
 }: HexMapProps) {
+  const t = useT()
   const svgRef = useRef<SVGSVGElement>(null)
   const worldRef = useRef<SVGGElement>(null)
   const pointers = useRef(new Map<number, { x: number; y: number }>())
@@ -520,7 +523,7 @@ export function HexMap({
           onCancel()
         }}
         role="application"
-        aria-label="Spielkarte"
+        aria-label={t('board.map')}
       >
         <defs>
           <pattern id="dos-hatch-rose" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">

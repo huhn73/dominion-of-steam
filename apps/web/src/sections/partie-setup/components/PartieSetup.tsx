@@ -9,6 +9,7 @@ import { StepPlayers } from './StepPlayers'
 import { StepRules } from './StepRules'
 import { StepSummary } from './StepSummary'
 import { Sheet } from './ui'
+import { useT } from '../../../i18n'
 
 export function PartieSetup({
   you,
@@ -24,6 +25,7 @@ export function PartieSetup({
   onCreateMatch,
   onCancel,
 }: PartieSetupProps) {
+  const t = useT()
   const [draft, setDraft] = useState<MatchDraft>(initialDraft)
   const [step, setStep] = useState(0)
   const [visited, setVisited] = useState(0)
@@ -66,19 +68,19 @@ export function PartieSetup({
         <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="mb-2 flex items-center gap-3 font-['IBM_Plex_Mono'] text-xs uppercase tracking-[0.3em] text-teal-700 dark:text-teal-400">
-              <span className="h-px w-8 bg-current" /> Mobilmachung
+              <span className="h-px w-8 bg-current" /> {t('partieSetup.kicker')}
             </p>
             <h1 className="font-['Big_Shoulders_Display'] text-5xl font-black uppercase leading-[0.9] tracking-wide sm:text-6xl">
-              Neue Partie
+              {t('partieSetup.title')}
             </h1>
           </div>
           <span className="rotate-[-4deg] rounded border-[3px] border-double border-amber-600 px-3 py-1 font-['Big_Shoulders_Display'] text-sm font-black uppercase tracking-[0.25em] text-amber-700 dark:border-amber-500 dark:text-amber-400">
-            {draft.name || 'Ohne Namen'}
+            {draft.name || t('partieSetup.unnamed')}
           </span>
         </header>
 
         {/* Progress: full stepper on desktop, compact bar on phones */}
-        <nav aria-label="Fortschritt" className="mb-8">
+        <nav aria-label={t('partieSetup.progress')} className="mb-8">
           <ol className="hidden grid-cols-5 gap-2 md:grid">
             {STEPS.map((label, i) => {
               const done = i < step
@@ -111,7 +113,7 @@ export function PartieSetup({
                         current ? '' : reachable ? 'text-stone-600 group-hover:text-teal-700 dark:text-stone-300' : 'text-stone-400'
                       }`}
                     >
-                      {label}
+                      {t(label)}
                     </span>
                   </button>
                 </li>
@@ -120,9 +122,9 @@ export function PartieSetup({
           </ol>
           <div className="md:hidden">
             <div className="mb-2 flex items-baseline justify-between">
-              <span className="font-['Big_Shoulders_Display'] text-xl font-black uppercase tracking-wide">{STEPS[step]}</span>
+              <span className="font-['Big_Shoulders_Display'] text-xl font-black uppercase tracking-wide">{t(STEPS[step]!)}</span>
               <span className="font-['IBM_Plex_Mono'] text-xs text-stone-500">
-                Schritt {step + 1} von {STEPS.length}
+                {t('partieSetup.stepOf', { step: step + 1, total: STEPS.length })}
               </span>
             </div>
             <div className="flex gap-1">
@@ -130,7 +132,7 @@ export function PartieSetup({
                 <button
                   key={label}
                   type="button"
-                  aria-label={`Zu Schritt ${i + 1}: ${label}`}
+                  aria-label={t('partieSetup.toStep', { step: i + 1, label: { key: label } })}
                   disabled={i > visited}
                   onClick={() => goTo(i)}
                   className={`h-2 flex-1 rounded-full ${i < step ? 'bg-teal-600' : i === step ? 'bg-amber-500' : 'bg-stone-200 dark:bg-stone-800'}`}
@@ -187,14 +189,14 @@ export function PartieSetup({
           <button
             type="button"
             onClick={handleCancel}
-            aria-label="Abbrechen"
+            aria-label={t('partieSetup.cancel')}
             className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-stone-500 hover:bg-stone-200 hover:text-stone-800 dark:hover:bg-stone-800 dark:hover:text-stone-100"
           >
-            <X className="size-4" /> <span className="hidden sm:inline">Abbrechen</span>
+            <X className="size-4" /> <span className="hidden sm:inline">{t('partieSetup.cancel')}</span>
           </button>
           {finalBlocker && (
             <p role="status" className="order-last w-full text-sm text-amber-700 sm:order-none sm:w-auto sm:flex-1 sm:text-right dark:text-amber-400">
-              {finalBlocker}
+              {t(finalBlocker)}
             </p>
           )}
           <div className="ml-auto flex gap-2">
@@ -204,7 +206,7 @@ export function PartieSetup({
                 onClick={() => goTo(step - 1)}
                 className="flex min-h-12 items-center gap-1.5 rounded-lg border-2 border-stone-300 px-4 font-semibold hover:border-teal-500 dark:border-stone-700"
               >
-                <ArrowLeft className="size-4" /> Zurück
+                <ArrowLeft className="size-4" /> {t('partieSetup.back')}
               </button>
             )}
             <button
@@ -215,11 +217,11 @@ export function PartieSetup({
             >
               {isLast ? (
                 <>
-                  <Swords className="size-5" /> Partie erstellen
+                  <Swords className="size-5" /> {t('partieSetup.create')}
                 </>
               ) : (
                 <>
-                  Weiter <ArrowRight className="size-5" />
+                  {t('partieSetup.next')} <ArrowRight className="size-5" />
                 </>
               )}
             </button>
@@ -254,7 +256,7 @@ export function PartieSetup({
 
       {confirmCancel && (
         <Sheet
-          title="Einrichtung abbrechen?"
+          title={t('partieSetup.cancelTitle')}
           onClose={() => setConfirmCancel(false)}
           footer={
             <div className="flex justify-end gap-2">
@@ -263,7 +265,7 @@ export function PartieSetup({
                 onClick={() => setConfirmCancel(false)}
                 className="min-h-11 rounded-lg border-2 border-stone-300 px-4 font-semibold dark:border-stone-700"
               >
-                Weiter einrichten
+                {t('partieSetup.keepEditing')}
               </button>
               <button
                 type="button"
@@ -273,12 +275,12 @@ export function PartieSetup({
                 }}
                 className="min-h-11 rounded-lg bg-rose-600 px-4 font-semibold text-white hover:bg-rose-500"
               >
-                Verwerfen
+                {t('partieSetup.discard')}
               </button>
             </div>
           }
         >
-          <p className="text-stone-600 dark:text-stone-300">Deine Einstellungen für „{draft.name || 'Neue Partie'}“ gehen verloren.</p>
+          <p className="text-stone-600 dark:text-stone-300">{t('partieSetup.lost', { name: draft.name || t('partieSetup.title') })}</p>
         </Sheet>
       )}
     </div>

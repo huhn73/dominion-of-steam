@@ -10,5 +10,13 @@ import settings from './settings.json'
 import profile from './profile.json'
 import admin from './admin.json'
 import legal from './legal.json'
+import setup from './setup.json'
+import partieSetup from './partieSetup.json'
+import game from './game.json'
+import compendium from './compendium.json'
+import board from './board.json'
+import city from './city.json'
+import unit from './unit.json'
+import tutorial from './tutorial.json'
 
-export const en: DictShape<typeof de> = { common, shell, match, account, auth, lobby, settings, profile, admin, legal }
+export const en: DictShape<typeof de> = { common, shell, match, account, auth, lobby, settings, profile, admin, legal, setup, partieSetup, game, compendium, board, city, unit, tutorial }

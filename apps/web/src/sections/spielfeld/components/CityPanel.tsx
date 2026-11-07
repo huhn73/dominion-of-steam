@@ -5,6 +5,7 @@ import type { ProductionOverview } from './selection'
 import { withBonus } from './bonus'
 import { PARTICIPANT_HEX } from './hex'
 import { UnitIcon } from './unitIcons'
+import { useT } from '../../../i18n'
 
 interface CityPanelProps {
   city: City
@@ -23,13 +24,6 @@ interface CityPanelProps {
   onClose?: () => void
 }
 
-const ORDER_LABEL: Record<Unit['order']['type'], string> = {
-  none: 'kein Befehl',
-  sentry: 'Wache',
-  goto: 'marschiert',
-  patrol: 'Patrouille',
-  explore: 'Erkundung',
-}
 
 /** Up to two city names, the rest as „+N“ */
 function cityList(names: string[]) {
@@ -37,7 +31,6 @@ function cityList(names: string[]) {
   return names.length > 2 ? `${shown}, +${names.length - 2}` : shown
 }
 
-const DOMAIN_LABEL: Record<UnitType['domain'], string> = { land: 'Land', sea: 'See', air: 'Luft' }
 
 export function CityPanel({
   city,
@@ -52,6 +45,7 @@ export function CityPanel({
   onSetProduction,
   onClose,
 }: CityPanelProps) {
+  const tr = useT()
   const prod = city.production
   const current = prod ? buildable.find((t) => t.id === prod.unitTypeId) : undefined
   const total = prod ? prod.progress + prod.turnsRemaining : 0
@@ -64,10 +58,10 @@ export function CityPanel({
   const garrisonSection = garrison.length > 0 && (
     <div className="border-b border-stone-200 p-4 dark:border-stone-700">
       <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-        <Shield className="size-3.5" /> Garnison
+        <Shield className="size-3.5" /> {tr('city.garrison')}
         <span className="ml-auto font-['IBM_Plex_Mono'] normal-case tracking-normal">{garrison.length}</span>
       </h3>
-      <ul className="space-y-1" aria-label="Garnison">
+      <ul className="space-y-1" aria-label={tr('city.garrison')}>
         {garrison.map(({ unit: u, type: t }) => (
           <li key={u.id}>
             <button
@@ -78,7 +72,7 @@ export function CityPanel({
               <UnitIcon unitTypeId={u.unitTypeId} domain={t?.domain} className="size-4 text-stone-500" />
               <span className="flex-1 text-sm">{t?.name}</span>
               {u.ownerId === city.ownerId && isYours && (
-                <span className="text-[11px] uppercase tracking-wide text-teal-700 dark:text-teal-400">{ORDER_LABEL[u.order.type]}</span>
+                <span className="text-[11px] uppercase tracking-wide text-teal-700 dark:text-teal-400">{tr(`city.order.${u.order.type}`)}</span>
               )}
               <span className="font-['IBM_Plex_Mono'] text-xs text-stone-500">{u.hp}/{t?.hitPoints}</span>
             </button>
@@ -90,7 +84,7 @@ export function CityPanel({
 
   return (
     <section
-      aria-label={`Stadt ${city.name}`}
+      aria-label={tr('city.cityOf', { name: city.name })}
       className="pointer-events-auto flex max-h-full flex-col overflow-hidden rounded-t-2xl border border-stone-300 bg-white/95 shadow-2xl shadow-stone-900/30 backdrop-blur md:rounded-xl dark:border-stone-700 dark:bg-stone-900/95 dark:shadow-black/50"
     >
       <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-stone-300 md:hidden dark:bg-stone-600" />
@@ -101,7 +95,7 @@ export function CityPanel({
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-stone-500 dark:text-stone-400">
             {city.isCapital && <Crown className="size-3.5 text-amber-500" />}
-            {city.isCapital ? 'Hauptstadt' : 'Stadt'} · {owner ? owner.name : 'Neutral'}
+            {city.isCapital ? tr('city.capital') : tr('city.city')} · {owner ? owner.name : tr('city.neutral')}
           </p>
           <h2 className="truncate font-['Big_Shoulders_Display'] text-3xl font-black uppercase leading-none tracking-wider">
             {city.name}
@@ -110,7 +104,7 @@ export function CityPanel({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Schließen"
+          aria-label={tr('city.close')}
           className="flex size-11 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-100 hover:text-stone-800 dark:hover:bg-stone-800 dark:hover:text-stone-100"
         >
           <X className="size-5" />
@@ -121,7 +115,7 @@ export function CityPanel({
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="flex items-center gap-3 p-4 text-sm text-stone-600 dark:text-stone-300">
             <Lock className="size-5 shrink-0 text-stone-400" />
-            Erobere die Stadt mit einer Landeinheit, um hier Einheiten zu produzieren.
+            {tr('city.captureToBuild')}
           </div>
           {garrisonSection}
         </div>
@@ -129,17 +123,17 @@ export function CityPanel({
         <div className="min-h-0 flex-1 overflow-y-auto">
           <div className="border-b border-stone-200 p-4 dark:border-stone-700">
             <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              <Hammer className="size-3.5" /> In Produktion
+              <Hammer className="size-3.5" /> {tr('city.inProduction')}
             </h3>
             {prod && current ? (
               <>
                 <div className="mb-1.5 flex items-baseline justify-between">
                   <span className="font-['Big_Shoulders_Display'] text-xl font-bold uppercase tracking-wide">{current.name}</span>
                   <span className="font-['IBM_Plex_Mono'] text-sm text-amber-700 dark:text-amber-400">
-                    noch {prod.turnsRemaining} {prod.turnsRemaining === 1 ? 'Runde' : 'Runden'}
+                    {tr('city.roundsLeft', { count: prod.turnsRemaining })}
                   </span>
                 </div>
-                <div className="flex gap-0.5" aria-label={`Fortschritt ${prod.progress} von ${total}`}>
+                <div className="flex gap-0.5" aria-label={tr('city.progress', { done: prod.progress, total })}>
                   {Array.from({ length: total }, (_, i) => (
                     <span
                       key={i}
@@ -152,7 +146,7 @@ export function CityPanel({
               </>
             ) : (
               <p className="rounded-md border border-dashed border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-                Die Fabriken stehen still. Wähle unten, was gebaut werden soll.
+                {tr('city.idle')}
               </p>
             )}
             {damage > 0 && (
@@ -162,8 +156,7 @@ export function CityPanel({
               >
                 <Flame className="size-4 shrink-0" />
                 <span>
-                  <strong>Beschädigt {damage}/{MAX_CITY_DAMAGE}</strong> · Bauzeiten +{damage}{' '}
-                  {damage === 1 ? 'Runde' : 'Runden'}, heilt in Runden ohne Angriff
+                  <strong>{tr('city.damaged', { damage, max: MAX_CITY_DAMAGE })}</strong> · {tr('city.damagedEffect', { count: damage })}
                 </span>
               </p>
             )}
@@ -173,9 +166,9 @@ export function CityPanel({
 
           {overview && (
             <p className="flex items-center justify-between px-4 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-              Bauauftrag
+              {tr('city.buildOrder')}
               <span className="font-['IBM_Plex_Mono'] normal-case tracking-normal">
-                Reichsweit {overview.owned} {overview.owned === 1 ? 'Einheit' : 'Einheiten'} · {overview.building} im Bau
+                {tr('city.empireWide', { count: overview.owned, building: overview.building })}
               </span>
             </p>
           )}
@@ -209,21 +202,27 @@ export function CityPanel({
                         {t.name}
                         {t.factionId && (
                           <span className="rounded bg-teal-100 px-1 py-px text-[10px] font-bold uppercase text-teal-800 dark:bg-teal-900/60 dark:text-teal-300">
-                            Sonder
+                            {tr('city.special')}
                           </span>
                         )}
                       </span>
                       <span className="block font-['IBM_Plex_Mono'] text-[11px] text-stone-500 dark:text-stone-400">
-                        {DOMAIN_LABEL[t.domain]} · ST {t.strength} · AB {t.defense} · TP {t.hitPoints} · BW {t.movement}
-                        {t.range != null && ` · RW ${t.range}`}
-                        {t.capacity > 0 && ` · LD ${t.capacity}`}
+                        {tr('city.stats', {
+                          domain: { key: `compendium.domain.${t.domain}` },
+                          str: t.strength,
+                          def: t.defense,
+                          hp: t.hitPoints,
+                          mov: t.movement,
+                        })}
+                        {t.range != null && tr('city.statRange', { value: t.range })}
+                        {t.capacity > 0 && tr('city.statCargo', { value: t.capacity })}
                       </span>
                       {overview && (
                         <span className="block text-[11px] text-stone-500 dark:text-stone-400">
-                          <span className={stock.owned === 0 ? 'opacity-60' : ''}>Bestand {stock.owned}</span>
+                          <span className={stock.owned === 0 ? 'opacity-60' : ''}>{tr('city.stock', { count: stock.owned })}</span>
                           {' · '}
                           <span className={stock.building.length > 0 ? 'font-semibold text-amber-700 dark:text-amber-400' : 'opacity-60'}>
-                            {stock.building.length} im Bau
+                            {tr('city.building', { count: stock.building.length })}
                           </span>
                           {stock.building.length > 0 && ` (${cityList(stock.building)})`}
                         </span>
@@ -244,7 +243,7 @@ export function CityPanel({
                       >
                         {buildTurns(t)}
                       </span>
-                      <span className="block text-[10px] uppercase text-stone-500">Runden</span>
+                      <span className="block text-[10px] uppercase text-stone-500">{tr('city.rounds')}</span>
                     </span>
                   </button>
                 </li>

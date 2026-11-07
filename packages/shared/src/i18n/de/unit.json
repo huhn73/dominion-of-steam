@@ -1,0 +1,43 @@
+{
+  "order": {
+    "none": "Kein Befehl",
+    "sentry": "Auf Wache",
+    "goto": "Marschiert",
+    "patrol": "Patrouille",
+    "explore": "Erkundung"
+  },
+  "unitOf": "Einheit {name}",
+  "special": "Sondereinheit",
+  "close": "Schließen",
+  "stat": {
+    "strength": "Stärke",
+    "defense": "Abwehr",
+    "damage": "Schaden",
+    "movement": "Bewegung",
+    "hp": "TP"
+  },
+  "gotoRounds": "· noch {count} Runden bis zum Ziel",
+  "waypoints": "· {count} Wegpunkte",
+  "exploring": "· fliegt in den Nebel und kehrt zum Tanken um",
+  "onTile": "Auf diesem Feld",
+  "needsOrders": "braucht Befehle",
+  "cargo": "Ladung",
+  "emptyCarrier": "Leer. Lass Flugzeuge auf dem Träger landen, um sie aufzutanken und mitzunehmen.",
+  "emptyFreighter": "Leer. Ziehe Landeinheiten auf den Frachter, um sie zu laden.",
+  "launch": "Starten",
+  "unload": "Ausladen",
+  "patrolHint": "Tippe auf der Karte die Wegpunkte der Patrouille an ({count} gesetzt).",
+  "cancel": "Abbrechen",
+  "confirm": "Bestätigen",
+  "unloadHint": "Tippe auf ein markiertes Landfeld zum Ausladen.",
+  "btn": {
+    "sentry": "Wache",
+    "patrol": "Patrouille",
+    "explore": "Erkunden",
+    "base": "Zur Basis",
+    "cancelOrder": "Aufheben",
+    "skip": "Überspringen"
+  },
+  "moveHint": "Ziel antippen oder Einheit ziehen. Ziele außerhalb der Reichweite werden zum Mehrrunden-Marsch.",
+  "cancelHint": " Rechtsklick oder Esc bricht ab."
+}

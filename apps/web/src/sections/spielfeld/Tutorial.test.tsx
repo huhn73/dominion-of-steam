@@ -16,8 +16,8 @@ const textStep: TutorialView = {
   total: 12,
   current: {
     id: 'welcome',
-    title: 'Willkommen, Kommandant',
-    text: 'Das Ziel …',
+    title: 'tutorial.welcome.title',
+    text: 'tutorial.welcome.text',
     focus: null,
     manual: true,
   },
@@ -27,8 +27,8 @@ const actionStep: TutorialView = {
   total: 12,
   current: {
     id: 'endTurn',
-    title: 'Zug beenden',
-    text: 'Beende deinen Zug.',
+    title: 'tutorial.endTurn.title',
+    text: 'tutorial.endTurn.text',
     focus: { hex: { col: 3, row: 4 }, ui: 'endTurn' },
     manual: false,
   },
@@ -81,7 +81,7 @@ describe('Tutorial im Spielfeld', () => {
           tutorial={{
             ...actionStep,
             step: 6,
-            current: { ...textStep.current!, id: 'report', title: 'Neue Runde' },
+            current: { ...textStep.current!, id: 'report', title: 'tutorial.report.title' },
           }}
         />
       </div>,

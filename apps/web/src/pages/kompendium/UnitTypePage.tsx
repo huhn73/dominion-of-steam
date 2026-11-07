@@ -21,7 +21,7 @@ export function UnitTypePage() {
   if (isPending) return <CompendiumLoading />
   if (error || !data) return <CompendiumError error={error} onRetry={() => void refetch()} />
   const unitType = data.unitTypes.find((u) => u.id === unitTypeId)
-  if (!unitType) return <CompendiumNotFound what="Diesen Einheitentyp" />
+  if (!unitType) return <CompendiumNotFound what="compendium.unitMissing" />
   const faction = data.factions.find((f) => f.id === unitType.factionId) ?? null
   const initialVariant = variant && data.factions.some((f) => f.id === variant) ? variant : null
 

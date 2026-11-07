@@ -1,3 +1,4 @@
+import type { MessageKey } from '../i18n'
 import type {
   City,
   CombatPreview,
@@ -50,8 +51,8 @@ export interface TutorialView {
   total: number
   current: {
     id: string
-    title: string
-    text: string
+    title: MessageKey
+    text: MessageKey
     focus: TutorialFocus | null
     /** Text step: confirmed with „Weiter“ instead of an action */
     manual: boolean

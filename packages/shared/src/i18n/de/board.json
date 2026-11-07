@@ -1,0 +1,142 @@
+{
+  "fuel": {
+    "short": "Der Treibstoff reicht nicht bis zum Ziel: {path} Felder, aber nur {fuel} Treibstoff.",
+    "noBase": "Nach diesem Zug bleiben {fuel} Treibstoff, aber es gibt keine eigene Stadt und keinen Träger zum Landen.",
+    "far": {
+      "one": "Nach diesem Zug bleiben {fuel} Treibstoff, die nächste Basis ist {count} Feld entfernt.",
+      "other": "Nach diesem Zug bleiben {fuel} Treibstoff, die nächste Basis ist {count} Felder entfernt."
+    }
+  },
+  "fit": "Karte einpassen",
+  "fitKey": "Karte einpassen (F)",
+  "minimap": "Minikarte ein- oder ausblenden",
+  "replay": {
+    "title": "Gegnerzug",
+    "move": "bewegt sich",
+    "attack": "greift an",
+    "capture": "erobert",
+    "skip": "Überspringen"
+  },
+  "toast": {
+    "win": "Sieg",
+    "loss": "Niederlage",
+    "damage": {
+      "one": "Schaden: eigene −{own} · Gegner −{enemy} TP · {count} Runde",
+      "other": "Schaden: eigene −{own} · Gegner −{enemy} TP · {count} Runden"
+    }
+  },
+  "close": "Schließen",
+  "endedPill": "Beendet · {outcome}",
+  "result": "Ergebnis",
+  "waitingFor": "Warte auf {names} …",
+  "dominance": "Vorherrschaft:",
+  "you": "du",
+  "unknown": "Unbekannt",
+  "dominanceShare": {
+    "one": "{share} % der Städte · noch {count} Runde",
+    "other": "{share} % der Städte · noch {count} Runden"
+  },
+  "noReturn": "Kein Rückweg",
+  "cancel": "Abbrechen",
+  "flyAnyway": "Trotzdem fliegen",
+  "attack": {
+    "title": "Angriff",
+    "captureChance": "Eroberungschance",
+    "winChance": "Siegchance",
+    "details": "Trefferchance je Runde {hit} % · Schaden je Treffer: eigene {own}, Gegner {enemy} TP · Erwarteter eigener Verlust −{loss} TP",
+    "spent": "Die Einheit wird dabei verbraucht.",
+    "spentGarrison": "Die Einheit wird dabei verbraucht und hinterlässt bei Erfolg Grenadiere in der Stadt.",
+    "defender": "Verteidiger: {mods}",
+    "approach": {
+      "one": "Fährt {count} Feld heran",
+      "other": "Fährt {count} Felder heran"
+    },
+    "confirm": "Angreifen"
+  },
+  "nextUnit": "Nächste Einheit (N oder Leertaste)",
+  "next": "Nächste",
+  "unitSuffix": " Einheit",
+  "matchEnded": "Partie beendet",
+  "endTurn": "Zug beenden",
+  "endTurnQ": "Zug beenden?",
+  "pendingOrders": {
+    "one": "{count} Einheit hat in dieser Runde noch keine Befehle.",
+    "other": "{count} Einheiten haben in dieser Runde noch keine Befehle."
+  },
+  "stranded": {
+    "one": "Ein Flugzeug erreicht mit dem Treibstoff keine Basis mehr: {list}.",
+    "other": "{count} Flugzeuge erreichen mit dem Treibstoff keine Basis mehr: {list}."
+  },
+  "strandedUnit": "{name} bei {col},{row} (Treibstoff {fuel}, Basis {base})",
+  "baseTiles": "{count} Felder",
+  "unreachable": "unerreichbar",
+  "toUnits": "Zu den Einheiten",
+  "endAnyway": "Trotzdem beenden",
+  "outcome": {
+    "victory": "Sieg",
+    "defeat": "Niederlage",
+    "surrendered": "Aufgegeben"
+  },
+  "reason": {
+    "elimination": "Ausschaltung aller Gegner",
+    "capitals": "Eroberung aller Hauptstädte",
+    "roundLimit": "das Rundenlimit",
+    "dominance": "Vorherrschaft",
+    "noHumans": "Aufgabe aller Spieler"
+  },
+  "endedIn": "{name} · beendet in Runde {round}",
+  "endedBy": " durch {reason}",
+  "winner": " · Sieger: {name}",
+  "noWinner": " · Kein Sieger",
+  "tutorialDone": "Tutorial abgeschlossen.",
+  "tutorialDoneText": "Du kennst jetzt Bewegung, Eroberung, Produktion, Frachter, Flugzeuge und Kampf. Bereit für deine erste echte Partie?",
+  "col": {
+    "place": "Platz",
+    "participant": "Teilnehmer",
+    "cities": "Städte",
+    "citiesShort": "St.",
+    "units": "Einheiten",
+    "unitsShort": "Einh.",
+    "points": "Punkte",
+    "pointsShort": "Pkt."
+  },
+  "youMark": "(du)",
+  "capitulated": "kapituliert",
+  "eliminated": "ausgeschieden",
+  "ai": "KI",
+  "pointsNote": "Punkte: 3 je Stadt, 1 je Einheit.",
+  "viewMap": "Karte ansehen",
+  "toLobby": "Zur Lobby",
+  "newMatch": "Neue Partie",
+  "section": {
+    "losses": "Verluste",
+    "cities": "Städte",
+    "combat": "Gefechte",
+    "sightings": "Entdeckt",
+    "enemyMoves": "Gegnerbewegungen",
+    "home": "Eigenes Reich"
+  },
+  "moveTo": "nach {col},{row}",
+  "events": "Ereignisse",
+  "newCount": "{count} neu",
+  "showReport": "Rundenbericht anzeigen",
+  "noEvents": "Keine Ereignisse seit deinem letzten Zug.",
+  "reportTitle": "Rundenbericht · Runde {round}",
+  "sinceLastTurn": "Seit deinem letzten Zug",
+  "watchReplay": "Gegnerzüge ansehen",
+  "continue": "Weiter",
+  "tutorial": {
+    "region": "Tutorial",
+    "step": "Tutorial · Schritt {progress}",
+    "done": "Geschafft!",
+    "expand": "Tutorial aufklappen",
+    "collapse": "Tutorial einklappen",
+    "progress": "Fortschritt",
+    "next": "Weiter",
+    "waiting": "Wartet auf deine Aktion",
+    "leave": "Beenden"
+  },
+  "minimapJump": "Minikarte, antippen zum Springen",
+  "stackCount": "{count} Einheiten",
+  "map": "Spielkarte"
+}

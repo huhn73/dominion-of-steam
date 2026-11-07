@@ -6,6 +6,7 @@ import { INTL_LOCALE, translator, type Locale, type Translate } from '@dos/share
 import { isTutorialMatchId } from '@dos/shared/engine'
 import { api, ApiRequestError } from './api'
 import { useServerEventsConnected } from './events'
+import { useLocalizedMasterData } from '../i18n/localize'
 
 /** Without event stream: poll while others are on the move */
 export const POLL_WHILE_WAITING_MS = 5000
@@ -15,9 +16,11 @@ export const matchKey = (matchId: string) => ['match', matchId] as const
 
 export function useMatchView(matchId: string) {
   const live = useServerEventsConnected()
+  const select = useLocalizedMasterData<PlayerView>()
   return useQuery({
     queryKey: matchKey(matchId),
     queryFn: () => api<PlayerView>(`/matches/${matchId}/view`),
+    select,
     // With the event stream the server reports turns; without it poll while waiting
     refetchInterval: (query) =>
       !live && query.state.data?.match.phase === 'waiting' && !query.state.data.result

@@ -1,3 +1,4 @@
+import type { Message, MessageKey } from '../i18n'
 // Datentypen unverändert aus product-plan/sections/partie-setup-and-ki-gegner/types.ts;
 // die Props der Komponenten liegen in apps/web/src/sections/partie-setup/types.ts
 // =============================================================================
@@ -37,13 +38,13 @@ export interface Faction {
 export interface AiPersonality {
   id: string
   name: string
-  title: string
+  title: MessageKey
   /** Each personality always leads the same faction */
   factionId: string
   portraitUrl: string | null
-  /** Short tags describing how it plays, may be empty */
+  /** Short tags describing how it plays, may be empty; also steer the AI (`aiProfile`), shown via `setup.style.<tag>` */
   style: string[]
-  description: string
+  description: MessageKey
 }
 
 export interface Friend {
@@ -57,15 +58,15 @@ export interface Friend {
 
 export interface SetupOptions {
   mapSizes: MapSizeOption[]
-  landShare: { min: number; max: number; step: number; minLabel: string; maxLabel: string }
+  landShare: { min: number; max: number; step: number; minLabel: MessageKey; maxLabel: MessageKey }
   /** Used for neutral cities and for mountains/forest */
-  levels: { id: Level; label: string }[]
+  levels: { id: Level; label: MessageKey }[]
   /** Continent, islands or archipelago */
-  worldShapes: { id: WorldShape; label: string; description: string }[]
-  asyncTurnLimits: { hours: number; label: string }[]
+  worldShapes: { id: WorldShape; label: MessageKey; description: MessageKey }[]
+  asyncTurnLimits: { hours: number; label: Message }[]
   /** minutes null means no time limit */
-  liveTurnLimits: { minutes: number | null; label: string }[]
-  victoryConditions: { id: VictoryConditionId; label: string; description: string }[]
+  liveTurnLimits: { minutes: number | null; label: Message }[]
+  victoryConditions: { id: VictoryConditionId; label: MessageKey; description: MessageKey }[]
   /** null means no limit (only with another victory condition) */
   roundLimits: (number | null)[]
 }
