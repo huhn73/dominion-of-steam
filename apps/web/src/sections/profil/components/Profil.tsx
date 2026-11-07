@@ -3,6 +3,9 @@ import { ChevronDown, Pencil, Trash2, Upload } from 'lucide-react'
 import type { MatchResult, ProfilProps, Profile } from '../types'
 import { FACTION_HEX, RESULT_STAMP, formatDate, percent } from './format'
 import { Avatar, FactionEmblem, Segmented, Sheet, TextInput } from './ui'
+import { AvatarCropper } from './AvatarCropper'
+import type { Crop } from './cropMath'
+import { AVATAR_MAX_BYTES } from '@dos/shared/profile'
 
 const NAME_MIN = 3
 const NAME_MAX = 24
@@ -16,14 +19,28 @@ function EditProfileSheet({
 }: {
   profile: Profile
   onSave: (name: string) => void
-  onUploadAvatar?: (file: File) => void
+  onUploadAvatar?: (file: File, crop?: Crop) => void
   onRemoveAvatar?: () => void
   onClose: () => void
 }) {
   const [name, setName] = useState(profile.displayName)
+  // A chosen file waits in the cropper; the edit sheet keeps the typed name meanwhile
+  const [pending, setPending] = useState<File | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const trimmed = name.trim()
   const valid = trimmed.length >= NAME_MIN && trimmed.length <= NAME_MAX
+
+  if (pending)
+    return (
+      <AvatarCropper
+        file={pending}
+        onCancel={() => setPending(null)}
+        onApply={(crop) => {
+          onUploadAvatar?.(pending, crop)
+          setPending(null)
+        }}
+      />
+    )
 
   return (
     <Sheet
@@ -51,11 +68,16 @@ function EditProfileSheet({
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/webp,image/gif"
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0]
-              if (file) onUploadAvatar?.(file)
+              // Reset, so that the same file can be chosen again after cancelling
+              e.target.value = ''
+              if (!file) return
+              // Too large: straight to the upload, which reports it without sending the file
+              if (file.size > AVATAR_MAX_BYTES) onUploadAvatar?.(file)
+              else setPending(file)
             }}
           />
           <button

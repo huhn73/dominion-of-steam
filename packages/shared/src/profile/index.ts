@@ -144,7 +144,8 @@ export const HISTORY_PAGE_MAX = 50
 
 /** Avatar upload: formats and size */
 export const AVATAR_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'] as const
-export const AVATAR_MAX_BYTES = 2 * 1024 * 1024
+/** Original upload; the server stores a 256×256 WebP of a few KB */
+export const AVATAR_MAX_BYTES = 10 * 1024 * 1024
 
 /** E-mail change links are valid this long */
 export const EMAIL_CHANGE_TTL_HOURS = 24

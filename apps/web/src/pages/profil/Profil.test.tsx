@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Me } from '@dos/shared/account'
 import type { HistoryEntry, ProfileData } from '@dos/shared/profile'
@@ -221,14 +221,53 @@ describe('Profil', () => {
     const dialog = screen.getByRole('dialog', { name: 'Profil bearbeiten' })
     const file = new File(['png'], 'ich.png', { type: 'image/png' })
     await userEvent.upload(dialog.querySelector<HTMLInputElement>('input[type=file]')!, file)
+    // Erst der Zuschnitt: Querformat 400×200, Start ist das mittige Quadrat
+    const cropper = screen.getByRole('dialog', { name: 'Bildausschnitt' })
+    expect(calls.some((c) => c.path === '/profile/avatar')).toBe(false)
+    const preview = within(cropper).getByAltText('Vorschau des neuen Profilbilds')
+    Object.defineProperty(preview, 'naturalWidth', { value: 400 })
+    Object.defineProperty(preview, 'naturalHeight', { value: 200 })
+    fireEvent.load(preview)
+    // Ganz nach rechts schieben (Pfeiltasten), dann übernehmen
+    const stage = within(cropper).getByRole('application')
+    for (let i = 0; i < 40; i++) fireEvent.keyDown(stage, { key: 'ArrowLeft' })
+    await userEvent.click(within(cropper).getByRole('button', { name: 'Übernehmen' }))
     const upload = calls.find((c) => c.path === '/profile/avatar')!
     expect(upload.method).toBe('POST')
-    expect((upload.body as FormData).get('avatar')).toBeInstanceOf(File)
+    const body = upload.body as FormData
+    expect(body.get('avatar')).toBeInstanceOf(File)
+    expect([body.get('cropX'), body.get('cropY'), body.get('cropSize')]).toEqual([
+      '200',
+      '0',
+      '200',
+    ])
     expect(await screen.findByRole('status')).toHaveTextContent('Bild gespeichert')
-    // Nach dem Neuladen gibt es „Bild entfernen“
-    await userEvent.click(await within(dialog).findByRole('button', { name: /Bild entfernen/ }))
+    // Zurück im Profil-Dialog; nach dem Neuladen gibt es „Bild entfernen“
+    const back = screen.getByRole('dialog', { name: 'Profil bearbeiten' })
+    await userEvent.click(await within(back).findByRole('button', { name: /Bild entfernen/ }))
     expect(calls.some((c) => c.method === 'DELETE' && c.path === '/profile/avatar')).toBe(true)
     expect(await screen.findByRole('status')).toHaveTextContent('Bild entfernt')
+  })
+
+  it('Zuschnitt abbrechen lädt nichts hoch und führt zurück', async () => {
+    const { calls } = mockApi({ 'GET /profile': () => ({ json: profileData() }) })
+    renderApp('/profil')
+    await userEvent.click(await screen.findByRole('button', { name: /Profil bearbeiten/ }))
+    const dialog = screen.getByRole('dialog', { name: 'Profil bearbeiten' })
+    await userEvent.type(within(dialog).getByLabelText(/^Anzeigename/), 'x')
+    const file = new File(['png'], 'ich.png', { type: 'image/png' })
+    await userEvent.upload(dialog.querySelector<HTMLInputElement>('input[type=file]')!, file)
+    await userEvent.click(
+      within(screen.getByRole('dialog', { name: 'Bildausschnitt' })).getByRole('button', {
+        name: 'Abbrechen',
+      }),
+    )
+    const back = screen.getByRole('dialog', { name: 'Profil bearbeiten' })
+    // Der getippte Name bleibt erhalten
+    expect(within(back).getByLabelText(/^Anzeigename/)).toHaveValue(
+      `${profileData().profile.displayName}x`,
+    )
+    expect(calls.some((c) => c.path === '/profile/avatar')).toBe(false)
   })
 
   it('weist zu große Bilder ab, ohne sie hochzuladen', async () => {
@@ -236,11 +275,12 @@ describe('Profil', () => {
     renderApp('/profil')
     await userEvent.click(await screen.findByRole('button', { name: /Profil bearbeiten/ }))
     const dialog = screen.getByRole('dialog', { name: 'Profil bearbeiten' })
-    const big = new File([new Uint8Array(2 * 1024 * 1024 + 1)], 'gross.png', { type: 'image/png' })
+    const big = new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'gross.png', { type: 'image/png' })
     await userEvent.upload(dialog.querySelector<HTMLInputElement>('input[type=file]')!, big)
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Das Bild ist zu groß (höchstens 2 MB).',
+      'Das Bild ist zu groß (höchstens 10 MB).',
     )
+    expect(screen.queryByRole('dialog', { name: 'Bildausschnitt' })).toBeNull()
     expect(calls.some((c) => c.path === '/profile/avatar')).toBe(false)
   })
 })

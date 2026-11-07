@@ -35,3 +35,9 @@ Element.prototype.hasPointerCapture ??= () => false
 Element.prototype.scrollIntoView ??= () => {}
 // jsdom kennt keinen 2D-Kontext: Gelände und Minikarte bleiben leer, die Overlays laufen weiter
 HTMLCanvasElement.prototype.getContext = (() => null) as unknown as HTMLCanvasElement['getContext']
+
+// jsdom has no object URLs (avatar cropper preview)
+if (!URL.createObjectURL) {
+  URL.createObjectURL = () => 'blob:test'
+  URL.revokeObjectURL = () => undefined
+}

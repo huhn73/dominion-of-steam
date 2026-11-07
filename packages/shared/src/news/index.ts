@@ -27,6 +27,10 @@ export const NEWS: readonly ReleaseNotes[] = [
         title: 'Neuigkeiten',
         text: 'Nach einem Update zeigt dir das Spiel einmal, was neu ist, und unten auf jeder Seite führt „Neuigkeiten“ zu allen bisherigen Änderungen.',
       },
+      {
+        title: 'Profilbild zuschneiden',
+        text: 'Beim Hochladen wählst du den runden Ausschnitt deines Profilbilds selbst; auch große Handyfotos bis 10 MB gehen, gespeichert wird ein kleines Bild ohne Standortdaten.',
+      },
     ],
   },
   {

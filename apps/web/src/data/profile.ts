@@ -47,7 +47,8 @@ export function useProfileActions() {
   return {
     updateDisplayName: (displayName: string) =>
       api<Me>('/profile', { method: 'PATCH', body: { displayName } }).then(updated),
-    uploadAvatar: async (file: File) => {
+    /** The crop fields go before the file: the server reads them with the file */
+    uploadAvatar: async (file: File, crop?: { x: number; y: number; size: number }) => {
       // Checked on the server, too; this only saves uploading a huge file
       if (file.size > AVATAR_MAX_BYTES)
         throw new ApiRequestError(
@@ -56,6 +57,11 @@ export function useProfileActions() {
           `Das Bild ist zu groß (höchstens ${AVATAR_MAX_BYTES / 1024 / 1024} MB).`,
         )
       const body = new FormData()
+      if (crop) {
+        body.append('cropX', String(crop.x))
+        body.append('cropY', String(crop.y))
+        body.append('cropSize', String(crop.size))
+      }
       body.append('avatar', file)
       return api<Me>('/profile/avatar', { method: 'POST', body }).then(updated)
     },

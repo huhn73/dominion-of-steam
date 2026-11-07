@@ -32,3 +32,14 @@ try {
   app.log.error(err)
   process.exit(1)
 }
+
+// Avatars from before the WebP conversion and orphaned files; in the background, start is not delayed
+void app.profile
+  .maintainAvatars()
+  .then(({ converted, cleared, deleted }) => {
+    if (converted || cleared || deleted)
+      app.log.info(
+        `Avatare: ${converted} umgerechnet, ${cleared} ohne Datei entfernt, ${deleted} verwaiste Dateien gelöscht`,
+      )
+  })
+  .catch((err: unknown) => app.log.error({ err }, 'Avatare aufräumen fehlgeschlagen'))

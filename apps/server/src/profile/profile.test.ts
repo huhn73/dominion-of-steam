@@ -1,6 +1,7 @@
-import { mkdtemp, readdir, rm } from 'node:fs/promises'
+import { mkdtemp, readdir, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import sharp from 'sharp'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { eq, ne } from 'drizzle-orm'
 import {
@@ -33,9 +34,19 @@ const PNG = Buffer.from(
 
 type Session = Awaited<ReturnType<typeof loginAs>>
 
-function multipart(filename: string, type: string, data: Buffer) {
+function multipart(
+  filename: string,
+  type: string,
+  data: Buffer,
+  fields: Record<string, string | number> = {},
+) {
   const boundary = `----dos${Date.now()}`
   const payload = Buffer.concat([
+    ...Object.entries(fields).map(([name, value]) =>
+      Buffer.from(
+        `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`,
+      ),
+    ),
     Buffer.from(
       `--${boundary}\r\nContent-Disposition: form-data; name="avatar"; filename="${filename}"\r\nContent-Type: ${type}\r\n\r\n`,
     ),
@@ -314,47 +325,138 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     expect((await patch(`${neu.name}-NEU`)).statusCode).toBe(200)
   })
 
-  it('Avatar: hochladen, ausliefern, ersetzen (alte Datei weg), falsches Format, zu groß, entfernen', async () => {
+  it('Avatar: hochladen als 256er WebP, ausliefern, ersetzen (alte Datei weg), falsches Format, zu groß, entfernen', async () => {
     const neu = await newPlayer()
-    const upload = (filename: string, type: string, data: Buffer) =>
+    const upload = (
+      filename: string,
+      type: string,
+      data: Buffer,
+      fields?: Record<string, string | number>,
+    ) =>
       app.inject({
         method: 'POST',
         url: '/api/profile/avatar',
         cookies: { [SESSION_COOKIE]: neu.token },
-        ...multipart(filename, type, data),
+        ...multipart(filename, type, data, fields),
       })
     const res = await upload('ich.png', 'image/png', PNG)
     expect(res.statusCode).toBe(200)
     const first = res.json<Me>().avatarUrl!
-    expect(first).toMatch(new RegExp(`^/uploads/avatars/${neu.me.id}-[0-9a-f]{12}\\.png$`))
+    expect(first).toMatch(new RegExp(`^/uploads/avatars/${neu.me.id}-[0-9a-f]{12}\\.webp$`))
     const file = await app.inject({ method: 'GET', url: first })
     expect(file.statusCode).toBe(200)
-    expect(file.headers['content-type']).toBe('image/png')
+    expect(file.headers['content-type']).toBe('image/webp')
     expect(file.headers['cache-control']).toContain('immutable')
+    const meta = await sharp(file.rawPayload).metadata()
+    expect([meta.format, meta.width, meta.height]).toEqual(['webp', 256, 256])
     expect((await send(neu, 'GET', '/api/me')).json<Me>().avatarUrl).toBe(first)
 
-    // Neues Bild: neuer Dateiname, alte Datei gelöscht
-    const second = (await upload('ich2.png', 'image/png', PNG)).json<Me>().avatarUrl!
+    // Neues Bild mit Ausschnitt: links rot, rechts blau; der rechte Ausschnitt ist blau
+    const halves = await sharp({
+      create: { width: 400, height: 200, channels: 3, background: '#ff0000' },
+    })
+      .composite([
+        {
+          input: await sharp({
+            create: { width: 200, height: 200, channels: 3, background: '#0000ff' },
+          })
+            .png()
+            .toBuffer(),
+          left: 200,
+          top: 0,
+        },
+      ])
+      .jpeg()
+      .toBuffer()
+    const cropped = await upload('ich2.jpg', 'image/jpeg', halves, {
+      cropX: 200,
+      cropY: 0,
+      cropSize: 200,
+    })
+    expect(cropped.statusCode).toBe(200)
+    const second = cropped.json<Me>().avatarUrl!
     expect(second).not.toBe(first)
     const files = await readdir(path.join(uploadsDir, 'avatars'))
     expect(files).toContain(path.basename(second))
     expect(files).not.toContain(path.basename(first))
+    const pixel = await sharp(path.join(uploadsDir, 'avatars', path.basename(second)))
+      .extract({ left: 128, top: 128, width: 1, height: 1 })
+      .raw()
+      .toBuffer()
+    expect(pixel[2]).toBeGreaterThan(200)
+    expect(pixel[0]).toBeLessThan(60)
 
-    // Kein Bild (der angegebene Typ zählt nicht), zu groß, kein Multipart
+    // Ausschnitt unvollständig oder außerhalb des Bildes
+    const partial = await upload('ich3.jpg', 'image/jpeg', halves, { cropX: 10 })
+    expect(partial.statusCode).toBe(422)
+    expect(partial.json().error.code).toBe('INVALID_CROP')
+    const outside = await upload('ich3.jpg', 'image/jpeg', halves, {
+      cropX: 500,
+      cropY: 0,
+      cropSize: 100,
+    })
+    expect(outside.statusCode).toBe(422)
+
+    // Kein Bild (der angegebene Typ zählt nicht), kaputtes Bild, zu groß, kein Multipart
     const text = await upload('bild.png', 'image/png', Buffer.from('kein Bild'))
     expect(text.statusCode).toBe(415)
     expect(text.json().error.message).toBe(
       'Bitte wähle ein Bild im Format PNG, JPEG, WebP oder GIF.',
     )
-    const big = await upload('gross.png', 'image/png', Buffer.alloc(2 * 1024 * 1024 + 10, 1))
+    const broken = await upload('kaputt.png', 'image/png', PNG.subarray(0, 30))
+    expect(broken.statusCode).toBe(415)
+    const big = await upload('gross.png', 'image/png', Buffer.alloc(10 * 1024 * 1024 + 10, 1))
     expect(big.statusCode).toBe(413)
-    expect(big.json().error.message).toBe('Das Bild ist zu groß (höchstens 2 MB).')
+    expect(big.json().error.message).toBe('Das Bild ist zu groß (höchstens 10 MB).')
     expect((await send(neu, 'POST', '/api/profile/avatar', {})).statusCode).toBe(422)
 
     const removed = await send(neu, 'DELETE', '/api/profile/avatar')
     expect(removed.json<Me>().avatarUrl).toBeNull()
     expect(await readdir(path.join(uploadsDir, 'avatars'))).not.toContain(path.basename(second))
     expect((await app.inject({ method: 'GET', url: second })).statusCode).toBe(404)
+  })
+
+  it('Avatare beim Start: alte Formate werden WebP, fehlende Dateien entfernt, verwaiste alte Dateien gelöscht', async () => {
+    const alt = await newPlayer('Alt')
+    const weg = await newPlayer('Weg')
+    const dir = path.join(uploadsDir, 'avatars')
+    const oldPng = `${alt.me.id}-aaaaaaaaaaaa.png`
+    await writeFile(
+      path.join(dir, oldPng),
+      await sharp({ create: { width: 300, height: 100, channels: 3, background: '#00ff00' } })
+        .png()
+        .toBuffer(),
+    )
+    await db
+      .update(players)
+      .set({ avatarUrl: `/uploads/avatars/${oldPng}` })
+      .where(eq(players.id, alt.me.id))
+    await db
+      .update(players)
+      .set({ avatarUrl: `/uploads/avatars/${weg.me.id}-bbbbbbbbbbbb.png` })
+      .where(eq(players.id, weg.me.id))
+    const stale = path.join(dir, 'verwaist-alt.webp')
+    const fresh = path.join(dir, 'verwaist-frisch.webp')
+    await writeFile(stale, 'x')
+    await writeFile(fresh, 'x')
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000)
+    await utimes(stale, twoHoursAgo, twoHoursAgo)
+
+    const result = await app.profile.maintainAvatars()
+    expect(result.converted).toBeGreaterThanOrEqual(1)
+    expect(result.cleared).toBeGreaterThanOrEqual(1)
+    expect(result.deleted).toBeGreaterThanOrEqual(1)
+
+    const converted = (await send(alt, 'GET', '/api/me')).json<Me>().avatarUrl!
+    expect(converted).toMatch(/\.webp$/)
+    const meta = await sharp(path.join(dir, path.basename(converted))).metadata()
+    expect([meta.width, meta.height]).toEqual([256, 256])
+    expect((await send(weg, 'GET', '/api/me')).json<Me>().avatarUrl).toBeNull()
+    const files = await readdir(dir)
+    expect(files).not.toContain(oldPng)
+    expect(files).not.toContain('verwaist-alt.webp')
+    expect(files).toContain('verwaist-frisch.webp')
+    expect(files).toContain(path.basename(converted))
   })
 
   it('Einstellungen: vollständige Form prüfen, speichern, laden; E-Mail-Schalter wirkt beim Versand', async () => {

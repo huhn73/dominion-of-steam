@@ -27,7 +27,8 @@ export interface ProfilProps {
   /** Called when the player saves a new display name */
   onUpdateDisplayName?: (name: string) => void
   /** Called when the player picks a new avatar image */
-  onUploadAvatar?: (file: File) => void
+  /** The file with the chosen square in pixels of the upright image */
+  onUploadAvatar?: (file: File, crop?: { x: number; y: number; size: number }) => void
   /** Called when the player removes the avatar */
   onRemoveAvatar?: () => void
 }

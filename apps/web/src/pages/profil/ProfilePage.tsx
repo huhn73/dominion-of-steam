@@ -56,9 +56,9 @@ export function ProfilePage() {
         onUpdateDisplayName={(name) =>
           run(actions.updateDisplayName(name), 'Anzeigename gespeichert')
         }
-        onUploadAvatar={(file) =>
+        onUploadAvatar={(file, crop) =>
           run(
-            actions.uploadAvatar(file),
+            actions.uploadAvatar(file, crop),
             'Bild gespeichert',
             'Das Bild konnte nicht hochgeladen werden.',
           )

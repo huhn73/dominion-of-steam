@@ -18,6 +18,22 @@ const str = (v: unknown) => (typeof v === 'string' ? v : '')
 const body = (v: unknown) =>
   typeof v === 'object' && v !== null ? (v as Record<string, unknown>) : {}
 
+/**
+ * Crop from the multipart fields `cropX`, `cropY`, `cropSize` (sent before the file): undefined
+ * without any of them, null if they are incomplete or not numbers
+ */
+function cropFields(fields: Record<string, unknown>) {
+  const value = (name: string) => {
+    const f = fields[name] as { value?: unknown } | { value?: unknown }[] | undefined
+    const v = Array.isArray(f) ? f[0]?.value : f?.value
+    return typeof v === 'string' && v.trim() !== '' ? Number(v) : undefined
+  }
+  const [x, y, size] = [value('cropX'), value('cropY'), value('cropSize')]
+  if (x === undefined && y === undefined && size === undefined) return undefined
+  if (![x, y, size].every((n) => n !== undefined && Number.isFinite(n))) return null
+  return { x: x!, y: y!, size: size! }
+}
+
 const AVATAR_TOO_LARGE = `Das Bild ist zu groß (höchstens ${AVATAR_MAX_BYTES / 1024 / 1024} MB).`
 
 /** Profile, settings and account management of the logged-in player */
@@ -63,16 +79,21 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
     }),
   )
 
-  /** Upload an avatar (multipart, field name arbitrary, one file); answers like `GET /api/me` */
+  /**
+   * Upload an avatar (multipart, field name arbitrary, one file, optionally the crop fields
+   * before it); answers like `GET /api/me`
+   */
   app.post(
     `${API_PREFIX}/profile/avatar`,
     auth,
     run(async (req, reply) => {
       const { player } = await session(req)
       let data: Buffer
+      let crop: ReturnType<typeof cropFields>
       try {
         const file = await req.file()
         if (!file) return sendError(reply, 422, 'INVALID_INPUT', 'Bitte wähle ein Bild aus.')
+        crop = cropFields(file.fields)
         data = await file.toBuffer()
       } catch (err) {
         const code = (err as { code?: string }).code
@@ -84,7 +105,9 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
       }
       if (data.length === 0)
         return sendError(reply, 422, 'INVALID_INPUT', 'Bitte wähle ein Bild aus.')
-      return toMe(await profile.setAvatar(player.id, data))
+      if (crop === null)
+        return sendError(reply, 422, 'INVALID_CROP', 'Der Bildausschnitt passt nicht zum Bild.')
+      return toMe(await profile.setAvatar(player.id, data, crop))
     }),
   )
 

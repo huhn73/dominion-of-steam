@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { mkdir, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { and, eq, gt, ne, notLike, sql } from 'drizzle-orm'
@@ -23,6 +23,7 @@ import {
 } from '@dos/shared/profile'
 import type { Db } from '../db/client'
 import { matches, matchSeats, players, sessions } from '../db/schema'
+import { AvatarImageError, renderAvatar, type AvatarCrop } from './avatarImage'
 import { isTutorialMatchId, TUTORIAL_LIKE, tutorialMatchId } from '../tutorial/service'
 import { SESSION_TTL_MS, type Player } from '../auth/accounts'
 import {
@@ -320,26 +321,94 @@ export function createProfileService(
     await unlink(path.join(avatarDir, name)).catch(() => undefined)
   }
 
-  /**
-   * Store a new avatar. The file name changes with every upload (cache busting); the old file
-   * is deleted afterwards.
-   */
-  async function setAvatar(me: string, data: Buffer) {
-    const image = sniffImage(data)
-    if (!image)
-      throw new ProfileError(
-        415,
-        'UNSUPPORTED_IMAGE',
-        'Bitte wähle ein Bild im Format PNG, JPEG, WebP oder GIF.',
-      )
-    const player = await loadPlayer(me)
+  const unsupportedImage = () =>
+    new ProfileError(
+      415,
+      'UNSUPPORTED_IMAGE',
+      'Bitte wähle ein Bild im Format PNG, JPEG, WebP oder GIF.',
+    )
+
+  /** Write a rendered avatar under a new name (cache busting) and return its public URL */
+  async function storeAvatar(me: string, webp: Buffer) {
     await mkdir(avatarDir, { recursive: true })
-    const file = `${me}-${randomBytes(6).toString('hex')}.${image.ext}`
-    await writeFile(path.join(avatarDir, file), data)
-    const avatarUrl = `${AVATAR_PATH}${file}`
+    const file = `${me}-${randomBytes(6).toString('hex')}.webp`
+    await writeFile(path.join(avatarDir, file), webp)
+    return `${AVATAR_PATH}${file}`
+  }
+
+  /**
+   * Store a new avatar: cut to the square (the centre without a crop), scaled to 256×256 WebP.
+   * The file name changes with every upload (cache busting); the old file is deleted afterwards.
+   */
+  async function setAvatar(me: string, data: Buffer, crop?: AvatarCrop) {
+    if (!sniffImage(data)) throw unsupportedImage()
+    let webp: Buffer
+    try {
+      webp = await renderAvatar(data, crop)
+    } catch (err) {
+      if (err instanceof AvatarImageError && err.kind === 'invalidCrop')
+        throw new ProfileError(422, 'INVALID_CROP', 'Der Bildausschnitt passt nicht zum Bild.')
+      if (err instanceof AvatarImageError) throw unsupportedImage()
+      throw err
+    }
+    const player = await loadPlayer(me)
+    const avatarUrl = await storeAvatar(me, webp)
     await db.update(players).set({ avatarUrl }).where(eq(players.id, me))
     await deleteAvatarFile(player.avatarUrl)
     return loadPlayer(me)
+  }
+
+  /**
+   * Runs once at server start: converts avatars from before the WebP conversion (centred square)
+   * and deletes files no account points to. Fresh files (younger than `graceMs`) are left alone,
+   * they may belong to an upload in progress.
+   */
+  async function maintainAvatars(now = new Date(), graceMs = 60 * 60 * 1000) {
+    let converted = 0
+    let cleared = 0
+    let deleted = 0
+    const rows = await db
+      .select({ id: players.id, avatarUrl: players.avatarUrl })
+      .from(players)
+      .where(sql`${players.avatarUrl} like ${AVATAR_PATH + '%'}`)
+    for (const row of rows) {
+      const url = row.avatarUrl!
+      if (url.endsWith('.webp')) continue
+      let data: Buffer
+      try {
+        data = await readFile(path.join(avatarDir, path.basename(url)))
+      } catch {
+        // The file is gone: show the initials instead of a broken image
+        await db.update(players).set({ avatarUrl: null }).where(eq(players.id, row.id))
+        cleared++
+        continue
+      }
+      try {
+        const avatarUrl = await storeAvatar(row.id, await renderAvatar(data))
+        await db.update(players).set({ avatarUrl }).where(eq(players.id, row.id))
+        await deleteAvatarFile(url)
+        converted++
+      } catch (err) {
+        log?.(`Avatar ${url} konnte nicht umgerechnet werden`, err)
+      }
+    }
+    const [refs, files] = await Promise.all([
+      db
+        .select({ avatarUrl: players.avatarUrl })
+        .from(players)
+        .where(sql`${players.avatarUrl} like ${AVATAR_PATH + '%'}`),
+      readdir(avatarDir).catch(() => [] as string[]),
+    ])
+    const used = new Set(refs.map((r) => path.basename(r.avatarUrl!)))
+    for (const name of files) {
+      if (used.has(name)) continue
+      const file = path.join(avatarDir, name)
+      const info = await stat(file).catch(() => null)
+      if (!info?.isFile() || now.getTime() - info.mtimeMs < graceMs) continue
+      await unlink(file).catch(() => undefined)
+      deleted++
+    }
+    return { converted, cleared, deleted }
   }
 
   async function removeAvatar(me: string) {
@@ -538,6 +607,7 @@ export function createProfileService(
     updateDisplayName,
     setAvatar,
     removeAvatar,
+    maintainAvatars,
     getSettings,
     saveSettings,
     requestEmailChange,

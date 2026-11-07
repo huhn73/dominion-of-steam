@@ -182,6 +182,7 @@ Die eigene Adresse in `.env` als `ADMIN_EMAILS=…` eintragen (kommagetrennt fü
 - Cookie `dos_session` in den Entwicklerwerkzeugen: `Secure`, `HttpOnly`, `SameSite=Lax`. Fehlt `Secure`, ist `TRUST_PROXY=true` nicht gesetzt.
 - E-Mail-Adresse im Profil ändern: Die Bestätigungsmail kommt vom `MAIL_FROM`-Absender, in den Kopfzeilen `spf=pass` und `dkim=pass`.
 - Push im Lobby-Banner aktivieren, Einladung von einem zweiten Konto: Benachrichtigung kommt an.
+- Profilbild hochladen: Der Zuschnitt-Dialog öffnet sich, danach liegt im Upload-Volume eine `.webp` mit 256×256 (sharp im Image). Beim Start rechnet der Server ältere Avatare um und löscht verwaiste Dateien; das Log meldet dann „Avatare: … umgerechnet, … gelöscht“.
 - Von außen: `nmap -p 22,80,443,5432,3000 <DOMAIN>` zeigt nur 22, 80 und 443 offen.
 - `ssh -o PreferredAuthentications=none nobody@<DOMAIN>` nennt nur `publickey`.
 - `curl -sI https://<DOMAIN>` zeigt `strict-transport-security`, `x-content-type-options`, `x-frame-options`, `referrer-policy` und die Content-Security-Policy aus dem `Caddyfile`, aber keinen `server`-Header. Die Bewertung bei [Mozilla Observatory](https://developer.mozilla.org/en-US/observatory) und [SSL Labs](https://www.ssllabs.com/ssltest/) sollte mindestens A sein.
