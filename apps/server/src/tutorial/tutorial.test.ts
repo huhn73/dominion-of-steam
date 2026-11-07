@@ -92,7 +92,9 @@ describe.skipIf(!url)('Tutorial (Datenbank)', () => {
     expect(won).toBe(true)
     const [row] = await db.select().from(players).where(eq(players.id, bjoern.me.id))
     expect(row!.tutorialCompletedAt).not.toBeNull()
-    expect(await db.select().from(notifications)).toHaveLength(0)
+    // No turn notifications from the tutorial; only the badge „Rekrut“ may be announced
+    const kinds = (await db.select().from(notifications)).map((n) => n.kind)
+    expect(kinds.filter((k) => k !== 'badge')).toEqual([])
     const data = await lobby()
     expect(data.tutorial).toMatchObject({ completed: true, status: 'finished' })
     expect(data.finishedMatches.map((m) => m.id)).not.toContain(id)
