@@ -39,3 +39,13 @@ describe('English legal pages', () => {
     expect(screen.getByText(/As of: 7 November 2026/)).toBeInTheDocument()
   })
 })
+
+describe('English friends page', () => {
+  it('shows the friends page and the navigation in English', async () => {
+    mockApi({})
+    renderApp('/freunde', { user: en, locale: 'en' })
+    expect(await screen.findByText('No friends yet')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Friends' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Send request' })).toBeInTheDocument()
+  })
+})

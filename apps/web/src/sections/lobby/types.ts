@@ -50,6 +50,8 @@ export interface LobbyProps {
   onDismissPushBanner?: () => void
   /** Called when the player wants to create a new match */
   onNewMatch?: () => void
+  /** Open another player's profile (participants in the match details) */
+  onOpenPlayer?: (playerId: string) => void
   /** Guided tutorial match of the player (card in the lobby, offer for new accounts) */
   tutorial?: LobbyTutorial
   /** Start or continue the tutorial; `restart` begins again from the first step */

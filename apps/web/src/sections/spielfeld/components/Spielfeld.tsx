@@ -99,6 +99,7 @@ export function Spielfeld({
   onTutorialNext,
   onTutorialSkip,
   onNewMatch,
+  onOpenPlayer,
 }: SpielfeldUndZuegeProps) {
   const t = useT()
   const { locale } = useLocale()
@@ -1028,6 +1029,7 @@ export function Spielfeld({
             onLeave={() => onLeave?.()}
             tutorial={!!tutorial}
             onNewMatch={onNewMatch}
+            onOpenPlayer={onOpenPlayer}
           />
         </div>
       )}

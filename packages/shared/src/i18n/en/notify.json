@@ -37,5 +37,13 @@
   },
   "badge": {
     "title": "Badge earned: {name}"
+  },
+  "friendRequest": {
+    "title": "Friend request from {name}",
+    "body": "{name} would like to be your friend. Accept the request under Friends."
+  },
+  "friendAccepted": {
+    "title": "{name} is now your friend",
+    "body": "{name} has accepted your friend request. You can now invite each other to matches directly."
   }
 }

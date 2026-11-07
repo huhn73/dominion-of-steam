@@ -165,6 +165,36 @@ describe('Profil', () => {
     expect(calls.map((c) => c.path)).toContain('/profile?result=victory')
   })
 
+  it('zeigt das Profil eines anderen Spielers ohne Bearbeiten und schickt eine Anfrage', async () => {
+    const { calls } = mockApi({
+      'GET /players/p2/profile': () => ({
+        json: profileData({
+          profile: { ...profileData().profile, id: 'p2', displayName: 'Lena Hartmann' },
+          isOwn: false,
+          friendship: 'none',
+        }),
+      }),
+      'POST /friends/requests': () => ({
+        status: 201,
+        json: { friends: [], incoming: [], outgoing: [] },
+      }),
+    })
+    renderApp('/spieler/p2')
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Lena Hartmann' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Profil bearbeiten' })).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Freund hinzufügen' }))
+    expect(await screen.findByRole('status')).toHaveTextContent('Anfrage gesendet')
+    expect(calls.find((c) => c.path === '/friends/requests')?.body).toEqual({ playerId: 'p2' })
+  })
+
+  it('leitet das eigene öffentliche Profil auf /profil um', async () => {
+    mockApi({ 'GET /profile': () => ({ json: profileData() }) })
+    const { router } = renderApp('/spieler/p1')
+    await waitFor(() => expect(router.state.location.pathname).toBe('/profil'))
+  })
+
   it('zeigt einem neuen Spieler die Leerzustände', async () => {
     mockApi({
       'GET /profile': () => ({

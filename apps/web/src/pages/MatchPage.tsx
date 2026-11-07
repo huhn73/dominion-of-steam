@@ -128,6 +128,7 @@ export function MatchPage() {
             if (!command.isPending) send({ type: 'tutorialSkip' })
           }}
           onNewMatch={() => navigate(routes.newMatch)}
+          onOpenPlayer={(id) => void navigate(routes.player(id))}
         />
       </BoardSettingsLayer>
       {rejected && (

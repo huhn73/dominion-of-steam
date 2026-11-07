@@ -1,8 +1,9 @@
 import { Outlet, useLocation, useNavigate } from 'react-router'
-import { Castle, Flag, Swords } from 'lucide-react'
+import { Castle, Flag, Swords, Users } from 'lucide-react'
 import { AppShell, type NavigationItem } from '../shell'
 import { useCurrentUser, useLogout, useYourTurnCount } from '../data/session'
 import { useLobby } from '../data/lobby'
+import { useIncomingFriendRequests } from '../data/friends'
 import { useLobbySounds } from '../audio/useLobbySounds'
 import { MuteButton } from '../settings/MuteButton'
 import { MenuFooter } from '../shell/MenuFooter'
@@ -24,6 +25,7 @@ export function MenuLayout() {
   const user = useCurrentUser()
   const logout = useLogout()
   const yourTurnCount = useYourTurnCount()
+  const friendRequests = useIncomingFriendRequests()
   // Notification sounds for new invitations and turns (the lobby polls on every menu page)
   useLobbySounds(useLobby().data)
 
@@ -31,6 +33,7 @@ export function MenuLayout() {
     { label: t('shell.nav.lobby'), href: routes.lobby, icon: Castle, badge: yourTurnCount },
     { label: t('shell.nav.newMatch'), href: routes.newMatch, icon: Swords },
     { label: t('shell.nav.factions'), href: routes.factions, icon: Flag },
+    { label: t('shell.nav.friends'), href: routes.friends, icon: Users, badge: friendRequests },
   ].map((item) => ({ ...item, isActive: isActive(pathname, item.href) }))
 
   return (

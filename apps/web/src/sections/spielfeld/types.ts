@@ -84,6 +84,8 @@ export interface SpielfeldUndZuegeProps {
   onTutorialSkip?: () => void
   /** Tutorial: „Neue Partie“ on the result card */
   onNewMatch?: () => void
+  /** Open another player's profile (ranking of the result card) */
+  onOpenPlayer?: (playerId: string) => void
 
   /** Called when the player selects one of their units */
   onSelectUnit?: (unitId: string) => void

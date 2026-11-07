@@ -16,6 +16,7 @@ interface PartieabschlussProps {
   /** Tutorial match: own closing words and „Neue Partie“ */
   tutorial?: boolean
   onNewMatch?: () => void
+  onOpenPlayer?: (playerId: string) => void
 }
 
 /** Stamp like the lobby's „Beendet“ tab */
@@ -47,7 +48,7 @@ const primary =
 
 
 /** Result card at the end of a match: outcome stamp and the ranking with the final counts */
-export function Partieabschluss({ match, participants, result, onViewMap, onLeave, tutorial, onNewMatch }: PartieabschlussProps) {
+export function Partieabschluss({ match, participants, result, onViewMap, onLeave, tutorial, onNewMatch, onOpenPlayer }: PartieabschlussProps) {
   const outcome = matchOutcome({ match, participants, result }) ?? 'defeat'
   const style = OUTCOME_STYLE[outcome]
   const Icon = style.icon
@@ -134,7 +135,18 @@ export function Partieabschluss({ match, participants, result, onViewMap, onLeav
                     <div className="flex items-center gap-2">
                       {faction && <FactionEmblem faction={faction} className="size-6 shrink-0" />}
                       <span className="min-w-0 truncate font-semibold">
+                        {!p.isAI && !isYou && onOpenPlayer ? (
+                      <button
+                        type="button"
+                        onClick={() => onOpenPlayer(p.id)}
+                        aria-label={t('profile.openProfile', { name: p.name })}
+                        className="underline-offset-2 hover:text-teal-700 hover:underline dark:hover:text-teal-300"
+                      >
                         {p.name}
+                      </button>
+                    ) : (
+                      p.name
+                    )}
                         {isYou && <span className="ml-1 font-normal text-stone-500 dark:text-stone-400">{t('board.youMark')}</span>}
                         {out && <span className="ml-1 font-normal italic sm:hidden">({p.capitulated ? t('board.capitulated') : t('board.eliminated')})</span>}
                       </span>

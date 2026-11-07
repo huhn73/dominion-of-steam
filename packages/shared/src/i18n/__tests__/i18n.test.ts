@@ -40,7 +40,8 @@ describe('dictionaries', () => {
     for (const [key] of de) expect(en.get(key), key).toBeTruthy()
   })
   it('placeholders match between the languages', () => {
-    const names = (s: unknown) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort()
+    const names = (s: unknown) =>
+      [...new Set([...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort()
     for (const [key, text] of de) expect(names(en.get(key)), key).toEqual(names(text))
   })
   it('English differs from German except for words both languages share', () => {

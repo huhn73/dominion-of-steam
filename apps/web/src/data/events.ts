@@ -29,8 +29,13 @@ export function useServerEventsConnected() {
 /** Query keys per topic (literal keys, so this module does not import the query hooks) */
 function invalidate(queryClient: QueryClient, topic: string) {
   if (topic === 'lobby') return queryClient.invalidateQueries({ queryKey: ['lobby'] })
+  // Friends and requests; profiles show the friendship, too
+  if (topic === 'friends') {
+    void queryClient.invalidateQueries({ queryKey: ['profile'] })
+    return queryClient.invalidateQueries({ queryKey: ['friends'] })
+  }
   if (topic === 'resync') {
-    for (const key of ['lobby', 'room', 'match'])
+    for (const key of ['lobby', 'room', 'match', 'friends'])
       void queryClient.invalidateQueries({ queryKey: [key] })
     return
   }

@@ -20,7 +20,7 @@ function desktopNav() {
 }
 
 describe('Menü-Modus', () => {
-  it('zeigt die drei Navigationspunkte, Lobby ist Startseite und aktiv', async () => {
+  it('zeigt die vier Navigationspunkte, Lobby ist Startseite und aktiv', async () => {
     renderApp('/')
     expect(await screen.findByText('Lagezentrum')).toBeInTheDocument()
     const nav = within(desktopNav())
@@ -29,6 +29,7 @@ describe('Menü-Modus', () => {
       'Lobby2',
       'Neue Partie',
       'Fraktionen',
+      'Freunde',
     ])
     expect(nav.getByRole('button', { name: /Lobby/ })).toHaveAttribute('aria-current', 'page')
   })

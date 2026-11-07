@@ -1,4 +1,6 @@
 import Fastify from 'fastify'
+import { friendsRoutes } from './routes/friends'
+import { createFriendsService } from './friends/service'
 import { setResultListener } from './matches/repository'
 import { awardBadges } from './profile/badges'
 import { requestLocale, sendError } from './locale'
@@ -209,6 +211,7 @@ export function buildApp({
     adminRoutes(scope, admin)
     tutorialRoutes(scope, tutorial)
     newsRoutes(scope, db)
+    friendsRoutes(scope, createFriendsService(db, accounts, notifier))
     localeRoutes(scope, db)
     eventRoutes(scope, realtime)
     if (dev) devRoutes(scope, matches, setup)

@@ -26,6 +26,7 @@ export function mockApi(handlers: Record<string, Handler>) {
     'GET /me': () => ({ json: testUser }),
     'GET /lobby': () => ({ json: emptyLobby() }),
     'GET /settings': () => ({ json: testSettings() }),
+    'GET /friends': () => ({ json: { friends: [], incoming: [], outgoing: [] } }),
     ...handlers,
   }
   const calls: { method: string; path: string; body: unknown }[] = []

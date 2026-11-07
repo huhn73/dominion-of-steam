@@ -13,7 +13,17 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
-export function MatchDetailsSheet({ match, factions, onClose }: { match: Match; factions: Faction[]; onClose: () => void }) {
+export function MatchDetailsSheet({
+  match,
+  factions,
+  onOpenPlayer,
+  onClose,
+}: {
+  match: Match
+  factions: Faction[]
+  onOpenPlayer?: (playerId: string) => void
+  onClose: () => void
+}) {
   const t = useT()
   const { rules, map } = match
   return (
@@ -58,7 +68,18 @@ export function MatchDetailsSheet({ match, factions, onClose }: { match: Match; 
                 {f && <FactionEmblem faction={f} className="size-7" />}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">
-                    {p.name}
+                    {!p.isAI && !p.isYou && onOpenPlayer ? (
+                      <button
+                        type="button"
+                        onClick={() => onOpenPlayer(p.id)}
+                        aria-label={t('profile.openProfile', { name: p.name })}
+                        className="underline-offset-2 hover:text-teal-700 hover:underline dark:hover:text-teal-300"
+                      >
+                        {p.name}
+                      </button>
+                    ) : (
+                      p.name
+                    )}
                     {p.isYou && <span className="font-normal text-stone-500"> {t('lobby.details.you')}</span>}
                   </span>
                   <span className="block text-xs text-stone-500">

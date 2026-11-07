@@ -58,5 +58,8 @@
   "rateLimited": {
     "one": "Too many attempts. Please wait {count} minute.",
     "other": "Too many attempts. Please wait {count} minutes."
-  }
+  },
+  "alreadyFriends": "You are already friends.",
+  "requestExists": "You have already sent this player a request.",
+  "requestNotFound": "This friend request no longer exists."
 }

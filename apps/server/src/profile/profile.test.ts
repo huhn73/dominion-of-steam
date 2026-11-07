@@ -373,6 +373,26 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     expect(profile).toMatchObject({ isOwn: true, friendship: null })
   })
 
+  it('zeigt angemeldeten Spielern das Profil anderer, ohne E-Mail, und 404 für Unbekannte', async () => {
+    const a = await newPlayer('Seher')
+    const b = await newPlayer('Gesehen')
+    await playedMatch('s-1', [{ id: b.me.id, name: b.name, factionId: 'aurelia' }], {
+      endedAt: '2026-10-05T10:00:00Z',
+      winner: b.me.id,
+    })
+    const res = await send(a, 'GET', `/api/players/${b.me.id}/profile`)
+    expect(res.statusCode).toBe(200)
+    const other = res.json<ProfileData>()
+    expect(other).toMatchObject({ isOwn: false, friendship: 'none' })
+    expect(other.profile.displayName).toBe(b.name)
+    expect(other.history.map((h) => h.id)).toEqual(['s-1'])
+    expect(JSON.stringify(other)).not.toContain(b.email)
+    expect((await send(a, 'GET', '/api/players/gibt-es-nicht/profile')).statusCode).toBe(404)
+    expect(
+      (await app.inject({ method: 'GET', url: `/api/players/${b.me.id}/profile` })).statusCode,
+    ).toBe(401)
+  })
+
   it('Anzeigename: 3–24 Zeichen, eindeutig ohne Groß-/Kleinschreibung, danach in /api/me', async () => {
     const neu = await newPlayer()
     const patch = (displayName: unknown) =>

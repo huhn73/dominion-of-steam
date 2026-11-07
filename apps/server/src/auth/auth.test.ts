@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { eq, sql } from 'drizzle-orm'
-import type { Friend, Me } from '@dos/shared/account'
+import type { FriendsData, Me } from '@dos/shared/account'
 import { buildApp } from '../app'
 import { createDb, runMigrations } from '../db/client'
 import { accountTokens, players, sessions } from '../db/schema'
@@ -461,7 +461,7 @@ describe.skipIf(!url)('Konten-API (Datenbank)', () => {
     expect(rows.filter((r) => emails.includes(r.email as never))).toHaveLength(emails.length)
 
     const bjoern = await loginAs(app, BJOERN)
-    const friends = (await bjoern.request('GET', '/api/friends')).json<Friend[]>()
+    const friends = (await bjoern.request('GET', '/api/friends')).json<FriendsData>().friends
     expect(friends.map((f) => f.name).sort()).toEqual(
       DEV_ACCOUNTS.slice(1)
         .map((a) => a.displayName)
@@ -486,7 +486,7 @@ describe.skipIf(!url)('Konten-API (Datenbank)', () => {
       .set({ lastSeenAt: new Date(Date.now() - 5 * 60_000), lastSeenMatchId: null })
       .where(eq(players.email, 'jonas@dominion.test'))
 
-    const friends = (await bjoern.request('GET', '/api/friends')).json<Friend[]>()
+    const friends = (await bjoern.request('GET', '/api/friends')).json<FriendsData>().friends
     const byName = (n: string) => friends.find((f) => f.name === n)!
     expect(byName('Lena Hartmann')).toMatchObject({ status: 'inGame', lastSeen: null })
     expect(byName('Mira Okonkwo')).toMatchObject({ status: 'online', lastSeen: null })
@@ -495,34 +495,5 @@ describe.skipIf(!url)('Konten-API (Datenbank)', () => {
     expect(Object.keys(byName('Lena Hartmann')).sort()).toEqual(
       ['avatarUrl', 'id', 'lastSeen', 'name', 'status'].sort(),
     )
-  })
-
-  it('fügt Freunde per Name hinzu, in beide Richtungen', async () => {
-    const id = unique()
-    const reg = await register({
-      displayName: `Neuling ${id}`,
-      email: `neu-${id}@example.test`,
-      password: '12345678',
-    })
-    const token = sessionToken(reg)!
-    const add = (name: string) =>
-      app.inject({
-        method: 'POST',
-        url: '/api/friends',
-        payload: { name },
-        cookies: { dos_session: token },
-      })
-    let res = await add('lena hartmann')
-    expect(res.statusCode).toBe(201)
-    expect(res.json<Friend>().name).toBe('Lena Hartmann')
-    expect((await add('Lena Hartmann')).statusCode).toBe(201) // schon befreundet: kein Fehler
-    expect((await add('Niemand Bekanntes')).json().error.code).toBe('PLAYER_NOT_FOUND')
-    expect((await add(`neuling ${id}`)).json().error.code).toBe('CANNOT_FRIEND_SELF')
-
-    const lena = await loginAs(app, 'lena@dominion.test')
-    const lenasFriends = (await lena.request('GET', '/api/friends')).json<Friend[]>()
-    expect(lenasFriends.map((f) => f.name)).toContain(`Neuling ${id}`)
-    res = await app.inject({ method: 'GET', url: '/api/friends' })
-    expect(res.statusCode).toBe(401)
   })
 })

@@ -37,5 +37,13 @@
   },
   "badge": {
     "title": "Abzeichen erhalten: {name}"
+  },
+  "friendRequest": {
+    "title": "Freundschaftsanfrage von {name}",
+    "body": "{name} möchte mit dir befreundet sein. Nimm die Anfrage unter Freunde an."
+  },
+  "friendAccepted": {
+    "title": "{name} ist jetzt dein Freund",
+    "body": "{name} hat deine Freundschaftsanfrage angenommen. Ihr könnt euch jetzt direkt zu Partien einladen."
   }
 }

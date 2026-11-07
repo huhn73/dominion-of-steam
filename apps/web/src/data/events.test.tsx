@@ -78,7 +78,7 @@ describe('Server-Sent Events', () => {
 
     last().emit(['ready'])
     expect(status.result.current).toBe(true)
-    expect(keys()).toEqual([['lobby'], ['room'], ['match']])
+    expect(keys()).toEqual([['lobby'], ['room'], ['match'], ['friends']])
   })
 
   it('verbindet sich neu, wenn der Browser aufgibt, und schließt beim Abmelden', () => {

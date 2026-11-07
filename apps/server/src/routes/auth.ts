@@ -125,18 +125,4 @@ export function authRoutes(app: FastifyInstance, accounts: AccountService) {
     if (!info) return notAuthenticated(reply)
     return toMe(info.player)
   })
-
-  app.get(`${API_PREFIX}/friends`, { preHandler: requireAuth }, async (req) =>
-    accounts.listFriends(await currentPlayer(req)),
-  )
-
-  app.post(`${API_PREFIX}/friends`, { preHandler: requireAuth }, async (req, reply) => {
-    const name = str(body(req.body).name).trim()
-    if (!name) return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.nameMissing' })
-    try {
-      return reply.status(201).send(await accounts.addFriendByName(await currentPlayer(req), name))
-    } catch (err) {
-      return handleAccountError(err, reply)
-    }
-  })
 }

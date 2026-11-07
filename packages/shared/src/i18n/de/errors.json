@@ -58,5 +58,8 @@
   "rateLimited": {
     "one": "Zu viele Versuche. Bitte warte {count} Minute.",
     "other": "Zu viele Versuche. Bitte warte {count} Minuten."
-  }
+  },
+  "alreadyFriends": "Ihr seid bereits befreundet.",
+  "requestExists": "Du hast diesem Spieler schon eine Anfrage geschickt.",
+  "requestNotFound": "Diese Freundschaftsanfrage gibt es nicht mehr."
 }

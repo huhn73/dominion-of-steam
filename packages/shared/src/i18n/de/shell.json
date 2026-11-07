@@ -14,7 +14,8 @@
   "nav": {
     "lobby": "Lobby",
     "newMatch": "Neue Partie",
-    "factions": "Fraktionen"
+    "factions": "Fraktionen",
+    "friends": "Freunde"
   },
   "surrendered": "Du hast aufgegeben. Eine KI führt deine Fraktion weiter.",
   "surrenderFailed": "Aufgeben hat nicht geklappt.",

@@ -14,7 +14,8 @@
   "nav": {
     "lobby": "Lobby",
     "newMatch": "New match",
-    "factions": "Factions"
+    "factions": "Factions",
+    "friends": "Friends"
   },
   "surrendered": "You have surrendered. An AI commands your faction from here on.",
   "surrenderFailed": "Surrendering did not work.",

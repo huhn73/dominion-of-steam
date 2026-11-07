@@ -79,6 +79,18 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
     }),
   )
 
+  /** Another player's profile (statistics, history, badges, friendship); never the e-mail */
+  app.get(
+    `${API_PREFIX}/players/:id/profile`,
+    auth,
+    run(async (req, reply) => {
+      const me = (await session(req)).player.id
+      const { id } = req.params as { id: string }
+      reply.header('Cache-Control', 'no-store')
+      return profile.getProfile(me, id, historyQuery(req.query))
+    }),
+  )
+
   /** Change the display name; answers like `GET /api/me` */
   app.patch(
     `${API_PREFIX}/profile`,

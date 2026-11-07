@@ -31,6 +31,28 @@ export interface Friend {
   lastSeen: string | null
 }
 
+/** A friend request, seen from either side (the other player) */
+export interface FriendRequest {
+  /** Player id of the other side */
+  id: string
+  name: string
+  avatarUrl: string | null
+  /** ISO time the request was sent */
+  createdAt: string
+}
+
+/** `GET /api/friends` */
+export interface FriendsData {
+  friends: Friend[]
+  /** Requests to the player, newest first */
+  incoming: FriendRequest[]
+  /** Requests the player sent, newest first */
+  outgoing: FriendRequest[]
+}
+
+/** `POST /api/friends/requests`: by id (profile) or by display name (search) */
+export type SendFriendRequest = { playerId: string } | { name: string }
+
 export interface RegisterRequest {
   displayName: string
   email: string

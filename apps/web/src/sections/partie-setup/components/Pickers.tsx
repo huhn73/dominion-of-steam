@@ -1,4 +1,6 @@
 import { formatDate, type Locale, type MessageKey, type Translate } from '@dos/shared/i18n'
+import { Link } from 'react-router'
+import { routes } from '../../../routes'
 import { useState } from 'react'
 import { Search } from 'lucide-react'
 import type { AiPersonality, Faction, Friend } from '../types'
@@ -114,7 +116,12 @@ export function FriendPicker({ friends, usedIds, onPick, onClose }: FriendPicker
         />
       </label>
       {friends.length === 0 ? (
-        <p className="py-8 text-center text-sm text-stone-500">{t('partieSetup.noFriends')}</p>
+        <p className="py-8 text-center text-sm text-stone-500">
+          {t('partieSetup.noFriends')}{' '}
+          <Link to={routes.friends} className="font-semibold text-teal-700 underline dark:text-teal-300">
+            {t('friends.manage')}
+          </Link>
+        </p>
       ) : shown.length === 0 ? (
         <p className="py-8 text-center text-sm text-stone-500">{t('partieSetup.noFriendMatch', { query })}</p>
       ) : (

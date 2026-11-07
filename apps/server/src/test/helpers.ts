@@ -20,7 +20,7 @@ export async function loginAs(app: FastifyInstance, email = BJOERN, password = D
   if (res.statusCode !== 200) throw new Error(`Anmeldung fehlgeschlagen: ${res.body}`)
   const token = sessionToken(res)!
   const me = res.json<{ id: string; name: string }>()
-  const request = (method: 'GET' | 'POST', url: string, payload?: object) =>
+  const request = (method: 'GET' | 'POST' | 'DELETE', url: string, payload?: object) =>
     app.inject({ method, url, payload, cookies: { [SESSION_COOKIE]: token } })
   return { token, me, request }
 }

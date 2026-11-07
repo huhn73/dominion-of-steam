@@ -35,6 +35,7 @@ export function Lobby({
   onEnablePush,
   onDismissPushBanner,
   onNewMatch,
+  onOpenPlayer,
   tutorial,
   onStartTutorial,
   onDismissTutorial,
@@ -375,7 +376,7 @@ export function Lobby({
           ))}
       </section>
 
-      {details && <MatchDetailsSheet match={details} factions={factions} onClose={() => setDetails(null)} />}
+      {details && <MatchDetailsSheet match={details} factions={factions} onOpenPlayer={onOpenPlayer} onClose={() => setDetails(null)} />}
       {surrender && (
         <SurrenderSheet
           match={surrender}

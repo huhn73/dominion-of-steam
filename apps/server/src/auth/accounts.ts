@@ -332,15 +332,6 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
       .onConflictDoNothing()
   }
 
-  async function addFriendByName(playerId: string, name: string, now = new Date()) {
-    const friend = await findByName(name)
-    if (!friend) throw new AccountError(404, 'PLAYER_NOT_FOUND', { key: 'errors.noSuchPlayer' })
-    if (friend.id === playerId)
-      throw new AccountError(422, 'CANNOT_FRIEND_SELF', { key: 'errors.friendSelf' })
-    await addFriend(playerId, friend.id)
-    return toFriend(friend, now)
-  }
-
   return {
     register,
     login,
@@ -361,7 +352,6 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
     findByName,
     listFriends,
     addFriend,
-    addFriendByName,
   }
 }
 

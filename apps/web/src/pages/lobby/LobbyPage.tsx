@@ -92,6 +92,7 @@ export function LobbyPage() {
         }
         onDismissPushBanner={banner.dismiss}
         onNewMatch={() => void navigate(routes.newMatch)}
+        onOpenPlayer={(id) => void navigate(routes.player(id))}
         onStartTutorial={(restart) =>
           run(actions.startTutorial(restart), ({ matchId }) => void navigate(routes.match(matchId)))
         }
