@@ -176,6 +176,8 @@ export const players = pgTable(
     tutorialDismissedAt: timestamp('tutorial_dismissed_at', { withTimezone: true }),
     /** Newest version whose news („Neuigkeiten“) the player has seen; null shows none */
     newsSeenVersion: text('news_seen_version'),
+    /** Language of the game, e-mails and notifications ('de' | 'en') */
+    locale: text('locale').notNull().default('de'),
   },
   (t) => [
     uniqueIndex('players_email_unique').on(t.email),

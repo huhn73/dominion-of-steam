@@ -71,6 +71,13 @@
       "when": 1793998300574,
       "tag": "0009_neuigkeiten",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794072306254,
+      "tag": "0010_sprache",
+      "breakpoints": true
     }
   ]
 }

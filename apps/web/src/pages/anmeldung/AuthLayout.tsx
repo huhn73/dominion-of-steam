@@ -3,6 +3,7 @@ import { Cog, Eye, EyeOff } from 'lucide-react'
 import { LegalLinks, type LegalPageId } from '../rechtliches/LegalLinks'
 import { AppVersion } from '../../shell/AppVersion'
 import { NewsLink } from '../../shell/NewsLink'
+import { LanguageSwitch } from '../../shell/LanguageSwitch'
 
 /**
  * Full-page frame of the login, register and legal pages: wordmark, a riveted brass card and
@@ -79,6 +80,7 @@ export function AuthLayout({
         <div className="mt-1 flex items-center justify-center gap-3">
           <AppVersion />
           <NewsLink />
+          <LanguageSwitch />
         </div>
       </div>
     </div>

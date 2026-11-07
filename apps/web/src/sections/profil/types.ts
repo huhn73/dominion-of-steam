@@ -1,3 +1,4 @@
+import type { Locale } from '@dos/shared/i18n'
 // Datentypen kommen aus packages/shared; die Props sind unverändert aus der Design-Übergabe
 import type {
   Account,
@@ -35,6 +36,9 @@ export interface ProfilProps {
 
 export interface EinstellungenProps {
   settings: Settings
+  /** Current language; the choice is shown only with `onChangeLocale` */
+  locale?: Locale
+  onChangeLocale?: (locale: Locale) => void
   account: Account
   /** Needed to confirm account deletion */
   displayName: string

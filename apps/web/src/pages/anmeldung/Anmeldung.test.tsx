@@ -180,6 +180,7 @@ describe('Registrierung', () => {
       displayName: 'Neuer Kapitän',
       email: 'neu@dominion.test',
       password: 'dampfmaschine',
+      locale: 'de',
     })
   })
 })

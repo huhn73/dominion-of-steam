@@ -1,4 +1,5 @@
 // Konten, Anmeldung und Freunde: gemeinsame Typen und Regeln für Client und Server
+import type { Locale } from '../i18n/locale'
 
 /** Logged-in player as returned by `GET /api/me` */
 export interface Me {
@@ -12,6 +13,8 @@ export interface Me {
   isAdmin: boolean
   /** Newest version whose news the player has seen (hint „Neuigkeiten“); null shows none */
   newsSeenVersion: string | null
+  /** Language of the game, e-mails and notifications */
+  locale: Locale
 }
 
 export type PresenceStatus = 'online' | 'inGame' | 'offline'
@@ -30,6 +33,8 @@ export interface RegisterRequest {
   displayName: string
   email: string
   password: string
+  /** Browser language; German if missing */
+  locale?: Locale
 }
 
 export interface LoginRequest {

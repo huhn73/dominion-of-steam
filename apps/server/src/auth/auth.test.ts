@@ -101,6 +101,30 @@ describe.skipIf(!url)('Konten-API (Datenbank)', () => {
     expect(row!.id).toMatch(/^[0-9a-f]{64}$/)
   })
 
+  it('übernimmt die Sprache bei der Registrierung und ändert sie über PUT /api/locale', async () => {
+    const id = unique()
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      headers: { 'accept-language': 'en-US,en;q=0.9' },
+      payload: { displayName: `Lang ${id}`, email: `lang-${id}@example.test`, password: 'sehr-geheim' },
+    })
+    expect(res.json<Me>().locale).toBe('en')
+    const token = res.cookies.find((c) => c.name === 'dos_session')!.value
+    const put = (locale: string) =>
+      app.inject({ method: 'PUT', url: '/api/locale', cookies: { dos_session: token }, payload: { locale } })
+    expect((await put('fr')).statusCode).toBe(422)
+    expect((await put('de')).json<Me>().locale).toBe('de')
+    expect((await me(token)).json<Me>().locale).toBe('de')
+    const explicit = await register({
+      displayName: `Lang2 ${id}`,
+      email: `lang2-${id}@example.test`,
+      password: 'sehr-geheim',
+      locale: 'en',
+    })
+    expect(explicit.json<Me>().locale).toBe('en')
+  })
+
   it('setzt Secure hinter einem https-Proxy, dem der Server vertraut', async () => {
     const payload = {
       displayName: `Proxy ${unique()}`,

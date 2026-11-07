@@ -42,6 +42,7 @@ import { loadSession, SESSION_COOKIE, setSessionCookie } from './session'
 
 import { packageVersion } from './version'
 import { newsRoutes } from './routes/news'
+import { localeRoutes } from './routes/locale'
 
 export interface AppOptions {
   db: Db
@@ -200,6 +201,7 @@ export function buildApp({
     adminRoutes(scope, admin)
     tutorialRoutes(scope, tutorial)
     newsRoutes(scope, db)
+    localeRoutes(scope, db)
     eventRoutes(scope, realtime)
     if (dev) devRoutes(scope, matches, setup)
   })

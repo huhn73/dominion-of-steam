@@ -5,8 +5,30 @@ import type { ShellUser } from '../shell'
 import { api, ApiRequestError } from './api'
 import { unsubscribePush } from './push'
 import { routes } from '../routes'
+import { activeLocale, useLocale } from '../i18n'
+import type { Locale } from '@dos/shared/i18n'
 
 export const meKey = ['me'] as const
+
+/**
+ * Change the language: at once in this browser and, when logged in, in the profile (the cache is
+ * updated first so `ApplyPlayerSettings` does not switch back while the request runs)
+ */
+export function useChangeLocale() {
+  const queryClient = useQueryClient()
+  const { setLocale } = useLocale()
+  return async (locale: Locale) => {
+    setLocale(locale)
+    const me = queryClient.getQueryData<Me | null>(meKey)
+    if (!me) return
+    queryClient.setQueryData<Me>(meKey, { ...me, locale })
+    try {
+      queryClient.setQueryData(meKey, await api<Me>('/locale', { method: 'PUT', body: { locale } }))
+    } catch {
+      // Stays for this browser; the profile keeps the old language until the next change
+    }
+  }
+}
 
 /** Logged-in player; `null` when not logged in, `undefined` while loading */
 export function useMe() {
@@ -45,7 +67,9 @@ export function useAuthActions() {
   return {
     login: (body: LoginRequest) => api<Me>('/auth/login', { method: 'POST', body }).then(signedIn),
     register: (body: RegisterRequest) =>
-      api<Me>('/auth/register', { method: 'POST', body }).then(signedIn),
+      api<Me>('/auth/register', { method: 'POST', body: { locale: activeLocale(), ...body } }).then(
+        signedIn,
+      ),
     /** Sends a reset link when the address belongs to a player (the answer does not tell) */
     forgotPassword: (email: string) =>
       api<{ ok: true }>('/auth/forgot', { method: 'POST', body: { email } }),

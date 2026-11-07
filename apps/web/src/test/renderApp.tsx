@@ -2,7 +2,9 @@ import { render } from '@testing-library/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import type { Me } from '@dos/shared/account'
+import type { Locale } from '@dos/shared/i18n'
 import { ThemeProvider } from '../theme/ThemeProvider'
+import { LocaleProvider } from '../i18n'
 import { routeConfig } from '../router'
 import { createQueryClient } from '../data/queryClient'
 import { meKey } from '../data/session'
@@ -14,7 +16,10 @@ import { testUser } from './mockApi'
  * Render the app at `path`. By default Björn is logged in (put into the cache, so no request
  * is needed); `user: null` starts logged out, `user: undefined` asks `GET /me`.
  */
-export function renderApp(path = '/', options: { user?: Me | null; audio?: FakeEngine } = {}) {
+export function renderApp(
+  path = '/',
+  options: { user?: Me | null; audio?: FakeEngine; locale?: Locale } = {},
+) {
   const user = 'user' in options ? options.user : testUser
   // Audio is recorded, never played (jsdom has no AudioContext)
   const audio = options.audio ?? new FakeEngine()
@@ -23,11 +28,13 @@ export function renderApp(path = '/', options: { user?: Me | null; audio?: FakeE
   if (user !== undefined) queryClient.setQueryData(meKey, user)
   const result = render(
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AudioProvider engine={audio}>
-          <RouterProvider router={router} />
-        </AudioProvider>
-      </ThemeProvider>
+      <LocaleProvider initial={options.locale ?? 'de'}>
+        <ThemeProvider>
+          <AudioProvider engine={audio}>
+            <RouterProvider router={router} />
+          </AudioProvider>
+        </ThemeProvider>
+      </LocaleProvider>
     </QueryClientProvider>,
   )
   return { router, queryClient, audio, ...result }

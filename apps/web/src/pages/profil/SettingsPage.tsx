@@ -5,7 +5,8 @@ import type { Settings } from '@dos/shared/profile'
 import { Einstellungen } from '../../sections/profil/components'
 import { settingsKey, useAccountActions, useSettings, useSettingsActions } from '../../data/profile'
 import { PUSH_NO_PROMPT_HINT, unsubscribePush, usePushPermission } from '../../data/push'
-import { meKey, useLogout, useSignOut } from '../../data/session'
+import { meKey, useChangeLocale, useLogout, useSignOut } from '../../data/session'
+import { languageChoiceEnabled, useLocale } from '../../i18n'
 import { routes } from '../../routes'
 import { Toast, useToast } from '../shared/toast'
 import { useAudio } from '../../audio/AudioProvider'
@@ -34,6 +35,8 @@ export function SettingsPage() {
   const { sfx } = useAudio()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const { locale } = useLocale()
+  const changeLocale = useChangeLocale()
   // Remounts `Einstellungen` with the server state after a failed save
   const [epoch, setEpoch] = useState(0)
 
@@ -132,6 +135,8 @@ export function SettingsPage() {
       <Einstellungen
         key={epoch}
         settings={data.settings}
+        locale={locale}
+        onChangeLocale={languageChoiceEnabled ? changeLocale : undefined}
         account={data.account}
         displayName={data.displayName}
         pushPermission={push.permission}

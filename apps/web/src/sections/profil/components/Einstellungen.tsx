@@ -2,6 +2,8 @@ import { useRef, useState, type ReactNode } from 'react'
 import { AlertTriangle, ArrowLeft, Bell, BellOff, Check, ChevronRight, LogOut, Monitor, MousePointer2, User, Volume2 } from 'lucide-react'
 import type { EinstellungenProps, NotificationEvent, Settings } from '../types'
 import { Segmented, SettingRow, Sheet, Slider, Switch, TextInput } from './ui'
+import { LOCALES } from '@dos/shared/i18n'
+import { useT } from '../../../i18n'
 
 type Rubric = 'notifications' | 'display' | 'sound' | 'controls' | 'account'
 
@@ -44,6 +46,8 @@ function SheetFooter({ onCancel, confirmLabel, disabled, onConfirm, danger }: { 
 
 export function Einstellungen({
   settings: initialSettings,
+  locale,
+  onChangeLocale,
   account,
   displayName,
   pushPermission,
@@ -56,6 +60,7 @@ export function Einstellungen({
   onLogoutEverywhere,
   onDeleteAccount,
 }: EinstellungenProps) {
+  const t = useT()
   const [settings, setSettings] = useState<Settings>(initialSettings)
   // null = overview list on phones; desktop shows the first rubric
   const [rubric, setRubric] = useState<Rubric | null>(null)
@@ -202,6 +207,16 @@ export function Einstellungen({
             {active === 'display' && (
               <>
                 <RubricTitle>Darstellung</RubricTitle>
+                {onChangeLocale && locale && (
+                  <SettingRow title={t('common.language.label')} description={t('common.language.hint')}>
+                    <Segmented
+                      label={t('common.language.label')}
+                      value={locale}
+                      onChange={onChangeLocale}
+                      options={LOCALES.map((l) => ({ value: l, label: t(`common.language.${l}`) }))}
+                    />
+                  </SettingRow>
+                )}
                 <SettingRow title="Farbschema">
                   <Segmented
                     label="Farbschema"

@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, isLocale, type Locale } from '@dos/shared/i18n'
 import { randomUUID } from 'node:crypto'
 import { eq, lt, sql } from 'drizzle-orm'
 import type { Friend, Me } from '@dos/shared/account'
@@ -43,6 +44,7 @@ export const toMe = (p: Player): Me => ({
   emailVerified: p.emailVerifiedAt !== null,
   isAdmin: isAdminEmail(p.email),
   newsSeenVersion: p.newsSeenVersion,
+  locale: isLocale(p.locale) ? p.locale : DEFAULT_LOCALE,
 })
 
 export const mailUnavailable = () =>
@@ -103,6 +105,8 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
     displayName: string
     email: string
     password: string
+    /** From the browser language at registration */
+    locale?: Locale
     lastSeenAt?: Date | null
     /** Dev accounts and tests skip the verification */
     emailVerifiedAt?: Date | null
@@ -122,6 +126,7 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
           displayName,
           email,
           passwordHash,
+          locale: input.locale ?? DEFAULT_LOCALE,
           lastSeenAt: input.lastSeenAt ?? null,
           emailVerifiedAt: input.emailVerifiedAt ?? null,
           // New players start with the current news seen; the hint comes with the next update

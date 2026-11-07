@@ -14,6 +14,7 @@ export const testUser: Me = {
   isAdmin: false,
   // Without a seen version the hint „Neuigkeiten“ stays closed in all other tests
   newsSeenVersion: null,
+  locale: 'de',
 }
 
 type Handler = (body: unknown) => { status?: number; json: unknown }

@@ -1,6 +1,8 @@
 import type { FastifyInstance, FastifyReply } from 'fastify'
 import { API_PREFIX } from '@dos/shared'
 import { validateEmail, validatePassword, validateRegistration } from '@dos/shared/account'
+import { isLocale } from '@dos/shared/i18n'
+import { requestLocale } from '../locale'
 import type { ApiError } from '@dos/shared/game'
 import { AccountError, type AccountService, toMe } from '../auth/accounts'
 import {
@@ -37,6 +39,7 @@ export function authRoutes(app: FastifyInstance, accounts: AccountService) {
       displayName: str(b.displayName),
       email: str(b.email),
       password: str(b.password),
+      locale: isLocale(b.locale) ? b.locale : requestLocale(req),
     }
     const errors = validateRegistration(input)
     const first = Object.values(errors)[0]

@@ -336,6 +336,27 @@ describe('Einstellungen', () => {
     )
   })
 
+  it('wechselt die Sprache sofort und speichert sie im Profil', async () => {
+    const { calls } = mockApi({
+      'PUT /locale': (body) => ({ json: { ...testUser, ...(body as object) } }),
+    })
+    const { queryClient } = renderApp('/einstellungen')
+    await userEvent.click(await screen.findByRole('button', { name: /^Darstellung/ }))
+    await userEvent.click(screen.getByRole('radio', { name: 'English' }))
+    await waitFor(() => expect(document.documentElement.lang).toBe('en'))
+    expect(localStorage.getItem('dos.locale')).toBe('en')
+    expect(screen.getByRole('radiogroup', { name: 'Language' })).toBeInTheDocument()
+    await waitFor(() => expect(calls.find((c) => c.path === '/locale')?.body).toEqual({ locale: 'en' }))
+    expect(queryClient.getQueryData<Me>(meKey)?.locale).toBe('en')
+  })
+
+  it('übernimmt nach der Anmeldung die gespeicherte Sprache des Profils', async () => {
+    mockApi()
+    renderApp('/', { user: { ...testUser, locale: 'en' } })
+    await waitFor(() => expect(document.documentElement.lang).toBe('en'))
+    expect(localStorage.getItem('dos.locale')).toBe('en')
+  })
+
   it('übernimmt nach der Anmeldung das gespeicherte Farbschema des Servers', async () => {
     localStorage.setItem('dos.theme', 'light')
     mockApi({ 'GET /settings': () => ({ json: testSettings((s) => (s.display.theme = 'dark')) }) })

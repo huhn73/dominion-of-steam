@@ -19,7 +19,8 @@
     "./lobby/*": "./src/lobby/*.ts",
     "./profile": "./src/profile/index.ts",
     "./profile/*": "./src/profile/*.ts",
-    "./realtime": "./src/realtime/index.ts"
+    "./realtime": "./src/realtime/index.ts",
+    "./i18n": "./src/i18n/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p .",
