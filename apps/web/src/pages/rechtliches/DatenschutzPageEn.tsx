@@ -48,9 +48,10 @@ export function DatenschutzPageEn() {
           <li>Settings (display, sound, notifications) and the chosen language</li>
           <li>
             Match data: game states, moves, results and the match history. Other players see your
-            display name, profile picture and faction, not your e-mail address.
+            display name, profile picture and faction, not your e-mail address. Logged-in players
+            can open your profile with record, match history and badges.
           </li>
-          <li>Friends list and invitations, insofar as you use these features</li>
+          <li>Friends list, friend requests and invitations, insofar as you use these features</li>
         </ul>
         <p>
           Without confirmation of the e-mail address, no notifications are sent; playing is still

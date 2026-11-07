@@ -57,6 +57,36 @@ export const NEWS: readonly ReleaseNotes[] = [
           text: 'The game is now available in English: the language follows your browser, can be switched under Settings → Display and on the login page, and also applies to e-mails and notifications.',
         },
       },
+      {
+        de: {
+          title: 'Freunde',
+          text: 'Unter „Freunde“ suchst du Mitspieler, schickst Freundschaftsanfragen und verwaltest deine Freundesliste; Freunde lädst du im Partie-Setup direkt ein.',
+        },
+        en: {
+          title: 'Friends',
+          text: 'Under “Friends” you find players, send friend requests and manage your friends list; you invite friends directly in the match setup.',
+        },
+      },
+      {
+        de: {
+          title: 'Profile anderer Spieler',
+          text: 'Ein Klick auf einen Spielernamen zeigt dessen Bilanz, Partieverlauf und Abzeichen, und den Verlauf filterst du jetzt über alle Partien.',
+        },
+        en: {
+          title: 'Other players’ profiles',
+          text: 'A click on a player’s name shows their record, match history and badges, and the history filter now covers all matches.',
+        },
+      },
+      {
+        de: {
+          title: 'Abzeichen',
+          text: 'Zwölf Abzeichen von der Feuertaufe bis zum Feldmarschall zeigen im Profil, was du erreicht hast, mit Fortschritt und einer Nachricht beim Erreichen.',
+        },
+        en: {
+          title: 'Badges',
+          text: 'Twelve badges from Baptism of Fire to Field Marshal show in your profile what you have achieved, with progress and a message when you earn one.',
+        },
+      },
     ],
   },
   {

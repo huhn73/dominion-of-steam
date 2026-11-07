@@ -57,8 +57,12 @@ function DatenschutzPageDe() {
           <li>
             Partiedaten: Spielstände, Züge, Ergebnisse und der Partieverlauf. Mitspielerinnen und
             Mitspieler sehen Anzeigename, Profilbild und Fraktion, nicht die E-Mail-Adresse.
+            Angemeldete Spielerinnen und Spieler können Ihr Profil mit Bilanz, Partieverlauf und
+            Abzeichen aufrufen.
           </li>
-          <li>Freundesliste und Einladungen, soweit Sie diese Funktionen nutzen</li>
+          <li>
+            Freundesliste, Freundschaftsanfragen und Einladungen, soweit Sie diese Funktionen nutzen
+          </li>
         </ul>
         <p>
           Ohne Bestätigung der E-Mail-Adresse werden keine Benachrichtigungen verschickt; das
