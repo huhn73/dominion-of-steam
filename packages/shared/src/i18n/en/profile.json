@@ -60,5 +60,10 @@
     "zoom": "Zoom",
     "zoomIn": "Zoom in"
   },
-  "close": "Close"
+  "close": "Close",
+  "addFriend": "Add friend",
+  "requestSent": "Request sent",
+  "acceptRequest": "Accept request",
+  "isFriend": "Friends",
+  "openProfile": "Open the profile of {name}"
 }

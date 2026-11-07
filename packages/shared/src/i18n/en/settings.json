@@ -30,7 +30,11 @@
     "invitation": "Invitation received",
     "invitationHint": "Someone invites you to a match",
     "matchEnded": "Match ended",
-    "matchEndedHint": "With result and placement"
+    "matchEndedHint": "With result and placement",
+    "friends": "Friends",
+    "friendsHint": "Friend requests and accepted requests",
+    "achievement": "Badge earned",
+    "achievementHint": "When you earn a new badge"
   },
   "cancel": "Cancel",
   "kicker": "Engine room",

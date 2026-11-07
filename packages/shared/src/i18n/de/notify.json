@@ -34,5 +34,8 @@
     "title": "Einladung: {name}",
     "async": "{host} lädt dich zur asynchronen Partie „{name}“ ein ({seats} Plätze). Nimm die Einladung in der Lobby an.",
     "live": "{host} lädt dich zur Live-Partie „{name}“ ein ({seats} Plätze). Nimm die Einladung in der Lobby an."
+  },
+  "badge": {
+    "title": "Abzeichen erhalten: {name}"
   }
 }

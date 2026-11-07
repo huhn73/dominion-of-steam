@@ -85,6 +85,13 @@
       "when": 1794076424805,
       "tag": "0011_ergebnisse",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794076756024,
+      "tag": "0012_abzeichen_freunde",
+      "breakpoints": true
     }
   ]
 }

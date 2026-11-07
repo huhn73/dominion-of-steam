@@ -1,0 +1,54 @@
+{
+  "firstWin": {
+    "name": "Baptism of Fire",
+    "hint": "Win your first match."
+  },
+  "wins10": {
+    "name": "Front Veteran",
+    "hint": "Win 10 matches."
+  },
+  "wins50": {
+    "name": "Field Marshal",
+    "hint": "Win 50 matches."
+  },
+  "allFactions": {
+    "name": "Servant of Many Banners",
+    "hint": "Win with each of the four factions."
+  },
+  "tutorial": {
+    "name": "Recruit",
+    "hint": "Complete the tutorial “First Steps”."
+  },
+  "cities100": {
+    "name": "Conqueror of Cities",
+    "hint": "Capture 100 cities in total."
+  },
+  "units500": {
+    "name": "Armaments Baron",
+    "hint": "Build 500 units in total."
+  },
+  "dominance": {
+    "name": "Dominator",
+    "hint": "Win by dominance."
+  },
+  "capitals": {
+    "name": "Capital Breaker",
+    "hint": "Win by capturing all capitals."
+  },
+  "marathon": {
+    "name": "War of Attrition",
+    "hint": "Play a match lasting more than 150 rounds."
+  },
+  "hardAi": {
+    "name": "Bane of Generals",
+    "hint": "Win against an AI on “Hard”."
+  },
+  "bigWin": {
+    "name": "World Ablaze",
+    "hint": "Win a match with at least four participants."
+  },
+  "heading": "Badges",
+  "earnedOn": "Earned on {date}",
+  "progress": "{value} of {target}",
+  "count": "{earned} of {total}"
+}

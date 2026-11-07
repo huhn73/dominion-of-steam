@@ -74,7 +74,8 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
     auth,
     run(async (req, reply) => {
       reply.header('Cache-Control', 'no-store')
-      return profile.getProfile((await session(req)).player.id, historyQuery(req.query))
+      const me = (await session(req)).player.id
+      return profile.getProfile(me, me, historyQuery(req.query))
     }),
   )
 

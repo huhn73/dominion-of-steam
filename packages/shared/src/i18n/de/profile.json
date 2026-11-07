@@ -60,5 +60,10 @@
     "zoom": "Zoom",
     "zoomIn": "Vergrößern"
   },
-  "close": "Schließen"
+  "close": "Schließen",
+  "addFriend": "Freund hinzufügen",
+  "requestSent": "Anfrage gesendet",
+  "acceptRequest": "Anfrage annehmen",
+  "isFriend": "Befreundet",
+  "openProfile": "Profil von {name} öffnen"
 }

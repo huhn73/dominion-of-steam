@@ -1,7 +1,8 @@
 // Benachrichtigungen: Einstellungen (Form aus product-plan/sections/spielerprofil-and-einstellungen/
 // types.ts, Meilenstein 06 baut die Oberfläche dazu) und die Push-API
 
-export type NotificationEvent = 'yourTurn' | 'deadlineSoon' | 'invitation' | 'matchEnded'
+export type NotificationEvent =
+  'yourTurn' | 'deadlineSoon' | 'invitation' | 'matchEnded' | 'friends' | 'achievement'
 
 export interface ChannelToggle {
   push: boolean
@@ -20,6 +21,8 @@ export const NOTIFICATION_EVENTS: NotificationEvent[] = [
   'deadlineSoon',
   'invitation',
   'matchEnded',
+  'friends',
+  'achievement',
 ]
 
 export const EMAIL_DELAY_HOURS: EmailDelayHours[] = [0, 1, 6, 24]
@@ -30,6 +33,8 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   deadlineSoon: { push: true, email: false },
   invitation: { push: true, email: true },
   matchEnded: { push: true, email: false },
+  friends: { push: true, email: false },
+  achievement: { push: true, email: false },
   emailDelayHours: 1,
 }
 

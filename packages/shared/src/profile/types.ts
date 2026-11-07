@@ -62,17 +62,9 @@ export interface Opponent {
   isAI: boolean
 }
 
-export interface ChannelToggle {
-  push: boolean
-  email: boolean
-}
-
-export type NotificationEvent = 'yourTurn' | 'deadlineSoon' | 'invitation' | 'matchEnded'
-
-export interface NotificationSettings extends Record<NotificationEvent, ChannelToggle> {
-  /** Hours offline before an e-mail is sent: 0 = immediately */
-  emailDelayHours: 0 | 1 | 6 | 24
-}
+// One definition for client and server: packages/shared/src/notifications
+import type { NotificationSettings } from '../notifications'
+export type { ChannelToggle, NotificationEvent, NotificationSettings } from '../notifications'
 
 export interface DisplaySettings {
   theme: 'light' | 'dark' | 'system'

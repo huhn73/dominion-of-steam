@@ -1,5 +1,6 @@
 // Spielerprofil & Einstellungen: Datentypen der Übergabe, Vorgaben, Prüfregeln und API-Formen
 import type { Message } from '../i18n'
+import type { ProfileBadge } from './badges'
 import {
   DEFAULT_NOTIFICATION_SETTINGS,
   EMAIL_DELAY_HOURS,
@@ -158,7 +159,16 @@ export interface ProfileData {
   /** Pass as `cursor` to load the next page; null on the last page */
   nextCursor: string | null
   factions: Faction[]
+  /** All badges, earned ones with their date */
+  badges: ProfileBadge[]
+  /** The logged-in player looks at the own profile */
+  isOwn: boolean
+  /** Friendship with the viewer (other players' profiles only) */
+  friendship: FriendshipState | null
 }
+
+/** Relation of the viewer to another player */
+export type FriendshipState = 'none' | 'friends' | 'outgoing' | 'incoming'
 
 /** `GET /api/settings` (`PUT` answers the same shape) */
 export interface SettingsData {
@@ -183,3 +193,5 @@ export interface ChangePasswordRequest {
   currentPassword: string
   newPassword: string
 }
+
+export * from './badges'

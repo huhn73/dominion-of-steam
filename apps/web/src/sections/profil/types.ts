@@ -4,7 +4,10 @@ import type {
   Account,
   FactionStat,
   Faction,
+  FriendshipState,
   HistoryEntry,
+  MatchResult,
+  ProfileBadge,
   PlayerStats,
   Profile,
   PushPermission,
@@ -23,6 +26,19 @@ export interface ProfilProps {
   history: HistoryEntry[]
   hasMoreHistory: boolean
   factions: Faction[]
+  /** Badges with progress */
+  badges?: ProfileBadge[]
+  /** The own profile (edit button) or another player's (friend button) */
+  isOwn?: boolean
+  friendship?: FriendshipState | null
+  /** History filter, applied by the server */
+  resultFilter?: 'all' | MatchResult
+  factionFilter?: string
+  onFilterChange?: (filter: { result: 'all' | MatchResult; faction: string }) => void
+  /** Open another player's profile (opponents in the history) */
+  onOpenPlayer?: (playerId: string) => void
+  /** Send a friend request, or accept an incoming one */
+  onAddFriend?: () => void
   /** Called when the player loads older matches */
   onLoadMoreHistory?: () => void
   /** Called when the player saves a new display name */

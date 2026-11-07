@@ -3,7 +3,7 @@ import { randomBytes } from 'node:crypto'
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { and, desc, eq, gt, ne, sql } from 'drizzle-orm'
+import { and, desc, eq, gt, ne, or, sql } from 'drizzle-orm'
 import {
   EMAIL_VERIFY_TTL_HOURS,
   normalizeEmail,
@@ -14,6 +14,7 @@ import {
   HISTORY_PAGE_MAX,
   HISTORY_PAGE_SIZE,
   type FactionStat,
+  type FriendshipState,
   type HistoryEntry,
   type MatchResult,
   type ProfileData,
@@ -23,7 +24,16 @@ import {
   validateDisplayName,
 } from '@dos/shared/profile'
 import type { Db } from '../db/client'
-import { matches, matchSeats, playerResults, players, sessions } from '../db/schema'
+import {
+  friendRequests,
+  friendships,
+  matches,
+  matchSeats,
+  playerResults,
+  players,
+  sessions,
+} from '../db/schema'
+import { profileBadges } from './badges'
 import { AvatarImageError, renderAvatar, type AvatarCrop } from './avatarImage'
 import { isTutorialMatchId, tutorialMatchId } from '../tutorial/service'
 import { SESSION_TTL_MS, type Player } from '../auth/accounts'
@@ -85,6 +95,30 @@ export function sniffImage(buf: Buffer): { type: string; ext: string } | null {
 const encodeCursor = (e: HistoryEntry) =>
   Buffer.from(JSON.stringify([e.endedAt, e.id])).toString('base64url')
 
+/** Relation of `viewer` to `other`: friends, a request in either direction, or none */
+export async function friendshipOf(
+  db: Db,
+  viewer: string,
+  other: string,
+): Promise<FriendshipState> {
+  const [friend] = await db
+    .select({ id: friendships.friendId })
+    .from(friendships)
+    .where(and(eq(friendships.playerId, viewer), eq(friendships.friendId, other)))
+  if (friend) return 'friends'
+  const [request] = await db
+    .select({ fromId: friendRequests.fromId })
+    .from(friendRequests)
+    .where(
+      or(
+        and(eq(friendRequests.fromId, viewer), eq(friendRequests.toId, other)),
+        and(eq(friendRequests.fromId, other), eq(friendRequests.toId, viewer)),
+      ),
+    )
+  if (!request) return 'none'
+  return request.fromId === viewer ? 'outgoing' : 'incoming'
+}
+
 export interface HistoryFilter {
   result?: MatchResult | null
   factionId?: string | null
@@ -128,6 +162,7 @@ export function createProfileService(
    * history (newest first, optionally filtered by result and faction).
    */
   async function getProfile(
+    viewerId: string,
     playerId: string,
     {
       limit = HISTORY_PAGE_SIZE,
@@ -212,6 +247,9 @@ export function createProfileService(
       hasMoreHistory: hasMore,
       nextCursor: hasMore ? encodeCursor(page[page.length - 1]!) : null,
       factions: LOBBY_FACTIONS,
+      badges: await profileBadges(db, playerId),
+      isOwn: viewerId === playerId,
+      friendship: viewerId === playerId ? null : await friendshipOf(db, viewerId, playerId),
     }
   }
 

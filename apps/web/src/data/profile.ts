@@ -1,7 +1,8 @@
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Me } from '@dos/shared/account'
 import {
   AVATAR_MAX_BYTES,
+  type MatchResult,
   type ProfileData,
   type Settings,
   type SettingsData,
@@ -15,14 +16,33 @@ import { activeLocale } from '../i18n/locale'
 export const profileKey = ['profile'] as const
 export const settingsKey = ['settings'] as const
 
-/** Profile with the match history page by page („Mehr anzeigen“ loads the next page) */
-export function useProfile() {
+export interface HistoryFilter {
+  result: 'all' | MatchResult
+  faction: string
+}
+
+export const NO_FILTER: HistoryFilter = { result: 'all', faction: 'all' }
+
+/**
+ * Profile with the match history page by page („Mehr anzeigen“ loads the next page); without
+ * `playerId` the own one. The server filters the history; while a new filter loads, the previous
+ * pages stay on screen.
+ */
+export function useProfile(playerId: string | null = null, filter: HistoryFilter = NO_FILTER) {
   return useInfiniteQuery({
-    queryKey: profileKey,
-    queryFn: ({ pageParam }) =>
-      api<ProfileData>(pageParam ? `/profile?cursor=${encodeURIComponent(pageParam)}` : '/profile'),
+    queryKey: [...profileKey, playerId ?? 'me', filter.result, filter.faction],
+    queryFn: ({ pageParam }) => {
+      const query = new URLSearchParams()
+      if (pageParam) query.set('cursor', pageParam)
+      if (filter.result !== 'all') query.set('result', filter.result)
+      if (filter.faction !== 'all') query.set('faction', filter.faction)
+      const path = playerId ? `/players/${encodeURIComponent(playerId)}/profile` : '/profile'
+      const qs = query.toString()
+      return api<ProfileData>(qs ? `${path}?${qs}` : path)
+    },
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextCursor,
+    placeholderData: keepPreviousData,
   })
 }
 

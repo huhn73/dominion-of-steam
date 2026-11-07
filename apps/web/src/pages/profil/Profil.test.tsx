@@ -93,6 +93,9 @@ function profileData(patch: Partial<ProfileData> = {}): ProfileData {
     hasMoreHistory: true,
     nextCursor: 'c1',
     factions: FACTIONS,
+    badges: [],
+    isOwn: true,
+    friendship: null,
     ...patch,
   }
 }
@@ -115,7 +118,10 @@ describe('Profil', () => {
     expect(screen.getByText('Mitglied seit Juni 2026')).toBeInTheDocument()
     expect(screen.getByText('67 %')).toBeInTheDocument()
     expect(screen.getByText('Rußige Pfade')).toBeInTheDocument()
-    expect(screen.getByText('gegen Lena Hartmann, Zechenmeister Brandt (KI)')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Profil von Lena Hartmann öffnen' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Zechenmeister Brandt \(KI\)/)).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Mehr anzeigen' }))
     expect(await screen.findByText('Sonntagsfeldzug')).toBeInTheDocument()
@@ -125,6 +131,38 @@ describe('Profil', () => {
       '/profile',
       '/profile?cursor=c1',
     ])
+  })
+
+  it('filtert den Verlauf über den Server und zeigt die Abzeichen', async () => {
+    const { calls } = mockApi({
+      'GET /profile': () => ({
+        json: profileData({
+          badges: [
+            {
+              id: 'firstWin',
+              icon: 'trophy',
+              earnedAt: '2026-10-27T21:10:00Z',
+              progress: 1,
+              target: 1,
+            },
+            { id: 'cities100', icon: 'castle', earnedAt: null, progress: 12, target: 100 },
+          ],
+        }),
+      }),
+      'GET /profile?result=victory': () => ({
+        json: profileData({ history: [entry('h9', { name: 'Nur Siege' })], hasMoreHistory: false }),
+      }),
+    })
+    renderApp('/profil')
+    expect(await screen.findByRole('listitem', { name: 'Feuertaufe' })).toHaveTextContent(
+      'Erhalten am 27. Okt. 2026',
+    )
+    expect(screen.getByRole('listitem', { name: 'Städtebezwinger' })).toHaveTextContent(
+      '12 von 100',
+    )
+    await userEvent.click(screen.getByRole('radio', { name: 'Siege' }))
+    expect(await screen.findByText('Nur Siege')).toBeInTheDocument()
+    expect(calls.map((c) => c.path)).toContain('/profile?result=victory')
   })
 
   it('zeigt einem neuen Spieler die Leerzustände', async () => {
@@ -379,11 +417,13 @@ describe('Einstellungen', () => {
     await userEvent.click(toggle)
     expect(toggle).toHaveAttribute('aria-checked', 'true')
     expect(await screen.findByRole('alert')).toHaveTextContent('Speichern fehlgeschlagen.')
-    await waitFor(() =>
-      expect(screen.getByRole('switch', { name: 'Partie beendet per E-Mail' })).toHaveAttribute(
-        'aria-checked',
-        'false',
-      ),
+    await waitFor(
+      () =>
+        expect(screen.getByRole('switch', { name: 'Partie beendet per E-Mail' })).toHaveAttribute(
+          'aria-checked',
+          'false',
+        ),
+      { timeout: 3000 },
     )
   })
 

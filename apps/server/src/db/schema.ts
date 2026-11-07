@@ -237,6 +237,34 @@ export const playerResults = pgTable(
   ],
 )
 
+/** Badges a player has earned (`packages/shared/src/profile/badges.ts`) */
+export const playerBadges = pgTable(
+  'player_badges',
+  {
+    playerId: text('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    badgeId: text('badge_id').notNull(),
+    earnedAt: timestamp('earned_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.playerId, t.badgeId] })],
+)
+
+/** Open friend requests; accepting one turns it into two `friendships` rows */
+export const friendRequests = pgTable(
+  'friend_requests',
+  {
+    fromId: text('from_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    toId: text('to_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.fromId, t.toId] }), index('friend_requests_to').on(t.toId)],
+)
+
 /** Friendships, stored in both directions */
 export const friendships = pgTable(
   'friendships',
@@ -296,7 +324,14 @@ export const appConfig = pgTable('app_config', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
-export type NotificationKind = NotificationEvent | 'remind' | 'matchStarted' | 'matchCancelled'
+export type NotificationKind =
+  | NotificationEvent
+  | 'remind'
+  | 'matchStarted'
+  | 'matchCancelled'
+  | 'badge'
+  | 'friendRequest'
+  | 'friendAccepted'
 export type DeliveryStatus = 'pending' | 'sent' | 'skipped' | 'cancelled' | 'failed'
 
 /**

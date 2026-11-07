@@ -6,6 +6,8 @@ export const routes = {
   unitType: (unitTypeId: string, variantFactionId?: string | null) =>
     `/einheiten/${unitTypeId}${variantFactionId ? `?ausfuehrung=${variantFactionId}` : ''}`,
   profile: '/profil',
+  player: (playerId: string) => `/spieler/${playerId}`,
+  friends: '/freunde',
   settings: '/einstellungen',
   admin: '/admin',
   match: (matchId: string) => `/partie/${matchId}`,

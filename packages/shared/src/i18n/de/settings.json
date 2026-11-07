@@ -30,7 +30,11 @@
     "invitation": "Einladung erhalten",
     "invitationHint": "Jemand lädt dich zu einer Partie ein",
     "matchEnded": "Partie beendet",
-    "matchEndedHint": "Mit Ergebnis und Platzierung"
+    "matchEndedHint": "Mit Ergebnis und Platzierung",
+    "friends": "Freunde",
+    "friendsHint": "Freundschaftsanfragen und angenommene Anfragen",
+    "achievement": "Abzeichen erhalten",
+    "achievementHint": "Wenn du ein neues Abzeichen erreichst"
   },
   "cancel": "Abbrechen",
   "kicker": "Maschinenraum",

@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react'
-import { ChevronDown, Pencil, Trash2, Upload } from 'lucide-react'
+import { ChevronDown, Pencil, Trash2, Upload, UserCheck, UserPlus } from 'lucide-react'
 import type { MatchResult, ProfilProps, Profile } from '../types'
 import { FACTION_HEX, RESULT_STAMP, formatDate, percent } from './format'
 import { Avatar, FactionEmblem, Segmented, Sheet, TextInput } from './ui'
 import { AvatarCropper } from './AvatarCropper'
+import { Abzeichen } from './Abzeichen'
 import type { Crop } from './cropMath'
 import { AVATAR_MAX_BYTES } from '@dos/shared/profile'
 import { Rich, useLocale, useT } from '../../../i18n'
@@ -115,6 +116,14 @@ export function Profil({
   history,
   hasMoreHistory,
   factions,
+  badges = [],
+  isOwn = true,
+  friendship = null,
+  resultFilter = 'all',
+  factionFilter = 'all',
+  onFilterChange,
+  onOpenPlayer,
+  onAddFriend,
   onLoadMoreHistory,
   onUpdateDisplayName,
   onUploadAvatar,
@@ -123,16 +132,15 @@ export function Profil({
   const t = useT()
   const { locale } = useLocale()
   const [editing, setEditing] = useState(false)
-  const [resultFilter, setResultFilter] = useState<'all' | MatchResult>('all')
-  const [factionFilter, setFactionFilter] = useState('all')
+  const setResultFilter = (result: 'all' | MatchResult) => onFilterChange?.({ result, faction: factionFilter })
+  const setFactionFilter = (faction: string) => onFilterChange?.({ result: resultFilter, faction })
 
   const factionOf = (id: string | null) => factions.find((f) => f.id === id)
   const favorite = factionOf(profile.favoriteFactionId)
   const accent = favorite ? FACTION_HEX[favorite.color] : { base: '#78716c', deep: '#292524' }
   const maxGames = Math.max(1, ...factionStats.map((f) => f.gamesPlayed))
-  const shown = history.filter(
-    (h) => (resultFilter === 'all' || h.result === resultFilter) && (factionFilter === 'all' || h.factionId === factionFilter),
-  )
+  // The server filters; the list holds only matching matches
+  const shown = history
 
   const tiles = [
     { label: t('profile.tile.games'), value: stats.gamesPlayed },
@@ -163,13 +171,29 @@ export function Profil({
               )}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="flex min-h-11 items-center gap-2 self-start rounded-lg border-2 border-white/30 px-4 font-semibold hover:border-white hover:bg-white/10 sm:self-auto"
-          >
-            <Pencil className="size-4" /> {t('profile.edit')}
-          </button>
+          {isOwn ? (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="flex min-h-11 items-center gap-2 self-start rounded-lg border-2 border-white/30 px-4 font-semibold hover:border-white hover:bg-white/10 sm:self-auto"
+            >
+              <Pencil className="size-4" /> {t('profile.edit')}
+            </button>
+          ) : friendship === 'friends' || friendship === 'outgoing' ? (
+            <span className="flex min-h-11 items-center gap-2 self-start rounded-lg border-2 border-white/30 px-4 font-semibold text-white/80 sm:self-auto">
+              <UserCheck className="size-4" /> {friendship === 'friends' ? t('profile.isFriend') : t('profile.requestSent')}
+            </span>
+          ) : (
+            onAddFriend && (
+              <button
+                type="button"
+                onClick={onAddFriend}
+                className="flex min-h-11 items-center gap-2 self-start rounded-lg bg-amber-500 px-4 font-semibold text-stone-950 hover:bg-amber-400 sm:self-auto"
+              >
+                <UserPlus className="size-4" /> {friendship === 'incoming' ? t('profile.acceptRequest') : t('profile.addFriend')}
+              </button>
+            )
+          )}
         </div>
       </header>
 
@@ -196,6 +220,8 @@ export function Profil({
             ))}
           </dl>
         </section>
+
+        {badges.length > 0 && <Abzeichen badges={badges} />}
 
         {/* Per faction */}
         <section aria-labelledby="faction-heading">
@@ -273,7 +299,7 @@ export function Profil({
             </div>
           </div>
 
-          {history.length === 0 ? (
+          {stats.gamesPlayed === 0 ? (
             <div className="flex flex-col items-center rounded-xl border-2 border-dashed border-stone-300 px-6 py-10 text-center dark:border-stone-700">
               <p className="font-['Big_Shoulders_Display'] text-2xl font-black uppercase tracking-wide">{t('profile.noneFinished')}</p>
               <p className="mt-1 text-sm text-stone-500">{t('profile.noneFinishedHint')}</p>
@@ -311,9 +337,28 @@ export function Profil({
                           date: formatDate(locale, h.endedAt),
                         })}
                       </p>
-                      <p className="truncate text-xs text-stone-500">{t('profile.opponents', {
-                          names: h.opponents.map((o) => (o.isAI ? t('lobby.card.aiName', { name: o.name }) : o.name)).join(', '),
-                        })}</p>
+                      <p className="truncate text-xs text-stone-500"><Rich
+                          text={t('profile.opponents')}
+                          names={h.opponents.map((o, i) => (
+                            <span key={i}>
+                              {i > 0 && ', '}
+                              {o.id && onOpenPlayer ? (
+                                <button
+                                  type="button"
+                                  onClick={() => onOpenPlayer(o.id!)}
+                                  aria-label={t('profile.openProfile', { name: o.name })}
+                                  className="font-semibold text-teal-700 underline-offset-2 hover:underline dark:text-teal-400"
+                                >
+                                  {o.name}
+                                </button>
+                              ) : o.isAI ? (
+                                t('lobby.card.aiName', { name: o.name })
+                              ) : (
+                                o.name
+                              )}
+                            </span>
+                          ))}
+                        /></p>
                     </div>
                     <span className={`shrink-0 rotate-[-6deg] rounded border-[3px] border-double px-2 py-1 font-['Big_Shoulders_Display'] text-sm font-black uppercase tracking-[0.2em] ${stamp.className}`}>
                       {t(stamp.label)}
@@ -323,7 +368,7 @@ export function Profil({
               })}
             </ul>
           )}
-          {hasMoreHistory && shown.length > 0 && (
+          {hasMoreHistory && (
             <button
               type="button"
               onClick={onLoadMoreHistory}

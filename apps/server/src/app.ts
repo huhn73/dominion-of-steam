@@ -1,4 +1,6 @@
 import Fastify from 'fastify'
+import { setResultListener } from './matches/repository'
+import { awardBadges } from './profile/badges'
 import { requestLocale, sendError } from './locale'
 import { translate } from '@dos/shared/i18n'
 import fastifyCookie from '@fastify/cookie'
@@ -102,6 +104,10 @@ export function buildApp({
     log: (msg, err) => app.log.error({ err }, msg),
   })
   const log = (msg: string, err: unknown) => app.log.error({ err }, msg)
+  // New results (match over, surrender) may earn badges, announced as notifications
+  setResultListener(async (tx, playerIds) => {
+    await awardBadges(tx, playerIds, (items) => notifier.enqueue(tx, items))
+  })
   // Signals to the open event streams (Postgres LISTEN, only once a stream is open)
   const realtime = createHub(db, log)
   // AI turns in the background, after the command that hands the turn to an AI

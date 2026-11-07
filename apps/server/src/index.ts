@@ -1,5 +1,6 @@
 import { buildApp, devToolsEnabled } from './app'
 import { backfillResults } from './profile/results'
+import { backfillBadges } from './profile/badges'
 import { createDb, runMigrations } from './db/client'
 
 const port = Number(process.env.PORT ?? 3000)
@@ -21,6 +22,8 @@ if (devToolsEnabled()) {
 await app.accounts.deleteExpiredSessions()
 const results = await backfillResults(db)
 if (results.length) app.log.info(`Ergebnisse nachgetragen für ${results.length} Spieler`)
+const badges = await backfillBadges(db)
+if (badges) app.log.info(`${badges} Abzeichen nachgetragen`)
 const fixed = await app.matches.backfillSeats()
 if (fixed) app.log.info(`Plätze für ${fixed} ältere Partien ergänzt`)
 // AIs that were on the move when the server stopped carry on

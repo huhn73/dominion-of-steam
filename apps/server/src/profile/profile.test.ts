@@ -1,4 +1,6 @@
 import { mkdtemp, readdir, rm, utimes, writeFile } from 'node:fs/promises'
+import { awardBadges } from './badges'
+import type { NotificationInput } from '../notifications/service'
 import { backfillResults } from './results'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -343,6 +345,32 @@ describe.skipIf(!url)('Profil & Einstellungen (Datenbank)', () => {
     expect((await profileOf(a)).stats.gamesPlayed).toBe(0)
     expect(await backfillResults(db)).toContain(A.id)
     expect((await profileOf(a)).stats.gamesPlayed).toBe(5)
+  })
+
+  it('vergibt Abzeichen einmal, mit Benachrichtigung, und zeigt den Fortschritt', async () => {
+    const a = await newPlayer('Orden')
+    const A = { id: a.me.id, name: a.name }
+    await playedMatch('o-1', [{ ...A, factionId: 'eisenbund' }], {
+      endedAt: '2026-10-05T10:00:00Z',
+      winner: A.id,
+      stats: { [A.id]: { citiesCaptured: 30, unitsBuilt: 12 } },
+    })
+    const sent: NotificationInput[] = []
+    const collect = async (items: NotificationInput[]) => void sent.push(...items)
+    const first = await awardBadges(db, [A.id], collect)
+    expect(first.map((b) => b.badgeId)).toEqual(['firstWin'])
+    expect(sent.map((n) => [n.kind, n.dedupeKey])).toEqual([['badge', `badge:${A.id}:firstWin`]])
+    expect(typeof sent[0]!.title === 'function' && sent[0]!.title('en')).toBe(
+      'Badge earned: Baptism of Fire',
+    )
+    expect(await awardBadges(db, [A.id], collect)).toEqual([])
+
+    const profile = await profileOf(a)
+    const byId = new Map(profile.badges.map((b) => [b.id, b]))
+    expect(byId.get('firstWin')!.earnedAt).not.toBeNull()
+    expect(byId.get('cities100')).toMatchObject({ earnedAt: null, progress: 30, target: 100 })
+    expect(profile.badges).toHaveLength(12)
+    expect(profile).toMatchObject({ isOwn: true, friendship: null })
   })
 
   it('Anzeigename: 3–24 Zeichen, eindeutig ohne Groß-/Kleinschreibung, danach in /api/me', async () => {

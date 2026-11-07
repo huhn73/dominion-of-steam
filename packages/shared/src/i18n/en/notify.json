@@ -34,5 +34,8 @@
     "title": "Invitation: {name}",
     "async": "{host} invites you to the asynchronous match “{name}” ({seats} seats). Accept the invitation in the lobby.",
     "live": "{host} invites you to the live match “{name}” ({seats} seats). Accept the invitation in the lobby."
+  },
+  "badge": {
+    "title": "Badge earned: {name}"
   }
 }

@@ -1,5 +1,8 @@
 import { Profil } from '../../sections/profil/components'
-import { useProfile, useProfileActions } from '../../data/profile'
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
+import { NO_FILTER, useProfile, useProfileActions, type HistoryFilter } from '../../data/profile'
+import { routes } from '../../routes'
 import { Toast, useToast } from '../shared/toast'
 import { PageState } from './PageState'
 import { useT } from '../../i18n'
@@ -7,8 +10,10 @@ import { useT } from '../../i18n'
 /** Profil („Dienstakte“) mit Daten aus GET /api/profile; der Verlauf wird seitenweise geladen */
 export function ProfilePage() {
   const t = useT()
+  const navigate = useNavigate()
+  const [filter, setFilter] = useState<HistoryFilter>(NO_FILTER)
   const { data, error, isPending, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useProfile()
+    useProfile(null, filter)
   const actions = useProfileActions()
   const toast = useToast()
 
@@ -49,6 +54,11 @@ export function ProfilePage() {
         history={data.pages.flatMap((p) => p.history)}
         hasMoreHistory={hasNextPage}
         factions={first.factions}
+        badges={first.badges}
+        resultFilter={filter.result}
+        factionFilter={filter.faction}
+        onFilterChange={setFilter}
+        onOpenPlayer={(id) => void navigate(routes.player(id))}
         onLoadMoreHistory={() => {
           if (isFetchingNextPage) return
           void fetchNextPage().then((r) => {

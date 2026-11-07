@@ -22,6 +22,7 @@ import commands from './commands.json'
 import errors from './errors.json'
 import mail from './mail.json'
 import notify from './notify.json'
+import badges from './badges.json'
 
 /** Names from the compendium, so events can name units and factions by id */
 const units: Record<string, string> = Object.fromEntries(
@@ -58,4 +59,5 @@ export const de = {
   errors,
   mail,
   notify,
+  badges,
 }

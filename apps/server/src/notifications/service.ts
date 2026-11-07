@@ -32,6 +32,11 @@ export const EVENT_OF: Record<NotificationKind, NotificationEvent> = {
   invitation: 'invitation',
   matchEnded: 'matchEnded',
   matchCancelled: 'matchEnded',
+  friends: 'friends',
+  friendRequest: 'friends',
+  friendAccepted: 'friends',
+  achievement: 'achievement',
+  badge: 'achievement',
 }
 
 /** Kinds that are about a turn: void once the player is no longer on the move */

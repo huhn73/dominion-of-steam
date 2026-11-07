@@ -20,6 +20,8 @@ const EVENTS: { id: NotificationEvent; label: MessageKey; description: MessageKe
   { id: 'deadlineSoon', label: 'settings.event.deadlineSoon', description: 'settings.event.deadlineSoonHint' },
   { id: 'invitation', label: 'settings.event.invitation', description: 'settings.event.invitationHint' },
   { id: 'matchEnded', label: 'settings.event.matchEnded', description: 'settings.event.matchEndedHint' },
+  { id: 'friends', label: 'settings.event.friends', description: 'settings.event.friendsHint' },
+  { id: 'achievement', label: 'settings.event.achievement', description: 'settings.event.achievementHint' },
 ]
 
 function RubricTitle({ children }: { children: ReactNode }) {

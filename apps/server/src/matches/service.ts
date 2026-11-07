@@ -11,6 +11,7 @@ import {
   type ParticipantMapping,
   seedDemo,
 } from '@dos/shared/engine'
+import { awardBadges } from '../profile/badges'
 import type { Command, CommandResponse } from '@dos/shared/game'
 import type { Db } from '../db/client'
 import { eq, sql } from 'drizzle-orm'
@@ -129,11 +130,15 @@ export function createMatchService(
         aiDue = next.status === 'running' && currentParticipant(next).isAI
         if (tutorial) {
           // No notifications from the tutorial; winning it is remembered on the account
-          if (state.status === 'running' && next.winnerId === playerId)
+          if (state.status === 'running' && next.winnerId === playerId) {
             await tx
               .update(players)
               .set({ tutorialCompletedAt: now })
               .where(eq(players.id, playerId))
+            await awardBadges(tx, [playerId], (items) =>
+              notifier ? notifier.enqueue(tx, items) : Promise.resolve(),
+            )
+          }
         } else {
           await notifyChange(tx, state, next, playerId)
           await signalMatch(tx, next, { except: playerId })

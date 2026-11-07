@@ -1,0 +1,54 @@
+{
+  "firstWin": {
+    "name": "Feuertaufe",
+    "hint": "Gewinne deine erste Partie."
+  },
+  "wins10": {
+    "name": "Frontveteran",
+    "hint": "Gewinne 10 Partien."
+  },
+  "wins50": {
+    "name": "Feldmarschall",
+    "hint": "Gewinne 50 Partien."
+  },
+  "allFactions": {
+    "name": "Diener vieler Banner",
+    "hint": "Gewinne mit jeder der vier Fraktionen."
+  },
+  "tutorial": {
+    "name": "Rekrut",
+    "hint": "Schließe das Tutorial „Erste Schritte“ ab."
+  },
+  "cities100": {
+    "name": "Städtebezwinger",
+    "hint": "Erobere insgesamt 100 Städte."
+  },
+  "units500": {
+    "name": "Rüstungsbaron",
+    "hint": "Baue insgesamt 500 Einheiten."
+  },
+  "dominance": {
+    "name": "Vorherrscher",
+    "hint": "Gewinne durch Vorherrschaft."
+  },
+  "capitals": {
+    "name": "Hauptstadtstürmer",
+    "hint": "Gewinne durch Eroberung aller Hauptstädte."
+  },
+  "marathon": {
+    "name": "Zermürbungskrieg",
+    "hint": "Spiele eine Partie über mehr als 150 Runden."
+  },
+  "hardAi": {
+    "name": "Bezwinger der Generäle",
+    "hint": "Gewinne gegen eine KI auf „Schwer“."
+  },
+  "bigWin": {
+    "name": "Weltenbrand",
+    "hint": "Gewinne eine Partie mit mindestens vier Teilnehmern."
+  },
+  "heading": "Abzeichen",
+  "earnedOn": "Erhalten am {date}",
+  "progress": "{value} von {target}",
+  "count": "{earned} von {total}"
+}
