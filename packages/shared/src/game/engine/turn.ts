@@ -1,3 +1,4 @@
+import type { ParamValue } from '../../i18n'
 import { withBonus } from '../bonus'
 import { findPath, hexDistance, hexKey, sameHex } from '../hex'
 import type { HexCoord } from '../types'
@@ -8,13 +9,15 @@ import {
   addEvent,
   factionOf,
   type GameState,
+  msg,
   newId,
   nextSeq,
-  type ParticipantState,
   participant,
+  type ParticipantState,
   turnDeadline,
-  unitType,
+  unitName,
   type UnitState,
+  unitType,
 } from './state'
 import { seesUnit, sightingSnapshot, updateKnowledge, visibleTiles } from './visibility'
 import { capitulate, shouldCapitulate } from './surrender'
@@ -40,7 +43,7 @@ function crashAircraft(state: GameState, playerId: string) {
       playerId,
       'unitLost',
       u,
-      `${unitType(u.unitTypeId).name} ist ohne Treibstoff abgestürzt.`,
+      msg('events.crashed', { unit: unitName(u.unitTypeId) }),
     )
   }
 }
@@ -142,7 +145,7 @@ export function startTurn(state: GameState, now = new Date()) {
       needsOrders: true,
     })
     p.unitsBuilt += 1
-    addEvent(state, p.id, 'unitBuilt', city, `${city.name} hat ${type.name} fertiggestellt.`)
+    addEvent(state, p.id, 'unitBuilt', city, msg('events.built', { city: city.name, unit: unitName(type.id) }))
     city.production = {
       unitTypeId: type.id,
       progress: 0,
@@ -164,7 +167,7 @@ export function startTurn(state: GameState, now = new Date()) {
         p.id,
         'fuelLow',
         u,
-        `${type.name}: Treibstoff reicht nur noch für ${u.fuel} Felder.`,
+        msg('events.fuelLow', { unit: unitName(type.id), count: u.fuel }),
       )
   }
 
@@ -186,8 +189,8 @@ export function startTurn(state: GameState, now = new Date()) {
 function reportSightings(state: GameState, p: ParticipantState) {
   const seen = p.seenAtTurnEnd
   if (!seen) return
-  const ownerName = (id: string | null) =>
-    id ? (participant(state, id)?.name ?? 'Unbekannt') : null
+  const ownerName = (id: string | null): ParamValue | null =>
+    id ? (participant(state, id)?.name ?? { key: 'events.unknown' }) : null
   const reportedCities = new Set(
     state.events
       .filter(
@@ -208,8 +211,8 @@ function reportSightings(state: GameState, p: ParticipantState) {
         'cityDiscovered',
         city,
         owner
-          ? `${city.name} entdeckt, in der Hand von ${owner}.`
-          : `Freie Stadt ${city.name} entdeckt.`,
+          ? msg('events.discovered', { city: city.name, owner })
+          : msg('events.discoveredFree', { city: city.name }),
       )
       continue
     }
@@ -220,7 +223,9 @@ function reportSightings(state: GameState, p: ParticipantState) {
       p.id,
       'cityDiscovered',
       city,
-      owner ? `${city.name} ist jetzt in der Hand von ${owner}.` : `${city.name} ist jetzt frei.`,
+      owner
+        ? msg('events.nowHeld', { city: city.name, owner })
+        : msg('events.nowFree', { city: city.name }),
     )
   }
 
@@ -243,12 +248,12 @@ function reportSightings(state: GameState, p: ParticipantState) {
   for (const units of byHex.values()) {
     const at = units[0]!
     const where = `${at.col},${at.row}`
-    const names = units.map((u) => unitType(u.unitTypeId).name)
-    const message =
+    const names = units.map((u) => unitName(u.unitTypeId))
+    const text =
       units.length === 1
-        ? `Feindliche ${names[0]} (${ownerName(at.ownerId)}) bei ${where} gesichtet.`
-        : `Feindliche Einheiten bei ${where} gesichtet: ${names.join(', ')}.`
-    addEvent(state, p.id, 'enemySighted', at, message)
+        ? msg('events.sighted', { unit: names[0]!, owner: ownerName(at.ownerId) ?? '', where })
+        : msg('events.sightedMany', { where, units: names })
+    addEvent(state, p.id, 'enemySighted', at, text)
   }
 }
 
@@ -270,7 +275,7 @@ function executeStandingOrders(state: GameState, playerId: string) {
           playerId,
           'enemySighted',
           enemy,
-          `Wache: feindliche ${unitType(enemy.unitTypeId).name} in Sicht.`,
+          msg('events.sentry', { unit: unitName(enemy.unitTypeId) }),
         )
       }
     } else if (order.type === 'goto') {

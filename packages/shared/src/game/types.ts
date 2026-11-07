@@ -1,3 +1,4 @@
+import type { Message } from '../i18n'
 // =============================================================================
 // Basics
 // =============================================================================
@@ -210,7 +211,10 @@ export interface GameEvent extends HexCoord {
   id: string
   round: number
   type: GameEventType
+  /** German text (older saves have only this) */
   message: string
+  /** The text in the player's language: key and parameters */
+  text?: Message
   isNew: boolean
 }
 
@@ -221,6 +225,8 @@ export interface ReplayAction {
   unitTypeId: string
   path: HexCoord[]
   result: string | null
+  /** `result` as a text for the player (missing in older saves) */
+  resultText?: Message | null
 }
 
 /**
@@ -268,5 +274,7 @@ export interface CombatResult {
   captured: boolean
   /** Grenadiers an undamaged attacker left behind in the captured city */
   garrisonUnitId: string | null
+  /** German text */
   message: string
+  text: Message
 }

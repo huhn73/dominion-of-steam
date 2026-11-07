@@ -99,8 +99,10 @@ export function settingsOf(raw: unknown): Settings {
  * Check a complete `Settings` object (`PUT /api/settings`). Returns the cleaned settings
  * (unknown keys dropped) or a German error message naming the first invalid field.
  */
-export function validateSettings(input: unknown): { settings: Settings } | { error: string } {
-  const fail = (field: string) => ({ error: `Ungültige Einstellung: ${field}` })
+export function validateSettings(input: unknown): { settings: Settings } | { error: Message } {
+  const fail = (field: string) => ({
+    error: { key: 'errors.invalidSetting', params: { field } } satisfies Message,
+  })
   if (!isObject(input)) return fail('settings')
   const { notifications: n, display: d, sound: s, controls: c } = input
   if (!isObject(n)) return fail('notifications')

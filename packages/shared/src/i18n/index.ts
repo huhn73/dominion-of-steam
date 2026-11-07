@@ -1,10 +1,10 @@
 import { de } from './de'
 import { en } from './en'
-import type { DictShape, Leaves, Params, Plural } from './dict'
+import type { DictShape, Leaves, ParamValue, Params, Plural } from './dict'
 import { DEFAULT_LOCALE, INTL_LOCALE, type Locale } from './locale'
 
 export * from './locale'
-export type { DictShape, Params, Plural } from './dict'
+export type { DictShape, ParamValue, Params, Plural } from './dict'
 
 export type Dictionary = DictShape<typeof de>
 export type MessageKey = Leaves<typeof de>
@@ -43,10 +43,12 @@ function pluralForm(locale: Locale, count: number): keyof Plural {
 /** Fill `{name}` placeholders; unknown placeholders stay visible, nested messages are translated */
 export function interpolate(text: string, params?: Params, locale: Locale = DEFAULT_LOCALE) {
   if (!params) return text
+  const one = (value: ParamValue): string =>
+    typeof value === 'object' ? translate(locale, value.key, value.params) : String(value)
   return text.replace(/\{(\w+)\}/g, (match, name: string) => {
     const value = params[name]
     if (value === undefined) return match
-    return typeof value === 'object' ? translate(locale, value.key, value.params) : String(value)
+    return Array.isArray(value) ? value.map(one).join(', ') : one(value as ParamValue)
   })
 }
 

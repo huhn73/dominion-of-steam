@@ -16,5 +16,6 @@ export type Leaves<T, P extends string = ''> = {
   [K in keyof T & string]: T[K] extends string | Plural ? `${P}${K}` : Leaves<T[K], `${P}${K}.`>
 }[keyof T & string]
 
-/** Values for placeholders; a nested message is translated first */
-export type Params = { [name: string]: string | number | { key: string; params?: Params } }
+/** A placeholder value: text, number, a nested message (translated first) or a list of them */
+export type ParamValue = string | number | { key: string; params?: Params }
+export type Params = { [name: string]: ParamValue | readonly ParamValue[] }

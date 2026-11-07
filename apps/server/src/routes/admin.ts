@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
+import { sendError } from '../locale'
 import { API_PREFIX } from '@dos/shared'
 import { DEFAULT_ADMIN_RANGE, isAdminRange, type AdminStats } from '@dos/shared/admin'
-import type { ApiError } from '@dos/shared/game'
 import type { AdminService } from '../admin/service'
 import { requireAdmin } from '../session'
 
@@ -13,9 +13,7 @@ export function adminRoutes(app: FastifyInstance, admin: AdminService) {
     async (req, reply): Promise<AdminStats | void> => {
       const range = req.query.range === undefined ? DEFAULT_ADMIN_RANGE : Number(req.query.range)
       if (!isAdminRange(range))
-        return reply.status(422).send({
-          error: { code: 'INVALID_INPUT', message: 'Zeitraum: 7, 30 oder 90 Tage.' },
-        } satisfies ApiError)
+        return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.adminRange' })
       reply.header('Cache-Control', 'no-store')
       return admin.stats(range)
     },

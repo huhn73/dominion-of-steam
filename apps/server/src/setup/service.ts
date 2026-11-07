@@ -161,7 +161,7 @@ export function participantsFor(
       if (!fill)
         throw new SetupError(
           'SEATS_OPEN',
-          'Nicht alle Plätze sind besetzt. Lass freie Plätze mit KI auffüllen.',
+          { key: 'errors.seatsOpen' },
           409,
         )
       personality =
@@ -169,7 +169,7 @@ export function participantsFor(
       if (!personality)
         throw new SetupError(
           'NO_AI_AVAILABLE',
-          `Für Platz ${seat.seat + 1} gibt es keinen passenden KI-Gegner.`,
+          { key: 'errors.noAiForSeat', params: { seat: seat.seat + 1 } },
         )
       difficulty = 'normal'
     }
@@ -203,9 +203,9 @@ export function participantsFor(
 /** Start a match row inside `tx`: build the game from its seats and store state and seats */
 export async function launchMatch(tx: Tx, matchId: string, now = new Date()): Promise<GameState> {
   const [row] = await tx.select().from(matches).where(eq(matches.id, matchId)).for('update')
-  if (!row?.setup) throw new SetupError('MATCH_NOT_FOUND', 'Partie nicht gefunden.', 404)
+  if (!row?.setup) throw new SetupError('MATCH_NOT_FOUND', { key: 'errors.matchNotFound' }, 404)
   if (row.status !== 'waiting')
-    throw new SetupError('ALREADY_STARTED', 'Die Partie hat bereits begonnen.', 409)
+    throw new SetupError('ALREADY_STARTED', { key: 'errors.alreadyStarted' }, 409)
   const seats = await tx.select().from(matchSeats).where(eq(matchSeats.matchId, matchId))
   const playerIds = seats.flatMap((s) => (s.kind === 'player' && s.playerId ? [s.playerId] : []))
   const names = new Map(
@@ -233,7 +233,7 @@ export async function launchMatch(tx: Tx, matchId: string, now = new Date()): Pr
     )
   } catch (err) {
     if (err instanceof Error && err.message.includes('Hauptstädte'))
-      throw new SetupError('MAP_TOO_SMALL', err.message)
+      throw new SetupError('MAP_TOO_SMALL', { key: 'errors.mapTooSmall' })
     throw err
   }
   await tx
@@ -340,7 +340,7 @@ export function createSetupService(db: Db, accounts: AccountService, notifier?: 
     if (world.capitals.length < draft.seats.length)
       throw new SetupError(
         'MAP_TOO_SMALL',
-        'Auf dieser Karte ist nicht genug Platz für alle Hauptstädte. Wähle eine größere Karte oder mehr Land.',
+        { key: 'errors.mapTooSmall' },
       )
     const start = !waitsForHuman(draft)
 
@@ -362,7 +362,7 @@ export function createSetupService(db: Db, accounts: AccountService, notifier?: 
           if (!res)
             throw new SetupError(
               'RESERVATION_EXPIRED',
-              'Diese Einrichtung ist nicht mehr gültig (der Einladungslink wurde schon verwendet). Lade die Seite neu.',
+              { key: 'errors.reservationUsed' },
               409,
             )
           id = res.id

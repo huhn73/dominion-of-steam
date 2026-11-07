@@ -1,0 +1,45 @@
+{
+  "blocked": "{unit}: Weg durch feindliche {enemy} versperrt.",
+  "win": "{attacker} gegen {defender}: Gegner vernichtet.",
+  "winAdvance": "{attacker} gegen {defender}: Gegner vernichtet. Rückt nach.",
+  "destroyedBy": "{defender} wurde von {player} vernichtet.",
+  "destroyedByDelay": "{defender} wurde von {player} vernichtet. Produktion verzögert.",
+  "fell": "{attacker} ist im Kampf gegen {defender} gefallen.",
+  "repelled": "{defender} hat einen Angriff von {player} abgewehrt.",
+  "repelledDelay": "{defender} hat einen Angriff von {player} abgewehrt. Produktion verzögert.",
+  "captured": "{city} wurde erobert. Die Stadt ist unbesetzt.",
+  "capturedGarrison": "{city} wurde erobert. Grenadiere halten die Stadt.",
+  "cityLost": "{city} wurde von {player} erobert.",
+  "attackFailed": "Der Angriff auf {city} ist gescheitert.",
+  "cityRepelled": "{city} hat einen Angriff von {player} abgewehrt. Produktion verzögert.",
+  "dominanceBrokenOwn": "Deine Vorherrschaft ist gebrochen, du hältst noch {share} % der Städte.",
+  "dominanceBroken": "Die Vorherrschaft von {name} ist gebrochen ({share} % der Städte).",
+  "dominanceOwn": {
+    "one": "Du hältst {share} % der Städte: Sieg durch Vorherrschaft in {count} Runde.",
+    "other": "Du hältst {share} % der Städte: Sieg durch Vorherrschaft in {count} Runden."
+  },
+  "dominance": {
+    "one": "{name} hält {share} % der Städte: Vorherrschaft in {count} Runde.",
+    "other": "{name} hält {share} % der Städte: Vorherrschaft in {count} Runden."
+  },
+  "crashed": "{unit} ist ohne Treibstoff abgestürzt.",
+  "built": "{city} hat {unit} fertiggestellt.",
+  "fuelLow": {
+    "one": "{unit}: Treibstoff reicht nur noch für {count} Feld.",
+    "other": "{unit}: Treibstoff reicht nur noch für {count} Felder."
+  },
+  "discovered": "{city} entdeckt, in der Hand von {owner}.",
+  "discoveredFree": "Freie Stadt {city} entdeckt.",
+  "nowHeld": "{city} ist jetzt in der Hand von {owner}.",
+  "nowFree": "{city} ist jetzt frei.",
+  "sighted": "Feindliche {unit} ({owner}) bei {where} gesichtet.",
+  "sightedMany": "Feindliche Einheiten bei {where} gesichtet: {units}.",
+  "sentry": "Wache: feindliche {unit} in Sicht.",
+  "capitulation": "{name} kapituliert. Die Städte von {name} sind jetzt neutral.",
+  "exploreEnemy": "Erkundung: feindliche {unit} ({owner}) bei {col},{row} entdeckt.",
+  "exploreCity": "Erkundung: Stadt {city} entdeckt, in der Hand von {owner}.",
+  "exploreCityFree": "Erkundung: freie Stadt {city} entdeckt.",
+  "exploreDone": "Erkundung abgeschlossen: kein unerforschtes Feld mehr erreichbar.",
+  "exploreAborted": "Erkundung abgebrochen: keine Basis erreichbar.",
+  "unknown": "Unbekannt"
+}

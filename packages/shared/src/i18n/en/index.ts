@@ -18,5 +18,15 @@ import board from './board.json'
 import city from './city.json'
 import unit from './unit.json'
 import tutorial from './tutorial.json'
+import compendiumData from '../../compendium/data.en.json'
+import events from './events.json'
+import commands from './commands.json'
+import errors from './errors.json'
 
-export const en: DictShape<typeof de> = { common, shell, match, account, auth, lobby, settings, profile, admin, legal, setup, partieSetup, game, compendium, board, city, unit, tutorial }
+/** Names from the compendium, so events can name units and factions by id */
+const units: Record<string, string> = Object.fromEntries(compendiumData.unitTypes.map((u) => [u.id, u.name]))
+const factions: Record<string, string> = Object.fromEntries(
+  compendiumData.factions.map((f) => [f.id, f.shortName]),
+)
+
+export const en: DictShape<typeof de> = { units, factions, common, shell, match, account, auth, lobby, settings, profile, admin, legal, setup, partieSetup, game, compendium, board, city, unit, tutorial, events, commands, errors }

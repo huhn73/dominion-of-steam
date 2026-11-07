@@ -112,6 +112,7 @@ describe('MetricsCollector', () => {
     captured: false,
     garrisonUnitId: null,
     message: '',
+    text: { key: 'events.win' },
     ...patch,
   })
 

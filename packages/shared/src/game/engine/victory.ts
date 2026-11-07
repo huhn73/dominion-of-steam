@@ -1,6 +1,13 @@
+import type { Message } from '../../i18n'
 import type { Dominance, EndReason } from '../types'
 import { DOMINANCE_SHARE, DOMINANCE_TURNS } from '../rules'
-import { type GameState, type ParticipantState, addEvent, nextSeq } from './state'
+import {
+  addEvent,
+  type GameState,
+  msg,
+  nextSeq,
+  type ParticipantState,
+} from './state'
 
 /** Points for the round limit: 3 per city plus 1 per unit (same formula as `participantScore`) */
 export function score(state: GameState, participantId: string) {
@@ -106,8 +113,7 @@ export function cityShare(state: GameState, participantId: string) {
   return state.cities.filter((c) => c.ownerId === participantId).length / state.cities.length
 }
 
-const percent = (share: number) => `${Math.floor(share * 100)} %`
-const rounds = (n: number) => (n === 1 ? '1 Runde' : `${n} Runden`)
+const percent = (share: number) => Math.floor(share * 100)
 
 /**
  * Tell every active participant about the dominance; the holder reads it in the second person.
@@ -116,8 +122,8 @@ const rounds = (n: number) => (n === 1 ? '1 Runde' : `${n} Runden`)
 function announceDominance(
   state: GameState,
   holder: ParticipantState,
-  own: string,
-  others: string,
+  own: Message,
+  others: Message,
 ) {
   for (const p of state.participants) {
     if (p.status !== 'active') continue
@@ -150,8 +156,8 @@ export function updateDominance(state: GameState, current: ParticipantState) {
         announceDominance(
           state,
           holder,
-          `Deine Vorherrschaft ist gebrochen, du hältst noch ${percent(share)} der Städte.`,
-          `Die Vorherrschaft von ${holder.name} ist gebrochen (${percent(share)} der Städte).`,
+          msg('events.dominanceBrokenOwn', { share: percent(share) }),
+          msg('events.dominanceBroken', { name: holder.name, share: percent(share) }),
         )
     }
   }
@@ -166,8 +172,8 @@ export function updateDominance(state: GameState, current: ParticipantState) {
   announceDominance(
     state,
     current,
-    `Du hältst ${percent(share)} der Städte: Sieg durch Vorherrschaft in ${rounds(left)}.`,
-    `${current.name} hält ${percent(share)} der Städte: Vorherrschaft in ${rounds(left)}.`,
+    msg('events.dominanceOwn', { share: percent(share), count: left }),
+    msg('events.dominance', { name: current.name, share: percent(share), count: left }),
   )
 }
 

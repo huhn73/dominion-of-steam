@@ -59,7 +59,7 @@ export function authRoutes(app: FastifyInstance, accounts: AccountService) {
     const email = str(b.email)
     const password = str(b.password)
     if (validateEmail(email) || !password)
-      return sendError(reply, 422, 'INVALID_INPUT', 'Bitte gib E-Mail-Adresse und Passwort ein.')
+      return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.credentialsMissing' })
     try {
       const player = await accounts.login(email, password)
       setSessionCookie(
@@ -132,7 +132,7 @@ export function authRoutes(app: FastifyInstance, accounts: AccountService) {
 
   app.post(`${API_PREFIX}/friends`, { preHandler: requireAuth }, async (req, reply) => {
     const name = str(body(req.body).name).trim()
-    if (!name) return sendError(reply, 422, 'INVALID_INPUT', 'Bitte gib einen Namen ein.')
+    if (!name) return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.nameMissing' })
     try {
       return reply.status(201).send(await accounts.addFriendByName(await currentPlayer(req), name))
     } catch (err) {

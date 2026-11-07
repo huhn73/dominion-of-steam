@@ -45,7 +45,7 @@ export const mailUnavailable = () =>
   new AccountError(
     503,
     'MAIL_UNAVAILABLE',
-    'E-Mails können gerade nicht verschickt werden. Versuche es später noch einmal.',
+    { key: 'errors.mailUnavailable' },
   )
 
 const COOLDOWN_MS = ACCOUNT_MAIL_COOLDOWN_MINUTES * 60_000
@@ -108,9 +108,9 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
     const displayName = input.displayName.trim()
     const email = normalizeEmail(input.email)
     if (await emailTaken(email))
-      throw new AccountError(409, 'EMAIL_TAKEN', 'Diese E-Mail-Adresse ist bereits registriert.')
+      throw new AccountError(409, 'EMAIL_TAKEN', { key: 'errors.emailTaken' })
     if (await nameTaken(displayName))
-      throw new AccountError(409, 'NAME_TAKEN', 'Dieser Name ist bereits vergeben.')
+      throw new AccountError(409, 'NAME_TAKEN', { key: 'errors.nameTaken' })
     const passwordHash = await hashPassword(input.password)
     try {
       const [player] = await db
@@ -131,9 +131,9 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
     } catch (err) {
       // Race between the check above and the insert
       if (isUniqueViolation(err, 'players_email_unique'))
-        throw new AccountError(409, 'EMAIL_TAKEN', 'Diese E-Mail-Adresse ist bereits registriert.')
+        throw new AccountError(409, 'EMAIL_TAKEN', { key: 'errors.emailTaken' })
       if (isUniqueViolation(err, 'players_display_name_unique'))
-        throw new AccountError(409, 'NAME_TAKEN', 'Dieser Name ist bereits vergeben.')
+        throw new AccountError(409, 'NAME_TAKEN', { key: 'errors.nameTaken' })
       throw err
     }
   }
@@ -145,7 +145,7 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
       .where(eq(players.email, normalizeEmail(email)))
     // Same message for unknown email and wrong password
     if (!player || !(await verifyPassword(password, player.passwordHash)))
-      throw new AccountError(401, 'INVALID_CREDENTIALS', 'E-Mail-Adresse oder Passwort ist falsch.')
+      throw new AccountError(401, 'INVALID_CREDENTIALS', { key: 'errors.invalidCredentials' })
     return player
   }
 
@@ -232,14 +232,14 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
   /** „Erneut senden“: at most one verification mail per cooldown */
   async function resendVerification(playerId: string, origin: string, now = new Date()) {
     const [player] = await db.select().from(players).where(eq(players.id, playerId))
-    if (!player) throw new AccountError(404, 'PLAYER_NOT_FOUND', 'Konto nicht gefunden.')
+    if (!player) throw new AccountError(404, 'PLAYER_NOT_FOUND', { key: 'errors.playerNotFound' })
     if (player.emailVerifiedAt) return { ok: true as const, alreadyVerified: true }
     if (!mail) throw mailUnavailable()
     if (await recentlyIssued(db, playerId, 'verify_email', COOLDOWN_MS, now))
       throw new AccountError(
         429,
         'RESEND_COOLDOWN',
-        'Wir haben dir gerade erst eine E-Mail geschickt. Warte kurz und sieh auch im Spam-Ordner nach.',
+        { key: 'errors.mailCooldown' },
       )
     await sendVerificationMail(player, origin, now)
     return { ok: true as const, alreadyVerified: false }
@@ -285,7 +285,7 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
       new AccountError(
         422,
         'INVALID_TOKEN',
-        'Der Link ist ungültig oder abgelaufen. Fordere einen neuen an.',
+        { key: 'errors.linkInvalid' },
       )
     if (!t) throw invalid()
     const [player] = await db.select().from(players).where(eq(players.id, t.playerId))
@@ -348,9 +348,9 @@ export function createAccountService(db: Db, { mail = null, log }: AccountServic
   async function addFriendByName(playerId: string, name: string, now = new Date()) {
     const friend = await findByName(name)
     if (!friend)
-      throw new AccountError(404, 'PLAYER_NOT_FOUND', 'Es gibt keinen Spieler mit diesem Namen.')
+      throw new AccountError(404, 'PLAYER_NOT_FOUND', { key: 'errors.noSuchPlayer' })
     if (friend.id === playerId)
-      throw new AccountError(422, 'CANNOT_FRIEND_SELF', 'Du kannst dich nicht selbst hinzufügen.')
+      throw new AccountError(422, 'CANNOT_FRIEND_SELF', { key: 'errors.friendSelf' })
     await addFriend(playerId, friend.id)
     return toFriend(friend, now)
   }

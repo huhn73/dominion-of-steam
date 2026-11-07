@@ -243,6 +243,10 @@ describe('Spielfeld', () => {
         captured: false,
         garrisonUnitId: null,
         message: 'Panzerwagen gegen Grenadiere: Gegner vernichtet.',
+        text: {
+          key: 'events.win',
+          params: { attacker: { key: 'units.panzerwagen' }, defender: { key: 'units.grenadiere' } },
+        },
       }
       const { rerender, props, onCue } = renderBoard({ combatAnimationMs: 1000 })
       rerender(

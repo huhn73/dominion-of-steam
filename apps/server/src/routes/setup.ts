@@ -37,7 +37,7 @@ export function setupRoutes(app: FastifyInstance, setup: SetupService) {
       const body = req.body ?? {}
       if (typeof body.reservationId !== 'string')
         return handleSetupError(
-          new SetupError('INVALID_SETUP', 'Die Angaben zur Partie sind unvollständig.'),
+          new SetupError('INVALID_SETUP', { key: 'errors.setupIncomplete' }),
           reply,
         )
       try {

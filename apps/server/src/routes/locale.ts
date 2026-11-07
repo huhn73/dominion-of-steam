@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
+import { sendError } from '../locale'
 import { eq } from 'drizzle-orm'
 import { API_PREFIX } from '@dos/shared'
-import type { ApiError } from '@dos/shared/game'
 import { isLocale } from '@dos/shared/i18n'
 import type { Db } from '../db/client'
 import { players } from '../db/schema'
@@ -17,9 +17,7 @@ export function localeRoutes(app: FastifyInstance, db: Db) {
       const { player } = (await loadSession(req))!
       const locale = req.body?.locale
       if (!isLocale(locale))
-        return reply.status(422).send({
-          error: { code: 'INVALID_INPUT', message: 'Unknown language.' },
-        } satisfies ApiError)
+        return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.unknownLanguage' })
       const [updated] = await db
         .update(players)
         .set({ locale })

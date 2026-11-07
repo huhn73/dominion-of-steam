@@ -1,5 +1,5 @@
 import type { Message } from '@dos/shared/i18n'
-import { LocalizedError } from '../locale'
+import { LocalizedError, type Text } from '../locale'
 import { isWaterCode, mapSize, mapSizeLabel } from '@dos/shared/game'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import {
@@ -51,12 +51,12 @@ import { signal, signalMatch, signalRoom } from '../realtime/signals'
 /** German message for the client with HTTP status and code */
 export class LobbyError extends LocalizedError {}
 
-const notFound = () => new LobbyError(404, 'MATCH_NOT_FOUND', 'Partie nicht gefunden.')
+const notFound = () => new LobbyError(404, 'MATCH_NOT_FOUND', { key: 'errors.matchNotFound' })
 const matchFull = () =>
-  new LobbyError(409, 'MATCH_FULL', 'Partie voll: Alle freien Plätze sind schon besetzt.')
+  new LobbyError(409, 'MATCH_FULL', { key: 'errors.matchFull' })
 const alreadyStarted = () =>
-  new LobbyError(409, 'ALREADY_STARTED', 'Die Partie hat bereits begonnen.')
-const invitationInvalid = (why = 'Diese Einladung ist nicht mehr gültig.') =>
+  new LobbyError(409, 'ALREADY_STARTED', { key: 'errors.alreadyStarted' })
+const invitationInvalid = (why: Text = { key: 'errors.invitationInvalid' }) =>
   new LobbyError(410, 'INVITATION_INVALID', why)
 
 type MatchRow = typeof matches.$inferSelect
@@ -503,25 +503,25 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       const state = await lockRunning(tx, matchId)
       const self = state.participants.find((p) => p.id === me.id)
       if (!self || self.surrender)
-        throw new LobbyError(403, 'NOT_PARTICIPANT', 'Du nimmst an dieser Partie nicht teil.')
+        throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
       if (state.mode !== 'async')
         throw new LobbyError(
           422,
           'REMIND_NOT_AVAILABLE',
-          'Erinnern gibt es nur in asynchronen Partien.',
+          { key: 'errors.remindAsyncOnly' },
         )
       const current = currentParticipant(state)
       if (current.isAI || current.id === me.id)
         throw new LobbyError(
           422,
           'REMIND_NOT_AVAILABLE',
-          'Gerade ist kein Mitspieler am Zug, den du erinnern kannst.',
+          { key: 'errors.remindNobody' },
         )
       if (participantId !== current.id)
         throw new LobbyError(
           409,
           'TURN_CHANGED',
-          'Inzwischen ist jemand anderes am Zug. Lade die Lobby neu.',
+          { key: 'errors.remindMoved' },
         )
       const [last] = await tx
         .select()
@@ -535,7 +535,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
         throw new LobbyError(
           429,
           'REMIND_COOLDOWN',
-          `Du hast in dieser Partie schon erinnert. Erneut erinnern kannst du in ${hours} Std.`,
+          { key: 'errors.remindedAlready', params: { hours } },
         )
       }
       await tx
@@ -556,12 +556,12 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       state = await lockMatch(tx, matchId)
     } catch (err) {
       if (err instanceof MatchWaitingError)
-        throw new LobbyError(409, 'MATCH_WAITING', 'Die Partie wartet noch auf Mitspieler.')
+        throw new LobbyError(409, 'MATCH_WAITING', { key: 'errors.matchWaiting' })
       throw err
     }
     if (!state) throw notFound()
     if (state.status !== 'running')
-      throw new LobbyError(409, 'MATCH_FINISHED', 'Die Partie ist bereits beendet.')
+      throw new LobbyError(409, 'MATCH_FINISHED', { key: 'errors.matchFinished' })
     return state
   }
 
@@ -571,11 +571,11 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       const before = await lockRunning(tx, matchId)
       const self = before.participants.find((p) => p.id === me)
       if (!self)
-        throw new LobbyError(403, 'NOT_PARTICIPANT', 'Du nimmst an dieser Partie nicht teil.')
+        throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
       if (self.surrender)
-        throw new LobbyError(409, 'SURRENDERED', 'Du hast diese Partie bereits aufgegeben.')
+        throw new LobbyError(409, 'SURRENDERED', { key: 'errors.alreadySurrendered' })
       if (self.status !== 'active')
-        throw new LobbyError(409, 'ELIMINATED', 'Du bist in dieser Partie bereits ausgeschieden.')
+        throw new LobbyError(409, 'ELIMINATED', { key: 'errors.alreadyEliminated' })
       // If it was the player's turn, the AI plays it in the background after the commit
       const next = surrenderInEngine(structuredClone(before), me, now)
       await saveMatch(tx, next)
@@ -650,13 +650,13 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       .from(invitations)
       .where(and(eq(invitations.id, invitationId), eq(invitations.playerId, me)))
       .for('update')
-    if (!inv) throw invitationInvalid('Diese Einladung gibt es nicht mehr.')
+    if (!inv) throw invitationInvalid({ key: 'errors.invitationGone' })
     const { row, seats } = await lockWaiting(tx, inv.matchId)
     if (inv.status !== 'pending' || row.status !== 'waiting')
       throw invitationInvalid(
         row.status !== 'waiting'
-          ? 'Die Partie hat bereits begonnen. Die Einladung gilt nicht mehr.'
-          : 'Diese Einladung ist nicht mehr gültig.',
+          ? { key: 'errors.invitationStarted' }
+          : { key: 'errors.invitationInvalid' },
       )
     return { inv, row, seats }
   }
@@ -720,7 +720,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
         throw new LobbyError(
           404,
           'INVITE_INVALID',
-          'Dieser Einladungslink ist ungültig oder abgelaufen.',
+          { key: 'errors.inviteLinkInvalid' },
         )
       const { row, seats } = await lockWaiting(tx, found.id)
       const joined = seats.some((s) => s.kind === 'player' && s.playerId === me)
@@ -729,7 +729,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
         throw new LobbyError(
           410,
           'INVITE_EXPIRED',
-          'Die Partie hat bereits begonnen. Der Einladungslink gilt nicht mehr.',
+          { key: 'errors.inviteLinkStarted' },
         )
       if (!(await acceptSeat(tx, seats, me, now))) {
         const seat = LINK_KINDS.map((k) => seats.find((s) => s.kind === k)).find(Boolean)
@@ -748,7 +748,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       (s) => s.playerId === me && (s.kind === 'player' || s.kind === 'friend'),
     )
     if (!seat && row.hostId !== me)
-      throw new LobbyError(403, 'NOT_PARTICIPANT', 'Du nimmst an dieser Partie nicht teil.')
+      throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
     return { row, seats, seat }
   }
 
@@ -756,7 +756,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
     return transaction(async (tx) => {
       const { seat } = await ownSeat(tx, matchId, me)
       if (seat?.kind !== 'player')
-        throw new LobbyError(403, 'NOT_PARTICIPANT', 'Du hast in dieser Partie keinen Platz.')
+        throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.noSeat' })
       await tx
         .update(matchSeats)
         .set({ ready })
@@ -775,7 +775,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       const { row, seats } = await lockWaiting(tx, matchId)
       if (row.status !== 'waiting') throw alreadyStarted()
       if (row.hostId !== me)
-        throw new LobbyError(403, 'NOT_HOST', 'Nur der Ersteller kann die Partie starten.')
+        throw new LobbyError(403, 'NOT_HOST', { key: 'errors.notHost' })
       const people = await namesAndAvatars(seats.flatMap((s) => (s.playerId ? [s.playerId] : [])))
       const blockers = startBlockers(
         seats.map((s) => ({
@@ -785,14 +785,17 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
         })),
       )
       if (blockers.length)
-        throw new LobbyError(409, 'NOT_READY', `Warte auf ${blockers.join(', ')}`)
+        throw new LobbyError(409, 'NOT_READY', {
+          key: 'errors.waitFor',
+          params: { names: blockers.join(', ') },
+        })
       if (!fill) {
         const free = seats.filter((s) => FREE_KINDS.includes(s.kind))
         if (seats.length - free.length < 2)
           throw new LobbyError(
             409,
             'TOO_FEW_PLAYERS',
-            'Für den Start braucht es mindestens zwei Teilnehmer. Lass freie Plätze mit KI auffüllen.',
+            { key: 'errors.tooFewPlayers' },
           )
         if (free.length)
           await tx.delete(matchSeats).where(
@@ -884,7 +887,7 @@ export function createLobbyService(db: Db, { notifier, aiRunner }: LobbyServiceO
       (a, b) => a.seat - b.seat,
     )
     if (row.hostId !== me && !seats.some((s) => s.playerId === me))
-      throw new LobbyError(403, 'NOT_PARTICIPANT', 'Du nimmst an dieser Partie nicht teil.')
+      throw new LobbyError(403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
     const people = await namesAndAvatars(seats.flatMap((s) => (s.playerId ? [s.playerId] : [])))
     const state = row.state ? normalizeState(row.state) : null
     const seatOf = (s: SeatRow): WaitingSeat => {

@@ -31,7 +31,10 @@ function cropFields(fields: Record<string, unknown>) {
   return { x: x!, y: y!, size: size! }
 }
 
-const AVATAR_TOO_LARGE = `Das Bild ist zu groß (höchstens ${AVATAR_MAX_BYTES / 1024 / 1024} MB).`
+const AVATAR_TOO_LARGE = {
+  key: 'errors.imageTooLarge',
+  params: { mb: AVATAR_MAX_BYTES / 1024 / 1024 },
+} as const
 
 /** Profile, settings and account management of the logged-in player */
 export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
@@ -89,7 +92,7 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
       let crop: ReturnType<typeof cropFields>
       try {
         const file = await req.file()
-        if (!file) return sendError(reply, 422, 'INVALID_INPUT', 'Bitte wähle ein Bild aus.')
+        if (!file) return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.imageMissing' })
         crop = cropFields(file.fields)
         data = await file.toBuffer()
       } catch (err) {
@@ -97,13 +100,13 @@ export function profileRoutes(app: FastifyInstance, profile: ProfileService) {
         if (code === 'FST_REQ_FILE_TOO_LARGE')
           return sendError(reply, 413, 'IMAGE_TOO_LARGE', AVATAR_TOO_LARGE)
         if (code === 'FST_INVALID_MULTIPART_CONTENT_TYPE')
-          return sendError(reply, 422, 'INVALID_INPUT', 'Bitte wähle ein Bild aus.')
+          return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.imageMissing' })
         throw err
       }
       if (data.length === 0)
-        return sendError(reply, 422, 'INVALID_INPUT', 'Bitte wähle ein Bild aus.')
+        return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.imageMissing' })
       if (crop === null)
-        return sendError(reply, 422, 'INVALID_CROP', 'Der Bildausschnitt passt nicht zum Bild.')
+        return sendError(reply, 422, 'INVALID_CROP', { key: 'errors.invalidCrop' })
       return toMe(await profile.setAvatar(player.id, data, crop))
     }),
   )

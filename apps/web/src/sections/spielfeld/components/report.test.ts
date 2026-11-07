@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import sample from '../../../../../../product-plan/sections/spielfeld-and-zuge/sample-data.json'
 import type { GameEvent, ReplayAction, SpielfeldUndZuegeProps } from '../types'
+import { translator } from '@dos/shared/i18n'
 import { buildTurnReport } from './report'
 
 const data = sample as unknown as SpielfeldUndZuegeProps
-const event = (id: string, type: GameEvent['type'], message = type): GameEvent => ({
+const event = (id: string, type: GameEvent['type'], message: string = type): GameEvent => ({
   id,
   round: 14,
   type,
@@ -119,5 +120,29 @@ describe('buildTurnReport', () => {
       round: 3,
     })
     expect(report).toEqual({ round: 3, sections: [], isEmpty: true })
+  })
+})
+
+describe('buildTurnReport in English', () => {
+  it('formuliert strukturierte Ereignisse in der Sprache des Spielers, alte nur mit deutschem Text', () => {
+    const built: GameEvent = {
+      ...event('a', 'unitBuilt', 'Kesselhafen hat Panzerwagen fertiggestellt.'),
+      text: { key: 'events.built', params: { city: 'Kesselhafen', unit: { key: 'units.panzerwagen' } } },
+    }
+    const legacy = event('b', 'unitLost', 'Grenadiere ist ohne Treibstoff abgestürzt.')
+    const report = buildTurnReport({
+      t: translator('en'),
+      events: [built, legacy],
+      replay: [],
+      participants: data.participants,
+      unitTypes: data.unitTypes,
+      round: 14,
+    })
+    expect(report.sections.map((s) => s.title)).toEqual(['Losses', 'Home front'])
+    const texts = report.sections.flatMap((s) => s.entries.map((e) => e.text))
+    expect(texts).toEqual([
+      'Grenadiere ist ohne Treibstoff abgestürzt.',
+      'Kesselhafen has completed Armoured Car.',
+    ])
   })
 })

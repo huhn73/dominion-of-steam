@@ -2,7 +2,12 @@ import { bitsFromKeys, emptyBits } from '../bits'
 import { encodeTerrain } from '../mapcodec'
 import demoData from '../demo-data.json'
 import type { City, GameEvent, Match, Participant, ReplayAction, Tile, Unit } from '../types'
-import { defaultRules, type GameState } from './state'
+import {
+  asText,
+  defaultRules,
+  type GameState,
+  msg,
+} from './state'
 import { updateKnowledge } from './visibility'
 
 interface DemoData {
@@ -118,7 +123,7 @@ export function seedDemo(
         id: 'ev8',
         round: data.match.round,
         type: 'cityDiscovered' as const,
-        message: 'Port Aurel ist jetzt in der Hand von Admiral Kessler.',
+        ...asText(msg('events.nowHeld', { city: 'Port Aurel', owner: 'Admiral Kessler' })),
         col: 13,
         row: 5,
         isNew: true,

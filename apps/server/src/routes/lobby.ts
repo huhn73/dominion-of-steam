@@ -1,12 +1,11 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { API_PREFIX } from '@dos/shared'
-import type { ApiError } from '@dos/shared/game'
 import type { ReadyRequest, StartMatchRequest } from '@dos/shared/lobby'
 import { LobbyError, type LobbyService } from '../lobby/service'
 import { SetupError } from '../setup/service'
 import { loadSession, requireAuth } from '../session'
 import { handleSetupError, requestOrigin } from './setup'
-import { sendError } from '../locale'
+import { sendError, type Text } from '../locale'
 
 function handleLobbyError(err: unknown, reply: FastifyReply) {
   if (err instanceof LobbyError) return sendError(reply, err.status, err.code, err.text)
@@ -14,8 +13,8 @@ function handleLobbyError(err: unknown, reply: FastifyReply) {
   throw err
 }
 
-const badRequest = (reply: FastifyReply, message: string) =>
-  reply.status(422).send({ error: { code: 'INVALID_INPUT', message } } satisfies ApiError)
+const badRequest = (reply: FastifyReply, message: Text) =>
+  sendError(reply, 422, 'INVALID_INPUT', message)
 
 const id = (req: FastifyRequest) => (req.params as { id: string }).id
 
@@ -98,7 +97,7 @@ export function lobbyRoutes(app: FastifyInstance, lobby: LobbyService) {
     auth,
     run(async (req, reply) => {
       const body = req.body as Partial<ReadyRequest> | undefined
-      if (typeof body?.ready !== 'boolean') return badRequest(reply, 'Gib an, ob du bereit bist.')
+      if (typeof body?.ready !== 'boolean') return badRequest(reply, { key: 'errors.readyMissing' })
       return lobby.setReady(id(req), (await player(req)).id, body.ready)
     }),
   )
@@ -109,7 +108,7 @@ export function lobbyRoutes(app: FastifyInstance, lobby: LobbyService) {
     run(async (req, reply) => {
       const body = req.body as Partial<StartMatchRequest> | undefined
       if (typeof body?.fillEmptyWithAI !== 'boolean')
-        return badRequest(reply, 'Gib an, ob freie Plätze mit KI aufgefüllt werden.')
+        return badRequest(reply, { key: 'errors.fillMissing' })
       return lobby.start(id(req), (await player(req)).id, body.fillEmptyWithAI)
     }),
   )

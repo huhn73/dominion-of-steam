@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto'
+import { sendError } from '../locale'
 import type { FastifyInstance } from 'fastify'
 import { and, eq } from 'drizzle-orm'
 import { API_PREFIX } from '@dos/shared'
-import type { ApiError } from '@dos/shared/game'
 import type { PushKeyResponse, PushSubscriptionRequest } from '@dos/shared/notifications'
 import type { Db } from '../db/client'
 import { pushSubscriptions } from '../db/schema'
@@ -31,9 +31,7 @@ export function pushRoutes(app: FastifyInstance, db: Db) {
         !isString(body.keys?.p256dh, 200) ||
         !isString(body.keys?.auth, 200)
       )
-        return reply.status(422).send({
-          error: { code: 'INVALID_INPUT', message: 'Das Push-Abo ist unvollständig.' },
-        } satisfies ApiError)
+        return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.pushIncomplete' })
       const values = {
         playerId: player.id,
         p256dh: body.keys!.p256dh,

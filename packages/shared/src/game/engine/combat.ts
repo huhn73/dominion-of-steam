@@ -11,15 +11,18 @@ import {
 import type { CombatHit, CombatOdds, CombatResult, HexCoord } from '../types'
 import {
   addEvent,
+  asResult,
   type CityState,
   factionOf,
   type GameState,
+  msg,
   newId,
   participant,
   placeUnit,
   random,
-  unitType,
+  unitName,
   type UnitState,
+  unitType,
 } from './state'
 import { tileAt } from './visibility'
 
@@ -132,7 +135,7 @@ export function resolveCombat(
 ): CombatResult {
   const chance = combatChance(state, attacker.id, target)
   const aType = unitType(attacker.unitTypeId)
-  const attackerName = aType.name
+  const attackerName = unitName(aType.id)
   const me = participant(state, attacker.ownerId)!
   attacker.movesLeft = Math.max(0, attacker.movesLeft - 1)
   if (attacker.fuel != null) attacker.fuel = Math.max(0, attacker.fuel - 1)
@@ -143,12 +146,11 @@ export function resolveCombat(
   if (target.unitId) {
     const defender = state.units.find((u) => u.id === target.unitId)!
     const dType = unitType(defender.unitTypeId)
-    const defenderName = dType.name
+    const defenderName = unitName(dType.id)
     const at = { col: defender.col, row: defender.row }
     const besieged = cityAt(state, at)
     const siege = besieged && besieged.ownerId !== attacker.ownerId
     if (siege) damageCity(besieged)
-    const delay = siege ? ' Produktion verzögert.' : ''
     const defenderHp0 = defender.hp
 
     // Rounds until one side is out of hit points; the chance stays the same
@@ -171,14 +173,20 @@ export function resolveCombat(
       destroyUnit(state, defender.id)
       const advanced = canAdvance(state, attacker, at)
       if (advanced) advance(state, attacker, at)
-      const message = `${attackerName} gegen ${defenderName}: Gegner vernichtet.${advanced ? ' Rückt nach.' : ''}`
-      addEvent(state, attacker.ownerId, 'combat', at, message)
+      const text = msg(advanced ? 'events.winAdvance' : 'events.win', {
+        attacker: attackerName,
+        defender: defenderName,
+      })
+      addEvent(state, attacker.ownerId, 'combat', at, text)
       addEvent(
         state,
         defender.ownerId,
         'unitLost',
         at,
-        `${defenderName} wurde von ${me.name} vernichtet.${delay}`,
+        msg(siege ? 'events.destroyedByDelay' : 'events.destroyedBy', {
+          defender: defenderName,
+          player: me.name,
+        }),
       )
       return {
         attackerUnitId: attacker.id,
@@ -192,18 +200,21 @@ export function resolveCombat(
         advanced,
         captured: false,
         garrisonUnitId: null,
-        message,
+        ...asResult(text),
       }
     }
     destroyUnit(state, attacker.id)
-    const message = `${attackerName} ist im Kampf gegen ${defenderName} gefallen.`
-    addEvent(state, attacker.ownerId, 'unitLost', at, message)
+    const text = msg('events.fell', { attacker: attackerName, defender: defenderName })
+    addEvent(state, attacker.ownerId, 'unitLost', at, text)
     addEvent(
       state,
       defender.ownerId,
       'combat',
       at,
-      `${defenderName} hat einen Angriff von ${me.name} abgewehrt.${delay}`,
+      msg(siege ? 'events.repelledDelay' : 'events.repelled', {
+        defender: defenderName,
+        player: me.name,
+      }),
     )
     return {
       attackerUnitId: attacker.id,
@@ -217,7 +228,7 @@ export function resolveCombat(
       advanced: false,
       captured: false,
       garrisonUnitId: null,
-      message,
+      ...asResult(text),
     }
   }
 
@@ -267,21 +278,21 @@ export function resolveCombat(
         needsOrders: false,
       })
     }
-    const message = `${city.name} wurde erobert.${leavesGarrison ? ' Grenadiere halten die Stadt.' : ' Die Stadt ist unbesetzt.'}`
-    addEvent(state, attacker.ownerId, 'cityCaptured', city, message)
+    const text = msg(leavesGarrison ? 'events.capturedGarrison' : 'events.captured', { city: city.name })
+    addEvent(state, attacker.ownerId, 'cityCaptured', city, text)
     if (previousOwner)
-      addEvent(state, previousOwner, 'cityLost', city, `${city.name} wurde von ${me.name} erobert.`)
-    return { ...base, captured: true, garrisonUnitId, message }
+      addEvent(state, previousOwner, 'cityLost', city, msg('events.cityLost', { city: city.name, player: me.name }))
+    return { ...base, captured: true, garrisonUnitId, ...asResult(text) }
   }
-  const message = `Der Angriff auf ${city.name} ist gescheitert.`
-  addEvent(state, attacker.ownerId, 'unitLost', city, message)
+  const text = msg('events.attackFailed', { city: city.name })
+  addEvent(state, attacker.ownerId, 'unitLost', city, text)
   if (previousOwner)
     addEvent(
       state,
       previousOwner,
       'combat',
       city,
-      `${city.name} hat einen Angriff von ${me.name} abgewehrt. Produktion verzögert.`,
+      msg('events.cityRepelled', { city: city.name, player: me.name }),
     )
-  return { ...base, captured: false, garrisonUnitId: null, message }
+  return { ...base, captured: false, garrisonUnitId: null, ...asResult(text) }
 }

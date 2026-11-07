@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { gameText } from './report'
 import { Crosshair, Crown, Fuel, Hourglass, Map as MapIcon, Maximize2, Play, SkipForward, Swords, Trophy, X } from 'lucide-react'
 import type { BoardCue, GameEvent, HexCoord, SpielfeldUndZuegeProps, Unit } from '../types'
 import { ambienceMix, mixChanged } from '../../../audio/ambience'
@@ -1074,7 +1075,8 @@ export function Spielfeld({
               <p className="truncate text-xs text-stone-400">
                 {typeById.get(replayAction.unitTypeId)?.name}{' '}
                 {t(`board.replay.${replayAction.action}`)}
-                {replayAction.result && ` · ${replayAction.result}`}
+                {replayAction.result &&
+                  ` · ${gameText(t, { message: replayAction.result, text: replayAction.resultText })}`}
               </p>
             </div>
             <span className="font-['IBM_Plex_Mono'] text-xs text-stone-400">
@@ -1108,7 +1110,7 @@ export function Spielfeld({
               <p className="font-['Big_Shoulders_Display'] text-lg font-black uppercase leading-tight tracking-widest">
                 {toast.defenderDestroyed || toast.captured ? t('board.toast.win') : t('board.toast.loss')}
               </p>
-              <p className="text-sm text-stone-300">{toast.message}</p>
+              <p className="text-sm text-stone-300">{gameText(t, toast)}</p>
               <p className="mt-0.5 font-['IBM_Plex_Mono'] text-[11px] text-stone-400">
                 {t('board.toast.damage', { own: toast.attackerDamage, enemy: toast.defenderDamage, count: toast.hits.length })}
               </p>

@@ -1,3 +1,4 @@
+import { translateMessage, type Message, type MessageKey } from '../../i18n'
 import { withBonus } from '../bonus'
 import { UNIT_TYPES } from '../catalog'
 import {
@@ -41,12 +42,16 @@ export type CommandErrorCode =
   | 'INVALID_ORDER'
   | 'NOT_BUILDABLE'
 
+/** A rule violation; `message` is German for logs, `text` is translated for the player */
 export class CommandError extends Error {
+  readonly text: Message
   constructor(
     readonly code: CommandErrorCode,
-    message: string,
+    text: Message | MessageKey,
   ) {
-    super(message)
+    const message = typeof text === 'string' ? { key: text } : text
+    super(translateMessage('de', message))
+    this.text = message
   }
 }
 
@@ -55,8 +60,8 @@ export interface CommandOutcome {
   combat?: CombatResult
 }
 
-const fail = (code: CommandErrorCode, message: string): never => {
-  throw new CommandError(code, message)
+const fail = (code: CommandErrorCode, text: MessageKey): never => {
+  throw new CommandError(code, text)
 }
 
 /** Validate and apply a command of a participant. Throws `CommandError` on rule violations. */
@@ -67,7 +72,7 @@ export function applyCommand(
   now = new Date(),
 ): CommandOutcome {
   if (cmd.type === 'tutorialNext' || cmd.type === 'tutorialSkip') {
-    if (!input.tutorial) fail('INVALID_ORDER', 'Diese Partie ist kein Tutorial.')
+    if (!input.tutorial) fail('INVALID_ORDER', 'commands.notTutorial')
     const state = clone(input)
     nextTutorialStep(state, playerId, cmd.type === 'tutorialSkip')
     return { state }
@@ -82,19 +87,19 @@ function applyRules(input: GameState, playerId: string, cmd: Command, now: Date)
   const state = clone(input)
   if (cmd.type === 'markEventRead') {
     const event = state.events.find((e) => e.id === cmd.eventId && e.participantId === playerId)
-    if (!event) fail('NOT_FOUND', 'Ereignis nicht gefunden.')
+    if (!event) fail('NOT_FOUND', 'commands.eventNotFound')
     event!.isNew = false
     return { state }
   }
 
-  if (state.status !== 'running') fail('MATCH_FINISHED', 'Die Partie ist beendet.')
-  if (currentParticipant(state).id !== playerId) fail('NOT_YOUR_TURN', 'Du bist nicht am Zug.')
+  if (state.status !== 'running') fail('MATCH_FINISHED', 'commands.finished')
+  if (currentParticipant(state).id !== playerId) fail('NOT_YOUR_TURN', 'commands.notYourTurn')
 
   if (cmd.type === 'skipReplay') {
     state.phase = 'yourTurn'
     return { state }
   }
-  if (state.phase === 'replay') fail('REPLAY_ACTIVE', 'Die Wiederholung der Gegnerzüge läuft noch.')
+  if (state.phase === 'replay') fail('REPLAY_ACTIVE', 'commands.replayActive')
 
   switch (cmd.type) {
     case 'endTurn':
@@ -128,10 +133,10 @@ function applyRules(input: GameState, playerId: string, cmd: Command, now: Date)
       const unit = ownUnit(state, playerId, cmd.unitId)
       const [first, ...rest] = cmd.waypoints
       if (!first || !rest.length || !sameHex(first, unit))
-        fail('INVALID_ORDER', 'Eine Patrouille braucht mindestens einen Wegpunkt.')
+        fail('INVALID_ORDER', 'commands.patrolWaypoint')
       const { idx } = knowledge(state, playerId)
       if (rest.some((w) => !idx.tileAt(w) || idx.tileAt(w)!.visibility === 'unexplored'))
-        fail('INVALID_ORDER', 'Wegpunkte müssen auf erforschten Feldern liegen.')
+        fail('INVALID_ORDER', 'commands.waypointExplored')
       unit.order = { type: 'patrol', waypoints: cmd.waypoints }
       unit.patrolIndex = 1
       unit.needsOrders = false
@@ -140,7 +145,7 @@ function applyRules(input: GameState, playerId: string, cmd: Command, now: Date)
     case 'explore': {
       const unit = ownUnit(state, playerId, cmd.unitId)
       if (unitType(unit.unitTypeId).domain !== 'air')
-        fail('INVALID_ORDER', 'Nur Flugzeuge können erkunden.')
+        fail('INVALID_ORDER', 'commands.exploreAircraft')
       unit.order = { type: 'explore' }
       delete unit.patrolIndex
       unit.needsOrders = false
@@ -177,8 +182,8 @@ function applyRules(input: GameState, playerId: string, cmd: Command, now: Date)
 
 function ownUnit(state: GameState, playerId: string, unitId: string) {
   const unit = state.units.find((u) => u.id === unitId)
-  if (!unit) return fail('NOT_FOUND', 'Einheit nicht gefunden.')
-  if (unit.ownerId !== playerId) fail('NOT_YOURS', 'Das ist nicht deine Einheit.')
+  if (!unit) return fail('NOT_FOUND', 'commands.unitNotFound')
+  if (unit.ownerId !== playerId) fail('NOT_YOURS', 'commands.notYourUnit')
   return unit
 }
 
@@ -199,12 +204,12 @@ function move(
   const type = unitType(unit.unitTypeId)
 
   if (kind === 'move') {
-    if (budget(unit) <= 0) fail('NO_MOVES', 'Die Einheit hat in dieser Runde keine Bewegung mehr.')
+    if (budget(unit) <= 0) fail('NO_MOVES', 'commands.noMoves')
     if (!reachableTiles(viewUnit, idx).has(hexKey(target)))
-      fail('UNREACHABLE', 'Das Ziel ist in dieser Runde nicht erreichbar.')
+      fail('UNREACHABLE', 'commands.unreachableThisRound')
   }
   const path = findPath(viewUnit, target, idx)
-  if (!path) return fail('UNREACHABLE', 'Das Ziel ist nicht erreichbar.')
+  if (!path) return fail('UNREACHABLE', 'commands.unreachable')
 
   const before = snapshotVisibility(state)
   const start = { col: unit.col, row: unit.row }
@@ -225,10 +230,10 @@ function move(
 
 function unload(state: GameState, playerId: string, unitId: string, target: HexCoord) {
   const unit = ownUnit(state, playerId, unitId)
-  if (!unit.carriedBy) fail('INVALID_ORDER', 'Die Einheit ist nicht geladen.')
-  if (unit.movesLeft <= 0) fail('NO_MOVES', 'Die Einheit hat in dieser Runde keine Bewegung mehr.')
+  if (!unit.carriedBy) fail('INVALID_ORDER', 'commands.notLoaded')
+  if (unit.movesLeft <= 0) fail('NO_MOVES', 'commands.noMoves')
   if (unitType(unit.unitTypeId).domain !== 'land')
-    fail('INVALID_ORDER', 'Nur Landeinheiten werden ausgeladen.')
+    fail('INVALID_ORDER', 'commands.unloadLand')
   const { idx } = knowledge(state, playerId)
   const tile = idx.tileAt(target)
   const city = idx.cityAt(target)
@@ -239,7 +244,7 @@ function unload(state: GameState, playerId: string, unitId: string, target: HexC
     !isWater(tile.terrain) &&
     !idx.unitsAt(target).some((u) => u.ownerId !== playerId) &&
     (!city || city.ownerId === playerId)
-  if (!ok) fail('INVALID_TARGET', 'Hier kann nicht ausgeladen werden.')
+  if (!ok) fail('INVALID_TARGET', 'commands.cannotUnload')
   const before = snapshotVisibility(state)
   const start = { col: unit.col, row: unit.row }
   const { walked } = walk(state, unit, [target])
@@ -262,7 +267,7 @@ function attack(
   const chosen = options.find((t) =>
     target.unitId ? t.unitId === target.unitId : !!target.cityId && t.cityId === target.cityId,
   )
-  if (!chosen) return fail('INVALID_TARGET', 'Dieses Ziel kann nicht angegriffen werden.')
+  if (!chosen) return fail('INVALID_TARGET', 'commands.cannotAttack')
 
   const before = snapshotVisibility(state)
   const start = { col: unit.col, row: unit.row }
@@ -274,13 +279,13 @@ function attack(
       .filter((r) => r.dist < unit.movesLeft && hexDistance(r.coord, chosen.coord) === 1)
       .sort((a, b) => a.dist - b.dist)[0]
     const path = origin && findPath(viewUnit, origin.coord, idx)
-    if (!path) return fail('UNREACHABLE', 'Das Ziel ist nicht erreichbar.')
+    if (!path) return fail('UNREACHABLE', 'commands.unreachable')
     walked = walk(state, unit, path).walked
     if (walked.length < path.length) {
       unit.movesLeft = 0
       refreshNeedsOrders(unit)
       logAction(state, unit, 'move', [start, ...walked], null, before)
-      return fail('UNREACHABLE', 'Der Weg zum Ziel ist versperrt.')
+      return fail('UNREACHABLE', 'commands.blocked')
     }
   }
   detach(state, unit)
@@ -294,7 +299,7 @@ function attack(
     survivor ?? unit,
     action,
     [start, ...walked, { col: chosen.coord.col, row: chosen.coord.row }],
-    combat.message,
+    combat.text,
     before,
   )
   return combat
@@ -302,14 +307,14 @@ function attack(
 
 function setProduction(state: GameState, playerId: string, cityId: string, unitTypeId: string) {
   const city = state.cities.find((c) => c.id === cityId)
-  if (!city) return fail('NOT_FOUND', 'Stadt nicht gefunden.')
-  if (city.ownerId !== playerId) fail('NOT_YOURS', 'Das ist nicht deine Stadt.')
+  if (!city) return fail('NOT_FOUND', 'commands.cityNotFound')
+  if (city.ownerId !== playerId) fail('NOT_YOURS', 'commands.notYourCity')
   const type = UNIT_TYPES.find((t) => t.id === unitTypeId)
   const faction = factionOf(state, playerId)
   if (!type || (type.factionId && type.factionId !== faction?.id))
-    return fail('NOT_BUILDABLE', 'Dieser Einheitentyp kann hier nicht gebaut werden.')
+    return fail('NOT_BUILDABLE', 'commands.notBuildable')
   if (type.domain === 'sea' && !isCoastal(state, city))
-    fail('NOT_BUILDABLE', 'Seeeinheiten können nur in Küstenstädten gebaut werden.')
+    fail('NOT_BUILDABLE', 'commands.coastOnly')
   if (city.production?.unitTypeId === unitTypeId) return
   city.production = {
     unitTypeId,

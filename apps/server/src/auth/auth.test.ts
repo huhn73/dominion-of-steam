@@ -125,6 +125,23 @@ describe.skipIf(!url)('Konten-API (Datenbank)', () => {
     expect(explicit.json<Me>().locale).toBe('en')
   })
 
+  it('meldet Fehler in der Sprache der Anfrage', async () => {
+    const login = (headers: Record<string, string>) =>
+      app.inject({
+        method: 'POST',
+        url: '/api/auth/login',
+        headers,
+        payload: { email: 'niemand@example.test', password: 'falsch-falsch' },
+      })
+    expect((await login({ 'x-locale': 'en' })).json().error).toEqual({
+      code: 'INVALID_CREDENTIALS',
+      message: 'The e-mail address or password is wrong.',
+    })
+    expect((await login({ 'accept-language': 'de-DE' })).json().error.message).toBe(
+      'E-Mail-Adresse oder Passwort ist falsch.',
+    )
+  })
+
   it('setzt Secure hinter einem https-Proxy, dem der Server vertraut', async () => {
     const payload = {
       displayName: `Proxy ${unique()}`,

@@ -1,9 +1,18 @@
+import type { ParamValue } from '../../i18n'
 import { UNIT_TYPES } from '../catalog'
 import { airBases, returnDistance } from '../fuel'
 import { findPath, frontierNear, hexDistance, hexKey } from '../hex'
 import type { HexCoord } from '../types'
 import { budget, knowledge, logAction, snapshotVisibility, walk } from './movement'
-import { addEvent, type GameState, participant, unitType, type UnitState } from './state'
+import {
+  addEvent,
+  type GameState,
+  msg,
+  participant,
+  unitName,
+  type UnitState,
+  unitType,
+} from './state'
 import { seesUnit, updateKnowledge, visibleTiles } from './visibility'
 
 /** Frontier tiles considered per step; the nearest ones by air distance */
@@ -22,7 +31,8 @@ export function exploreTurn(state: GameState, unit: UnitState) {
   const before = snapshotVisibility(state)
   const start = { col: unit.col, row: unit.row }
   const walked: HexCoord[] = []
-  const name = (id: string | null) => (id ? (participant(state, id)?.name ?? 'Unbekannt') : null)
+  const name = (id: string | null): ParamValue | null =>
+    id ? (participant(state, id)?.name ?? { key: 'events.unknown' }) : null
 
   const seenEnemies = new Set(
     (() => {
@@ -59,7 +69,12 @@ export function exploreTurn(state: GameState, unit: UnitState) {
         owner,
         'enemySighted',
         enemy,
-        `Erkundung: feindliche ${unitType(enemy.unitTypeId).name} (${name(enemy.ownerId)}) bei ${enemy.col},${enemy.row} entdeckt.`,
+        msg('events.exploreEnemy', {
+          unit: unitName(enemy.unitTypeId),
+          owner: name(enemy.ownerId) ?? '',
+          col: enemy.col,
+          row: enemy.row,
+        }),
       )
       stop()
       return false
@@ -75,8 +90,8 @@ export function exploreTurn(state: GameState, unit: UnitState) {
         'cityDiscovered',
         city,
         holder
-          ? `Erkundung: Stadt ${city.name} entdeckt, in der Hand von ${holder}.`
-          : `Erkundung: freie Stadt ${city.name} entdeckt.`,
+          ? msg('events.exploreCity', { city: city.name, owner: holder })
+          : msg('events.exploreCityFree', { city: city.name }),
       )
       stop()
       return false
@@ -112,7 +127,7 @@ export function exploreTurn(state: GameState, unit: UnitState) {
           owner,
           'exploration',
           unit,
-          'Erkundung abgeschlossen: kein unerforschtes Feld mehr erreichbar.',
+          msg('events.exploreDone'),
         )
       }
       break
@@ -123,7 +138,7 @@ export function exploreTurn(state: GameState, unit: UnitState) {
       .find((p) => p)
     if (!home) {
       stop()
-      addEvent(state, owner, 'exploration', unit, 'Erkundung abgebrochen: keine Basis erreichbar.')
+      addEvent(state, owner, 'exploration', unit, msg('events.exploreAborted'))
       break
     }
     if (!step(home[0]!)) break

@@ -1,3 +1,4 @@
+import { translateMessage, type Message } from '../../i18n'
 import { UNIT_TYPES } from '../catalog'
 import {
   buildIndex,
@@ -14,10 +15,12 @@ import {
   addEvent,
   type GameState,
   type LogEntry,
+  msg,
   nextSeq,
   placeUnit,
-  unitType,
+  unitName,
   type UnitState,
+  unitType,
 } from './state'
 import { hiddenFrom, STEALTH_UNIT_TYPES, tileAt, visibleTiles } from './visibility'
 import { projectBoard } from './view'
@@ -65,7 +68,7 @@ export function walk(state: GameState, unit: UnitState, path: HexCoord[]) {
         unit.ownerId,
         'enemySighted',
         step,
-        `${unitType(unit.unitTypeId).name}: Weg durch feindliche ${unitType(enemy.unitTypeId).name} versperrt.`,
+        msg('events.blocked', { unit: unitName(unit.unitTypeId), enemy: unitName(enemy.unitTypeId) }),
       )
       blocked = true
       break
@@ -99,7 +102,7 @@ export function logAction(
   unit: UnitState,
   action: LogEntry['action'],
   path: HexCoord[],
-  result: string | null,
+  result: Message | null,
   seenBefore: Map<string, Set<string>>,
 ) {
   if (path.length < 2) return
@@ -125,7 +128,8 @@ export function logAction(
     action,
     unitTypeId: unit.unitTypeId,
     path,
-    result,
+    result: result && translateMessage('de', result),
+    resultText: result,
     seenBy,
   })
 }

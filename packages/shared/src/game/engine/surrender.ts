@@ -3,7 +3,14 @@ import {
   CAPITULATION_LEADER_CITIES,
   CAPITULATION_MIN_ROUND,
 } from '../rules'
-import { type GameState, type ParticipantState, addEvent, nextSeq, participant } from './state'
+import {
+  addEvent,
+  type GameState,
+  msg,
+  nextSeq,
+  participant,
+  type ParticipantState,
+} from './state'
 import { finishMatch, leaderByScore, ownCityOf } from './victory'
 
 /**
@@ -96,7 +103,7 @@ export function capitulate(state: GameState, participantId: string) {
       q.id,
       'capitulation',
       at,
-      `${p.name} kapituliert. Die Städte von ${p.name} sind jetzt neutral.`,
+      msg('events.capitulation', { name: p.name }),
     )
   }
 }

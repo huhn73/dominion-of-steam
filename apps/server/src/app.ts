@@ -1,4 +1,6 @@
 import Fastify from 'fastify'
+import { requestLocale, sendError } from './locale'
+import { translate } from '@dos/shared/i18n'
 import fastifyCookie from '@fastify/cookie'
 import fastifyCompress from '@fastify/compress'
 import { mkdirSync } from 'node:fs'
@@ -173,10 +175,10 @@ export function buildApp({
       await scope.register(fastifyRateLimit, {
         // Only routes with `config.rateLimit` are limited
         global: false,
-        errorResponseBuilder: (_req, context) => {
+        errorResponseBuilder: (req, context) => {
           const minutes = Math.max(1, Math.ceil(context.ttl / 60_000))
           const err = new Error(
-            `Zu viele Versuche. Bitte warte ${minutes} ${minutes === 1 ? 'Minute' : 'Minuten'}.`,
+            translate(requestLocale(req), 'errors.rateLimited', { count: minutes }),
           ) as Error & { statusCode: number; code: string }
           err.statusCode = context.statusCode
           err.code = 'RATE_LIMITED'
@@ -226,7 +228,7 @@ export function buildApp({
         !req.url.startsWith('/uploads/')
       )
         return reply.sendFile('index.html')
-      return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Nicht gefunden.' } })
+      return sendError(reply, 404, 'NOT_FOUND', { key: 'errors.notFound' })
     })
   }
   return app

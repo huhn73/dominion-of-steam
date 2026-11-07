@@ -7,7 +7,7 @@ import type {
   UnitType,
 } from '../types'
 
-import { translator, type Translate } from '@dos/shared/i18n'
+import { translator, type Message, type Translate } from '@dos/shared/i18n'
 
 // Turn report: the events and seen opponent actions since the last own turn, grouped for the
 // report card at the start of a turn. Pure, so it can be tested without the map.
@@ -52,6 +52,10 @@ const SECTION_OF: Record<GameEventType, ReportSectionId> = {
   capitulation: 'cities',
 }
 
+/** Text of an event or combat result in the player's language; older saves only have German */
+export const gameText = (t: Translate, item: { message?: string | null; text?: Message | null }) =>
+  item.text ? t(item.text) : (item.message ?? '')
+
 const ORDER: ReportSectionId[] = ['losses', 'cities', 'combat', 'sightings', 'enemyMoves', 'home']
 
 export function buildTurnReport({
@@ -78,7 +82,7 @@ export function buildTurnReport({
     push(SECTION_OF[e.type], {
       key: e.id,
       icon: e.type,
-      text: e.message,
+      text: gameText(t, e),
       coord: { col: e.col, row: e.row },
       eventId: e.id,
       isNew: e.isNew,
@@ -97,7 +101,7 @@ export function buildTurnReport({
       key: r.id,
       icon: r.action,
       text: `${types.get(r.unitTypeId) ?? r.unitTypeId} · ${names.get(r.participantId) ?? r.participantId}`,
-      detail: r.result ? `${verb} · ${r.result}` : verb,
+      detail: r.result ? `${verb} · ${gameText(t, { message: r.result, text: r.resultText })}` : verb,
       coord: { col: end.col, row: end.row },
       isNew: true,
     })

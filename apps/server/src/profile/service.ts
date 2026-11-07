@@ -57,11 +57,11 @@ const isUniqueViolation = (err: unknown, constraint: string) => {
   )
 }
 
-const nameTaken = () => new ProfileError(409, 'NAME_TAKEN', 'Dieser Name ist bereits vergeben.')
+const nameTaken = () => new ProfileError(409, 'NAME_TAKEN', { key: 'errors.nameTaken' })
 const emailTaken = () =>
-  new ProfileError(409, 'EMAIL_TAKEN', 'Diese E-Mail-Adresse ist bereits registriert.')
+  new ProfileError(409, 'EMAIL_TAKEN', { key: 'errors.emailTaken' })
 const wrongPassword = () =>
-  new ProfileError(403, 'WRONG_PASSWORD', 'Das aktuelle Passwort ist falsch.')
+  new ProfileError(403, 'WRONG_PASSWORD', { key: 'errors.wrongPassword' })
 
 /** Image type by its first bytes (the declared type of an upload is not trusted) */
 export function sniffImage(buf: Buffer): { type: string; ext: string } | null {
@@ -179,7 +179,7 @@ export function createProfileService(
 
   async function loadPlayer(id: string) {
     const [p] = await db.select().from(players).where(eq(players.id, id))
-    if (!p) throw new ProfileError(404, 'PLAYER_NOT_FOUND', 'Konto nicht gefunden.')
+    if (!p) throw new ProfileError(404, 'PLAYER_NOT_FOUND', { key: 'errors.playerNotFound' })
     return p
   }
 
@@ -252,7 +252,7 @@ export function createProfileService(
     let start = 0
     if (cursor) {
       const after = decodeCursor(cursor)
-      if (!after) throw new ProfileError(422, 'INVALID_CURSOR', 'Ungültige Seitenangabe.')
+      if (!after) throw new ProfileError(422, 'INVALID_CURSOR', { key: 'errors.invalidCursor' })
       const [endedAt, id] = after
       start = history.findIndex((e) => newestFirst(e, { endedAt, id } as HistoryEntry) > 0)
       if (start < 0) start = history.length
@@ -318,7 +318,7 @@ export function createProfileService(
     new ProfileError(
       415,
       'UNSUPPORTED_IMAGE',
-      'Bitte wähle ein Bild im Format PNG, JPEG, WebP oder GIF.',
+      { key: 'errors.imageFormat' },
     )
 
   /** Write a rendered avatar under a new name (cache busting) and return its public URL */
@@ -340,7 +340,7 @@ export function createProfileService(
       webp = await renderAvatar(data, crop)
     } catch (err) {
       if (err instanceof AvatarImageError && err.kind === 'invalidCrop')
-        throw new ProfileError(422, 'INVALID_CROP', 'Der Bildausschnitt passt nicht zum Bild.')
+        throw new ProfileError(422, 'INVALID_CROP', { key: 'errors.invalidCrop' })
       if (err instanceof AvatarImageError) throw unsupportedImage()
       throw err
     }
@@ -474,7 +474,7 @@ export function createProfileService(
     await checkPassword(player, input.currentPassword)
     const email = normalizeEmail(input.email)
     if (email === player.email)
-      throw new ProfileError(422, 'SAME_EMAIL', 'Das ist bereits deine E-Mail-Adresse.')
+      throw new ProfileError(422, 'SAME_EMAIL', { key: 'errors.sameEmail' })
     const [taken] = await db
       .select({ id: players.id })
       .from(players)
@@ -484,7 +484,7 @@ export function createProfileService(
       throw new ProfileError(
         503,
         'MAIL_UNAVAILABLE',
-        'E-Mails können gerade nicht verschickt werden. Versuche es später noch einmal.',
+        { key: 'errors.mailUnavailable' },
       )
     const token = await issueToken(db, {
       playerId: me,

@@ -16,6 +16,13 @@ import type { WorldShape } from '../worldShapes'
 import { FACTIONS, UNIT_TYPES } from '../catalog'
 import { encodeTerrain } from '../mapcodec'
 import { createRng } from './rng'
+import {
+  translateMessage,
+  type Message,
+  type MessageKey,
+  type ParamValue,
+  type Params,
+} from '../../i18n'
 
 export type { GameRules, VictoryCondition } from '../types'
 
@@ -176,6 +183,8 @@ export interface LogEntry {
   unitTypeId: string
   path: HexCoord[]
   result: string | null
+  /** `result` as a text for the player (missing in older saves) */
+  resultText?: Message | null
   /** Part of the path each other participant could see */
   seenBy: Record<string, HexCoord[]>
 }
@@ -294,12 +303,22 @@ export function newId(state: GameState, prefix: string) {
   return `${prefix}${state.nextId}`
 }
 
+/** A text of the game for the player, translated where it is shown */
+export const msg = (key: MessageKey, params?: Params): Message => ({ key, params })
+
+/** Name of a unit type as a placeholder value (translated with the text) */
+export const unitName = (unitTypeId: string): ParamValue => ({ key: `units.${unitTypeId}` })
+
+/** `text` plus the German `message` kept for logs and older clients */
+export const asText = (text: Message) => ({ message: translateMessage('de', text), text })
+export const asResult = asText
+
 export function addEvent(
   state: GameState,
   participantId: string,
   type: GameEvent['type'],
   at: HexCoord,
-  message: string,
+  text: Message,
 ) {
   state.events.push({
     id: newId(state, 'ev'),
@@ -307,7 +326,7 @@ export function addEvent(
     seq: nextSeq(state),
     round: state.round,
     type,
-    message,
+    ...asText(text),
     col: at.col,
     row: at.row,
     isNew: true,

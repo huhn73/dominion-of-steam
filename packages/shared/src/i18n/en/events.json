@@ -1,0 +1,45 @@
+{
+  "blocked": "{unit}: path blocked by enemy {enemy}.",
+  "win": "{attacker} against {defender}: enemy destroyed.",
+  "winAdvance": "{attacker} against {defender}: enemy destroyed. Advances.",
+  "destroyedBy": "{defender} was destroyed by {player}.",
+  "destroyedByDelay": "{defender} was destroyed by {player}. Production delayed.",
+  "fell": "{attacker} fell in battle against {defender}.",
+  "repelled": "{defender} repelled an attack by {player}.",
+  "repelledDelay": "{defender} repelled an attack by {player}. Production delayed.",
+  "captured": "{city} has been captured. The city is unoccupied.",
+  "capturedGarrison": "{city} has been captured. Grenadiers hold the city.",
+  "cityLost": "{city} was captured by {player}.",
+  "attackFailed": "The attack on {city} has failed.",
+  "cityRepelled": "{city} repelled an attack by {player}. Production delayed.",
+  "dominanceBrokenOwn": "Your dominance is broken; you still hold {share} % of the cities.",
+  "dominanceBroken": "The dominance of {name} is broken ({share} % of the cities).",
+  "dominanceOwn": {
+    "one": "You hold {share} % of the cities: victory by dominance in {count} round.",
+    "other": "You hold {share} % of the cities: victory by dominance in {count} rounds."
+  },
+  "dominance": {
+    "one": "{name} holds {share} % of the cities: dominance in {count} round.",
+    "other": "{name} holds {share} % of the cities: dominance in {count} rounds."
+  },
+  "crashed": "{unit} ran out of fuel and crashed.",
+  "built": "{city} has completed {unit}.",
+  "fuelLow": {
+    "one": "{unit}: fuel left for only {count} tile.",
+    "other": "{unit}: fuel left for only {count} tiles."
+  },
+  "discovered": "{city} discovered, held by {owner}.",
+  "discoveredFree": "Free city {city} discovered.",
+  "nowHeld": "{city} is now held by {owner}.",
+  "nowFree": "{city} is now free.",
+  "sighted": "Enemy {unit} ({owner}) sighted at {where}.",
+  "sightedMany": "Enemy units sighted at {where}: {units}.",
+  "sentry": "Sentry: enemy {unit} in sight.",
+  "capitulation": "{name} capitulates. The cities of {name} are now neutral.",
+  "exploreEnemy": "Reconnaissance: enemy {unit} ({owner}) spotted at {col},{row}.",
+  "exploreCity": "Reconnaissance: city {city} discovered, held by {owner}.",
+  "exploreCityFree": "Reconnaissance: free city {city} discovered.",
+  "exploreDone": "Reconnaissance complete: no unexplored tile within reach.",
+  "exploreAborted": "Reconnaissance aborted: no base within reach.",
+  "unknown": "Unknown"
+}

@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply } from 'fastify'
+import { sendError } from '../locale'
 import { API_PREFIX } from '@dos/shared'
-import type { ApiError } from '@dos/shared/game'
 import { CommandError } from '@dos/shared/engine'
 import { parseCommand } from '../matches/command'
 import {
@@ -14,27 +14,23 @@ import { currentPlayer, NotAuthenticatedError, notAuthenticated, requireAuth } f
 
 const CONFLICT_CODES = new Set(['NOT_YOUR_TURN', 'REPLAY_ACTIVE', 'MATCH_FINISHED'])
 
-function sendError(reply: FastifyReply, status: number, code: string, message: string) {
-  return reply.status(status).send({ error: { code, message } } satisfies ApiError)
-}
-
 export function handleMatchError(err: unknown, reply: FastifyReply) {
   if (err instanceof NotAuthenticatedError) return notAuthenticated(reply)
   if (err instanceof MatchNotFoundError)
-    return sendError(reply, 404, 'MATCH_NOT_FOUND', 'Partie nicht gefunden.')
+    return sendError(reply, 404, 'MATCH_NOT_FOUND', { key: 'errors.matchNotFound' })
   if (err instanceof MatchWaitingError)
-    return sendError(reply, 409, 'MATCH_WAITING', 'Die Partie wartet noch auf Mitspieler.')
+    return sendError(reply, 409, 'MATCH_WAITING', { key: 'errors.matchWaiting' })
   if (err instanceof NotParticipantError)
-    return sendError(reply, 403, 'NOT_PARTICIPANT', 'Du nimmst an dieser Partie nicht teil.')
+    return sendError(reply, 403, 'NOT_PARTICIPANT', { key: 'errors.notParticipant' })
   if (err instanceof SurrenderedError)
     return sendError(
       reply,
       409,
       'SURRENDERED',
-      'Du hast diese Partie aufgegeben. Eine KI führt deine Fraktion weiter.',
+      { key: 'errors.surrendered' },
     )
   if (err instanceof CommandError)
-    return sendError(reply, CONFLICT_CODES.has(err.code) ? 409 : 422, err.code, err.message)
+    return sendError(reply, CONFLICT_CODES.has(err.code) ? 409 : 422, err.code, err.text)
   throw err
 }
 
@@ -56,7 +52,7 @@ export function matchRoutes(app: FastifyInstance, service: MatchService) {
     { preHandler: requireAuth },
     async (req, reply) => {
       const cmd = parseCommand(req.body)
-      if (!cmd) return sendError(reply, 400, 'BAD_COMMAND', 'Ungültiger Befehl.')
+      if (!cmd) return sendError(reply, 400, 'BAD_COMMAND', { key: 'errors.badCommand' })
       try {
         return await service.execute(req.params.id, await currentPlayer(req), cmd)
       } catch (err) {

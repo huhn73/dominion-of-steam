@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { sendError } from './locale'
 import { API_PREFIX } from '@dos/shared'
-import type { ApiError } from '@dos/shared/game'
 import type { SessionInfo } from './auth/accounts'
 import { isAdminEmail } from './admin/access'
 
@@ -53,9 +53,7 @@ export async function currentPlayer(req: FastifyRequest): Promise<string> {
 }
 
 export const notAuthenticated = (reply: FastifyReply) =>
-  reply.status(401).send({
-    error: { code: 'NOT_AUTHENTICATED', message: 'Bitte melde dich an.' },
-  } satisfies ApiError)
+  sendError(reply, 401, 'NOT_AUTHENTICATED', { key: 'errors.notAuthenticated' })
 
 /** preHandler for routes that need a logged-in player */
 export async function requireAuth(req: FastifyRequest, reply: FastifyReply) {
@@ -67,9 +65,7 @@ export async function requireAdmin(req: FastifyRequest, reply: FastifyReply) {
   const info = await loadSession(req)
   if (!info) return notAuthenticated(reply)
   if (!isAdminEmail(info.player.email))
-    return reply.status(403).send({
-      error: { code: 'FORBIDDEN', message: 'Kein Zugriff.' },
-    } satisfies ApiError)
+    return sendError(reply, 403, 'FORBIDDEN', { key: 'errors.forbidden' })
 }
 
 declare module 'fastify' {

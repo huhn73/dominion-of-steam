@@ -106,6 +106,7 @@ export function projectView(
       unitTypeId: l.unitTypeId,
       path: l.seenBy[viewerId]!,
       result: l.result,
+      resultText: l.resultText ?? null,
     }))
 
   const combatPreviews: CombatPreview[] = []

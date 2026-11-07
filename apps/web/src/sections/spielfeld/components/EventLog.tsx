@@ -1,4 +1,5 @@
 import { AlertTriangle, Binoculars, ChevronDown, ClipboardList, Compass, Crown, Flag, FlagOff, Fuel, Hammer, MapPinned, ScrollText, Skull, Swords } from 'lucide-react'
+import { gameText } from './report'
 import type { GameEvent, GameEventType } from '../types'
 import { useT } from '../../../i18n'
 
@@ -76,7 +77,7 @@ export function EventLog({ events, open, onToggle, onSelect, onOpenReport }: Eve
                   }`}
                 >
                   <Icon className={`mt-0.5 size-4 shrink-0 ${className}`} />
-                  <span className="flex-1 leading-snug">{e.message}</span>
+                  <span className="flex-1 leading-snug">{gameText(t, e)}</span>
                   <span className="shrink-0 font-['IBM_Plex_Mono'] text-[10px] text-stone-500">R{e.round}</span>
                 </button>
               </li>

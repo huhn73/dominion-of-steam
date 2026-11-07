@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify'
+import { sendError } from '../locale'
 import { eq } from 'drizzle-orm'
 import { API_PREFIX } from '@dos/shared'
 import { compareVersions, isKnownVersion } from '@dos/shared/news'
@@ -19,9 +20,7 @@ export function newsRoutes(app: FastifyInstance, db: Db) {
       const { player } = (await loadSession(req))!
       const version = typeof req.body?.version === 'string' ? req.body.version : ''
       if (!isKnownVersion(version))
-        return reply.status(422).send({
-          error: { code: 'INVALID_INPUT', message: 'Unbekannte Version.' },
-        })
+        return sendError(reply, 422, 'INVALID_INPUT', { key: 'errors.unknownVersion' })
       if (player.newsSeenVersion && compareVersions(version, player.newsSeenVersion) <= 0)
         return toMe(player)
       const [updated] = await db
