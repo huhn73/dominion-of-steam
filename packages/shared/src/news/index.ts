@@ -1,14 +1,18 @@
+import type { Locale } from '../i18n/locale'
 /**
  * What each version brought for players, one sentence per new feature. Shown once after an
  * update (hint after login) and on the page „Neuigkeiten“. Newest version first; every release
  * needs an entry here (`pnpm release`, test in `__tests__/news.test.ts`), an empty `items` list
  * for a release without anything players would notice.
  */
-export interface NewsItem {
+export interface NewsText {
   title: string
   /** One sentence, ending with a full stop */
   text: string
 }
+
+/** One new feature in every language of the game */
+export type NewsItem = Record<Locale, NewsText>
 
 export interface ReleaseNotes {
   /** x.y.z, as in package.json */
@@ -24,12 +28,24 @@ export const NEWS: readonly ReleaseNotes[] = [
     date: '2026-11-06',
     items: [
       {
-        title: 'Neuigkeiten',
-        text: 'Nach einem Update zeigt dir das Spiel einmal, was neu ist, und unten auf jeder Seite führt „Neuigkeiten“ zu allen bisherigen Änderungen.',
+        de: {
+          title: 'Neuigkeiten',
+          text: 'Nach einem Update zeigt dir das Spiel einmal, was neu ist, und unten auf jeder Seite führt „Neuigkeiten“ zu allen bisherigen Änderungen.',
+        },
+        en: {
+          title: 'News',
+          text: 'After an update the game shows you once what is new, and “News” at the bottom of every page leads to all changes so far.',
+        },
       },
       {
-        title: 'Profilbild zuschneiden',
-        text: 'Beim Hochladen wählst du den runden Ausschnitt deines Profilbilds selbst; auch große Handyfotos bis 10 MB gehen, gespeichert wird ein kleines Bild ohne Standortdaten.',
+        de: {
+          title: 'Profilbild zuschneiden',
+          text: 'Beim Hochladen wählst du den runden Ausschnitt deines Profilbilds selbst; auch große Handyfotos bis 10 MB gehen, gespeichert wird ein kleines Bild ohne Standortdaten.',
+        },
+        en: {
+          title: 'Cropping your profile picture',
+          text: 'When uploading, you choose the round crop of your profile picture yourself; even large phone photos up to 10 MB work, and a small picture without location data is stored.',
+        },
       },
     ],
   },
@@ -38,20 +54,44 @@ export const NEWS: readonly ReleaseNotes[] = [
     date: '2026-11-06',
     items: [
       {
-        title: 'Alles in Echtzeit',
-        text: 'Lobby, Warteraum und Partie aktualisieren sich sofort, wenn Mitspieler ziehen oder beitreten, ohne dass du neu laden musst.',
+        de: {
+          title: 'Alles in Echtzeit',
+          text: 'Lobby, Warteraum und Partie aktualisieren sich sofort, wenn Mitspieler ziehen oder beitreten, ohne dass du neu laden musst.',
+        },
+        en: {
+          title: 'Everything in real time',
+          text: 'Lobby, waiting room and match update at once when other players move or join, without you having to reload.',
+        },
       },
       {
-        title: 'Kein Warten auf die KI',
-        text: 'Dein Zugende kommt sofort zurück, die KI-Gegner ziehen danach im Hintergrund, und die Kopfzeile zeigt, wer gerade am Zug ist.',
+        de: {
+          title: 'Kein Warten auf die KI',
+          text: 'Dein Zugende kommt sofort zurück, die KI-Gegner ziehen danach im Hintergrund, und die Kopfzeile zeigt, wer gerade am Zug ist.',
+        },
+        en: {
+          title: 'No waiting for the AI',
+          text: 'Your end of turn comes back at once, the AI opponents then move in the background, and the header shows who is on the move.',
+        },
       },
       {
-        title: 'Spielfeld nach deinem Geschmack',
-        text: 'In den Einstellungen legst du fest, ob Ziehen Einheiten bewegt oder die Karte verschiebt, ob beim Zugende nach Einheiten ohne Befehl gefragt wird und wie empfindlich der Zoom reagiert, auch beim Zoomen mit zwei Fingern.',
+        de: {
+          title: 'Spielfeld nach deinem Geschmack',
+          text: 'In den Einstellungen legst du fest, ob Ziehen Einheiten bewegt oder die Karte verschiebt, ob beim Zugende nach Einheiten ohne Befehl gefragt wird und wie empfindlich der Zoom reagiert, auch beim Zoomen mit zwei Fingern.',
+        },
+        en: {
+          title: 'A board to your taste',
+          text: 'In the settings you decide whether dragging moves units or pans the map, whether ending your turn asks about units without orders, and how sensitive the zoom is, including two-finger zoom.',
+        },
       },
       {
-        title: 'Klügere KI',
-        text: 'KI-Gegner greifen verteidigte Einheiten gemeinsam an und merken sich Feinde, die im Nebel verschwunden sind.',
+        de: {
+          title: 'Klügere KI',
+          text: 'KI-Gegner greifen verteidigte Einheiten gemeinsam an und merken sich Feinde, die im Nebel verschwunden sind.',
+        },
+        en: {
+          title: 'Smarter AI',
+          text: 'AI opponents attack defended units together and remember enemies that have vanished into the fog.',
+        },
       },
     ],
   },
@@ -60,16 +100,34 @@ export const NEWS: readonly ReleaseNotes[] = [
     date: '2026-11-06',
     items: [
       {
-        title: 'Tutorial „Erste Schritte“',
-        text: 'Eine geführte Mini-Partie zeigt dir Schritt für Schritt Bewegen, Erobern, Produzieren und Kämpfen.',
+        de: {
+          title: 'Tutorial „Erste Schritte“',
+          text: 'Eine geführte Mini-Partie zeigt dir Schritt für Schritt Bewegen, Erobern, Produzieren und Kämpfen.',
+        },
+        en: {
+          title: 'Tutorial “First Steps”',
+          text: 'A guided mini match shows you moving, capturing, producing and fighting step by step.',
+        },
       },
       {
-        title: 'Kompendium mit Ausführungen',
-        text: 'Im Kompendium siehst du bei jeder Einheit, wie die Fraktionen sie abwandeln, und die Sondereinheiten mit eigenem Bild.',
+        de: {
+          title: 'Kompendium mit Ausführungen',
+          text: 'Im Kompendium siehst du bei jeder Einheit, wie die Fraktionen sie abwandeln, und die Sondereinheiten mit eigenem Bild.',
+        },
+        en: {
+          title: 'Compendium with versions',
+          text: 'For every unit, the compendium shows how the factions vary it, and the special units with their own picture.',
+        },
       },
       {
-        title: 'Schöne Link-Vorschau',
-        text: 'Teilst du einen Link zum Spiel in Messengern oder Teams, erscheint eine Vorschau mit Titelbild.',
+        de: {
+          title: 'Schöne Link-Vorschau',
+          text: 'Teilst du einen Link zum Spiel in Messengern oder Teams, erscheint eine Vorschau mit Titelbild.',
+        },
+        en: {
+          title: 'Nice link preview',
+          text: 'When you share a link to the game in messengers or Teams, a preview with a title picture appears.',
+        },
       },
     ],
   },
@@ -78,20 +136,44 @@ export const NEWS: readonly ReleaseNotes[] = [
     date: '2026-11-03',
     items: [
       {
-        title: 'Dominion of Steam ist da',
-        text: 'Erobere mit einer von vier Fraktionen Städte auf prozedural erzeugten Kontinenten und Inseln unter Kriegsnebel, zu Land, zu Wasser und in der Luft.',
+        de: {
+          title: 'Dominion of Steam ist da',
+          text: 'Erobere mit einer von vier Fraktionen Städte auf prozedural erzeugten Kontinenten und Inseln unter Kriegsnebel, zu Land, zu Wasser und in der Luft.',
+        },
+        en: {
+          title: 'Dominion of Steam is here',
+          text: 'Capture cities with one of four factions on procedurally generated continents and islands under the fog of war, on land, at sea and in the air.',
+        },
       },
       {
-        title: 'Gegen Menschen und KI',
-        text: 'Spiele live oder asynchron mit Freunden oder gegen KI-Gegner in drei Schwierigkeitsstufen mit eigenen Persönlichkeiten.',
+        de: {
+          title: 'Gegen Menschen und KI',
+          text: 'Spiele live oder asynchron mit Freunden oder gegen KI-Gegner in drei Schwierigkeitsstufen mit eigenen Persönlichkeiten.',
+        },
+        en: {
+          title: 'Against humans and AI',
+          text: 'Play live or asynchronously with friends or against AI opponents in three difficulty levels with their own personalities.',
+        },
       },
       {
-        title: 'Siegbedingungen für Inselwelten',
-        text: 'Auf Inseln und Archipelen gewinnt auch, wer fünf Runden lang die Mehrheit der Städte hält, und KI-Gegner geben in aussichtsloser Lage auf.',
+        de: {
+          title: 'Siegbedingungen für Inselwelten',
+          text: 'Auf Inseln und Archipelen gewinnt auch, wer fünf Runden lang die Mehrheit der Städte hält, und KI-Gegner geben in aussichtsloser Lage auf.',
+        },
+        en: {
+          title: 'Victory conditions for island worlds',
+          text: 'On islands and archipelagos, whoever holds the majority of the cities for five rounds also wins, and AI opponents surrender when their situation is hopeless.',
+        },
       },
       {
-        title: 'Benachrichtigungen',
-        text: 'Push im Browser und E-Mail melden dir, wenn du am Zug bist oder eingeladen wirst, je Anlass einstellbar.',
+        de: {
+          title: 'Benachrichtigungen',
+          text: 'Push im Browser und E-Mail melden dir, wenn du am Zug bist oder eingeladen wirst, je Anlass einstellbar.',
+        },
+        en: {
+          title: 'Notifications',
+          text: 'Browser push and e-mail tell you when it is your turn or you are invited, adjustable per occasion.',
+        },
       },
     ],
   },

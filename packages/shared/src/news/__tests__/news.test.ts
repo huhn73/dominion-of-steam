@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { compareVersions, latestNewsVersion, NEWS, releasedNews, unseenNews, versionOf } from '..'
 import rootPackage from '../../../../../package.json'
+import { LOCALES } from '../../i18n'
 
 const rootVersion = rootPackage.version
 
@@ -13,10 +14,11 @@ describe('Neuigkeiten', () => {
 
   it('beschreiben jede Neuerung in einem Satz', () => {
     for (const n of NEWS)
-      for (const item of n.items) {
-        expect(item.title.trim()).not.toBe('')
-        expect(item.text).toMatch(/^[^.!?]+(?:\.[^\s.][^.!?]*)*[.!]$/)
-      }
+      for (const item of n.items)
+        for (const locale of LOCALES) {
+          expect(item[locale].title.trim(), `${n.version} ${locale}`).not.toBe('')
+          expect(item[locale].text, `${n.version} ${locale}`).toMatch(/^[^.!?]+(?:\.[^\s.][^.!?]*)*[.!]$/)
+        }
   })
 
   it('haben einen Eintrag für die aktuelle Version (pnpm release)', () => {

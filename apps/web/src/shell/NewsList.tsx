@@ -26,7 +26,7 @@ export function NewsList({ releases }: { releases: readonly ReleaseNotes[] }) {
           </h3>
           {release.items.length ? (
             <ul className="mt-3 space-y-3">
-              {release.items.map((item) => (
+              {release.items.map(({ [locale]: item }) => (
                 <li key={item.title} className="text-sm leading-relaxed">
                   <span className="font-semibold text-stone-900 dark:text-stone-100">
                     {item.title}:
