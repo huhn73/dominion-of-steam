@@ -21,3 +21,6 @@
 
 	reverse_proxy app:3000
 }
+
+# Weitere Apps auf demselben Server (/opt/dominion/sites/*.caddy, z. B. together.caddy)
+import sites/*.caddy

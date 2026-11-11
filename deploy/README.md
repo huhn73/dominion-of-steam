@@ -256,3 +256,7 @@ df -h / && docker system df        # Platz
 ```
 
 Updates von Caddy, Postgres (Minor) und Backup-Image: `docker compose pull && docker compose up -d`. Sicherheitsupdates des Systems spielt `unattended-upgrades` ein; ein Reboot nach Kernel-Updates startet alle Container wieder (`restart: unless-stopped`).
+
+## Weitere Apps auf diesem Server
+
+Caddy bedient auch andere Apps auf dem Server (derzeit Together unter `together.huhn73.de`). Jede App läuft in einem eigenen Ordner mit eigener Datenbank und hängt ihren Dienst an das externe Docker-Netz `proxy`; ihren Site-Block legt sie als `*.caddy` nach `/opt/dominion/sites/`, der `Caddyfile` lädt ihn per `import`. Einmalig: `docker network create proxy`. Nach einer neuen oder geänderten Site-Datei: `docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile`. Ohne Dateien in `sites/` warnt Caddy nur und läuft normal.

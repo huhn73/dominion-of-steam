@@ -24,8 +24,14 @@ services:
       DOMAIN: ${DOMAIN}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Weitere Apps auf diesem Server (z. B. Together) bringen hier ihren Site-Block mit
+      - ./sites:/etc/caddy/sites:ro
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - default
+      # Gemeinsames Netz mit den anderen Apps; einmal anlegen: docker network create proxy
+      - proxy
     depends_on:
       - app
 
@@ -79,6 +85,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+networks:
+  proxy:
+    external: true
 
 volumes:
   caddy_data:
