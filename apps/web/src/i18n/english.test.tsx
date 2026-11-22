@@ -36,7 +36,7 @@ describe('English legal pages', () => {
     renderApp('/datenschutz', { user: null, locale: 'en' })
     expect(await screen.findByRole('heading', { name: 'Privacy' })).toBeInTheDocument()
     expect(screen.getByRole('note')).toHaveTextContent('the German version is legally binding')
-    expect(screen.getByText(/As of: 7 November 2026/)).toBeInTheDocument()
+    expect(screen.getByText(/As of: 22 November 2026/)).toBeInTheDocument()
   })
 })
 
