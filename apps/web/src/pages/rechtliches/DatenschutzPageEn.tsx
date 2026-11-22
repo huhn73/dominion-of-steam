@@ -35,6 +35,15 @@ export function DatenschutzPageEn() {
           and are overwritten after a short time. To protect against abuse, login attempts are
           briefly counted per IP address.
         </p>
+        <p>
+          To protect against data loss, a backup of the database and the profile pictures is also
+          kept in cloud storage by Google (Google Drive; Google Ireland Limited, Gordon House,
+          Barrow Street, Dublin 4, Ireland). It is encrypted on our server before it leaves it; only
+          the operator holds the key, Google cannot read the contents. Storage on servers outside
+          the EU, for example in the USA, cannot be ruled out; Google is certified under the EU-US
+          Data Privacy Framework. The legal basis is the legitimate interest in secure operation
+          (Art. 6(1)(f) GDPR).
+        </p>
       </Section>
 
       <Section title="Player account">
@@ -108,8 +117,8 @@ export function DatenschutzPageEn() {
           </li>
           <li>
             Backups of the database are made daily and deleted after 7 days (daily), 4 weeks
-            (weekly) or 6 months (monthly). Deleted data disappears from the backups at the latest
-            after this period.
+            (weekly) or 6 months (monthly); this also applies to the encrypted copy at Google.
+            Deleted data disappears from the backups at the latest after this period.
           </li>
         </ul>
       </Section>

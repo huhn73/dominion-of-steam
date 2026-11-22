@@ -11,13 +11,13 @@ Browser ──https──▶ caddy:443 ──▶ app:3000 ──▶ db:5432
 
 Dateien in diesem Ordner:
 
-| Datei                | Zweck                                                                       |
-| -------------------- | --------------------------------------------------------------------------- |
-| `docker-compose.yml` | Dienste caddy, db, app, backup; liegt auf dem Server unter `/opt/dominion/` |
-| `Caddyfile`          | Reverse-Proxy mit Zertifikat für `DOMAIN`                                   |
-| `.env.example`       | Vorlage für `/opt/dominion/.env`                                            |
-| `backup-uploads.sh`  | Archiviert das Upload-Volume nach `/opt/dominion/backups/`                  |
-| `offsite-backup.sh`  | Kopiert Dumps und Archive per rsync oder rclone außer Haus                  |
+| Datei                | Zweck                                                                     |
+| -------------------- | ------------------------------------------------------------------------- |
+| `docker-compose.yml` | Dienste caddy, db, app, backup, offsite; liegt unter `/opt/dominion/`     |
+| `Caddyfile`          | Reverse-Proxy mit Zertifikat für `DOMAIN`                                 |
+| `.env.example`       | Vorlage für `/opt/dominion/.env`                                          |
+| `backup.env.example` | Vorlage für `/opt/dominion/backup.env` (Ziel und Schlüssel der Sicherung) |
+| `offsite-backup.sh`  | Sichert Dump, Uploads und `.env` verschlüsselt außer Haus (restic)        |
 
 ## 1. Server
 
@@ -96,9 +96,9 @@ Die Gruppe `docker` ist gleichwertig zu root. Der Deploy-Key aus GitHub Actions 
 Docker installieren (`curl -fsSL https://get.docker.com | sudo sh`), den Benutzer in die Gruppe `docker` aufnehmen, dann den Anwendungsordner anlegen:
 
 ```bash
-sudo mkdir -p /opt/dominion/backups && sudo chown -R "$USER": /opt/dominion
+sudo mkdir -p /opt/dominion && sudo chown -R "$USER": /opt/dominion
 cd /opt/dominion
-# docker-compose.yml, Caddyfile, .env.example, backup-uploads.sh, offsite-backup.sh aus deploy/ hierher kopieren
+# docker-compose.yml, Caddyfile, .env.example, backup.env.example, offsite-backup.sh aus deploy/ hierher kopieren
 cp .env.example .env
 openssl rand -hex 24     # als POSTGRES_PASSWORD eintragen
 nano .env
@@ -197,14 +197,46 @@ Die eigene Adresse in `.env` als `ADMIN_EMAILS=…` eintragen (kommagetrennt fü
 docker compose exec backup ls -la /backups/daily
 ```
 
-**Uploads und Offsite:** Cron des Deploy-Benutzers (`crontab -e`):
+**Außer Haus:** Der Dienst `offsite` sichert nachts den neuesten Dump, das Upload-Volume und die `.env` mit restic: auf dem Server verschlüsselt, dedupliziert, mit eigener Historie.
+
+| Stufe     | Was                                           | Wo                              | Aufbewahrung                 |
+| --------- | --------------------------------------------- | ------------------------------- | ---------------------------- |
+| `backup`  | täglicher Dump                                | Volume `db_backups`             | 7 Tage / 4 Wochen / 6 Monate |
+| `offsite` | neuester Dump, Uploads, `.env`; 4:30 per Cron | rclone-Ziel, z. B. Google Drive | 7 Tage / 4 Wochen / 6 Monate |
+
+Die Fristen stehen so in der Datenschutzerklärung (`DatenschutzPage.tsx`, `DatenschutzPageEn.tsx`), ebenso der Speicherort der Sicherung. Wer eins davon ändert, passt dort den Text und `STAND` an.
+
+**Einrichten** (einmalig; `docker-compose.yml`, `backup.env.example` und `offsite-backup.sh` per `scp` nach `/opt/dominion/`):
+
+```bash
+cd /opt/dominion
+cp backup.env.example backup.env
+openssl rand -base64 33   # als RESTIC_PASSWORD eintragen und zusätzlich im Passwort-Manager ablegen
+nano backup.env
+chmod 600 backup.env
+mkdir -p rclone restore
+docker compose --profile tools build offsite
+```
+
+rclone-Ziel: `docker compose run --rm offsite rclone config`. Für Google Drive: Remote `gdrive`, Speicher `drive`, **eigene** `client_id` und `client_secret` ([Anleitung](https://rclone.org/drive/#making-your-own-client-id); die eingebaute ID teilen sich alle rclone-Nutzer, Google bremst sie regelmäßig), Scope `drive.file`, „Use web browser to automatically authenticate?“ `n` und den angezeigten `rclone authorize …` auf einem Rechner mit Browser ausführen. Andere Ziele (S3, Storage Box per SFTP …) gehen genauso, dann `RESTIC_REPOSITORY` in `backup.env` anpassen.
+
+Sicherung anlegen und erster Lauf:
+
+```bash
+docker compose run --rm offsite restic -o rclone.timeout=5m init
+./offsite-backup.sh
+docker compose run --rm offsite restic -o rclone.timeout=5m snapshots
+```
+
+Cron des Deploy-Benutzers (`crontab -e`):
 
 ```
-15 3 * * * /opt/dominion/backup-uploads.sh >> /opt/dominion/backups/cron.log 2>&1
-30 3 * * * OFFSITE=backup@backup.example.org:/srv/dominion /opt/dominion/offsite-backup.sh >> /opt/dominion/backups/cron.log 2>&1
+30 4 * * * /opt/dominion/offsite-backup.sh >> /opt/dominion/offsite.log 2>&1
 ```
 
-`OFFSITE` ist ein rsync-Ziel (`user@host:/pfad`, SSH-Key des Deploy-Benutzers dort hinterlegen) oder ein rclone-Remote (`remote:pfad`, `rclone config` einmal einrichten), etwa ein Speicherangebot des Hosters oder eine Storage Box.
+Für eine Mail bei Fehlern `ALERT_CMD="…"` vor den Befehl setzen: Er bekommt den Betreff als Argument und den Text über stdin.
+
+Wer die frühere Fassung eingerichtet hat: die Cron-Zeilen für `backup-uploads.sh` und das alte `offsite-backup.sh` entfernen und `/opt/dominion/backups` löschen, sobald die neue Sicherung läuft und einmal wiederhergestellt wurde.
 
 **Snapshot:** Vor größeren Updates (Postgres-Major-Version, Ubuntu-Upgrade) einen Snapshot anlegen.
 
@@ -218,7 +250,15 @@ docker compose exec -T db psql -U dos dos < /tmp/restore.sql
 docker compose start app
 ```
 
-Uploads: `docker run --rm -v dominion_uploads:/data -v /opt/dominion/backups:/backup alpine tar xzf /backup/uploads-<datum>.tar.gz -C /data`.
+Aus der Sicherung außer Haus (auch wenn der Server verloren ist: neuen Server einrichten, `backup.env` und `rclone/rclone.conf` aus dem Passwort-Manager bzw. neu anlegen):
+
+```bash
+docker compose run --rm offsite restic -o rclone.timeout=5m snapshots
+docker compose run --rm offsite restic -o rclone.timeout=5m restore latest --target /restore
+ls restore/data/db/last restore/data/uploads restore/data/config
+```
+
+Den neuesten Dump aus `restore/data/db/last/` wie oben mit `zcat` einspielen. Uploads zurück ins Volume: `docker run --rm -v dominion_uploads:/data -v /opt/dominion/restore/data/uploads:/src:ro alpine cp -a /src/. /data/`.
 
 ## Aufbau des Images
 

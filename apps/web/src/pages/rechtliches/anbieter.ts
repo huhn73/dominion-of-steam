@@ -19,6 +19,6 @@ export const ANBIETER = {
 } as const
 
 /** Date shown under the legal texts (ISO); bump it when the texts change */
-export const STAND = '2026-11-07'
+export const STAND = '2026-11-22'
 
 export const istPlatzhalter = () => ANBIETER.name === PLATZHALTER_NAME

@@ -1,4 +1,5 @@
-# Dominion of Steam in Produktion: Caddy (https) → App → Postgres, dazu tägliche Dumps.
+# Dominion of Steam in Produktion: Caddy (https) → App → Postgres, dazu tägliche Dumps und
+# eine verschlüsselte Sicherung außer Haus (Dienst offsite).
 # Liegt auf dem Server unter /opt/dominion/ zusammen mit Caddyfile und .env (siehe README.md).
 
 # Für alle Dienste: keine zusätzlichen Rechte über setuid, Logs rotieren statt die Platte zu füllen
@@ -86,6 +87,32 @@ services:
       db:
         condition: service_healthy
 
+  # Verschlüsselte Sicherung außer Haus (restic über rclone, z. B. nach Google Drive).
+  # Startet nicht mit „up“, sondern nur über offsite-backup.sh (docker compose run --rm offsite …).
+  offsite:
+    profiles: [tools]
+    build:
+      dockerfile_inline: |
+        FROM alpine:3.22
+        RUN apk add --no-cache restic rclone ca-certificates tzdata
+    image: dominion-offsite
+    security_opt:
+      - no-new-privileges:true
+    env_file: backup.env
+    environment:
+      TZ: Europe/Berlin
+      RCLONE_CONFIG: /config/rclone.conf
+    volumes:
+      # Nur lesend: neuester Dump, Uploads und die Konfiguration
+      - db_backups:/data/db:ro
+      - uploads:/data/uploads:ro
+      - ./.env:/data/config/env:ro
+      # rclone.conf (das Token wird von rclone erneuert, daher schreibbar) und restic-Cache
+      - ./rclone:/config
+      - restic_cache:/root/.cache/restic
+      # für Wiederherstellungen: restic restore … --target /restore
+      - ./restore:/restore
+
 networks:
   proxy:
     external: true
@@ -96,3 +123,4 @@ volumes:
   db_data:
   uploads:
   db_backups:
+  restic_cache:

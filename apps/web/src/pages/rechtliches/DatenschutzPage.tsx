@@ -37,6 +37,16 @@ function DatenschutzPageDe() {
           Abs. 1 lit. f DSGVO) und werden nach kurzer Zeit überschrieben. Zum Schutz vor Missbrauch
           werden Anmeldeversuche je IP-Adresse kurzzeitig gezählt.
         </p>
+        <p>
+          Zum Schutz vor Datenverlust liegt eine Sicherungskopie der Datenbank und der Profilbilder
+          zusätzlich in einem Cloud-Speicher von Google (Google Drive; Google Ireland Limited,
+          Gordon House, Barrow Street, Dublin 4, Irland). Sie wird auf unserem Server verschlüsselt,
+          bevor sie ihn verlässt; den Schlüssel hat nur der Betreiber, Google kann die Inhalte nicht
+          lesen. Eine Speicherung auf Servern außerhalb der EU, etwa in den USA, ist dabei nicht
+          ausgeschlossen; Google ist nach dem EU-US Data Privacy Framework zertifiziert.
+          Rechtsgrundlage ist das berechtigte Interesse an einem sicheren Betrieb (Art. 6 Abs. 1
+          lit. f DSGVO).
+        </p>
       </Section>
 
       <Section title="Spielerkonto">
@@ -122,8 +132,9 @@ function DatenschutzPageDe() {
           </li>
           <li>
             Sicherungskopien der Datenbank werden täglich erstellt und nach 7 Tagen (täglich), 4
-            Wochen (wöchentlich) bzw. 6 Monaten (monatlich) gelöscht. Gelöschte Daten verschwinden
-            spätestens nach dieser Frist auch aus den Sicherungen.
+            Wochen (wöchentlich) bzw. 6 Monaten (monatlich) gelöscht; das gilt auch für die
+            verschlüsselte Kopie bei Google. Gelöschte Daten verschwinden spätestens nach dieser
+            Frist auch aus den Sicherungen.
           </li>
         </ul>
       </Section>

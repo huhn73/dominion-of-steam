@@ -23,3 +23,7 @@ apps/server/uploads/
 
 # KI-Simulation: Rohdaten der Läufe
 packages/sim/results/
+
+# Betrieb: Zugangsdaten der Sicherung
+deploy/backup.env
+deploy/rclone/
